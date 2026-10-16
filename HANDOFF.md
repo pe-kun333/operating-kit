@@ -1,10 +1,11 @@
 # HANDOFF（再開用のメモ）
 
-- 更新：2026-10-17。利用者の願い「段階②前後から Fable に主作業を任せ、Fable・Opus が自由に考察・発想・分析しやすいよう型の構成を直したい」について、次をした（作業枝 `claude/free-ideation-a-standard`。main には入れていない）。
+- 更新：2026-10-17。利用者の願い「段階②前後から Fable に主作業を任せ、Fable・Opus が自由に考察・発想・分析しやすいよう型の構成を直したい」について、次をした（作業枝 `claude/free-ideation-a-standard`。PR #2 で main に入れた）。
   - 型をレビューした（観点 6 体と、Fable・Opus の通し演習 2 体）。結論：「席を (A) に替えるだけでは自由さは増えない」。主担当の考察の置き場と、自分で先に考える道が無かった。
   - 利用者が決めたこと（2026-10-17）：(1) Fable に任せる範囲は段階①-2〜②-2。(2) 段階②-1 と ②-2 は別セッションのまま。(A) でも別のモデルの疑いを一回は入れる。(3) 規則は「必ず」から「照らして書く」に下げる。(4) 改善案の 1〜4（食い違いの直し、主担当が考える道、ワークフローの力、事務の機械化）を入れる。
   - 入れたもの：工程 18（下の §1）。文書の三層化（P13）と、本番の走り（P14）はまだ。
-  - 作業枝を origin に push した（利用者の指示。main には入れていない。PR も作っていない）。プラグインの版を 0.4.0 に上げた（plugin.json と README。利用者の指示）。main に入れる許しは、まだ無い。入れると、claude.ai の marketplace の自動同期で、版が上がった中身が届く。
+  - プラグインの版を 0.4.0 に上げた（plugin.json と README。利用者の指示）。作業枝を origin に push し、PR #2（https://github.com/pe-kun333/operating-kit/pull/2）を作って、main にマージした（利用者の指示、2026-10-17。merge コミット）。claude.ai の marketplace の自動同期で、0.4.0 が届く（届くかの確かめは §3 の 1）。
+  - 別の写し：利用者の `Downloads\claude code operation kits\operating-kit` に、同じ名前の枝で、main の `bc7ed34` の上に未コミットの別の系統の直しがある（20 ファイルが、この枝と違う）。このメモを書いた時点では、中身は見ていない。どちらを正にするかは、利用者が決める。
 - 前の更新（2026-10-16 18:00 UTC ごろ）。利用者の問い「この型を別の自分のアカウントでも多くのセッションに適用しやすくする方法」について、三つをした。
   - 調べものの主張を確かめ直した。
   - 答えを書いた：`dev/research/2026-10-16-multi-account-answer.md`。
@@ -14,7 +15,7 @@
   - 上限を 18 体にした（consult.js・survey.js は 10 のまま）。
   - ふつうの計画は、どの周も 6 観点。既定の観点に「極端にする」「ほかの立場」を足した。
   - プラグインの版は 0.3.0。
-- 次は、別のアカウントで claude.ai に marketplace を足し、0.3.0 が届くかを確かめること（§3 の 1）。
+- 次は、別のアカウントで claude.ai に marketplace を足し、0.4.0 が届くかを確かめること（§3 の 1）。
 - リポジトリ：`pe-kun333/operating-kit`。作業枝：`claude/free-ideation-a-standard`（前の作業枝は `claude/amazing-goldberg-34ipb3`）。PR：https://github.com/pe-kun333/operating-kit/pull/1（2026-10-16 に main へマージ。merge コミットで入れたので、このメモにあるコミットの番号は main でも引ける）。
 - これからの直しは、main から作業枝を作り直して進める。main に入れるのは、利用者の許しのあとだけ。main に入れるときは、plugin.json と README の版を上げる。
 - このメモを最後に書いたセッション：https://claude.ai/code/session_01BigekiHYHBzGoW22RnwsDh。その前：https://claude.ai/code/session_01RPcGoX7kR34K2kB8TDGSKX、さらに前の引き継ぎ：https://claude.ai/code/session_01PQRoCf3cD7JN35oxnMjeqS
@@ -52,7 +53,7 @@
 | 15 | PR #1 を main にマージする（利用者の指示。HANDOFF.md と dev/ は残す。merge コミット） | 済み | `4907ea5`・merge `d9a6fd9` |
 | 16 | ideate.js の体数（利用者の案）。(1) 上限 18 体（`MAX_AGENTS`）。一度に起こす観点は 6 のまま（`MAX_RUN`。doubt が false なら 8）。照らす・伸ばす疑うは、8 案ずつの塊で 6 ずつまで。(2) 既定の観点を 6 つに（極端にする・ほかの立場 を足し、LENSES の並びを入れ替えた）。(3) CLAUDE.md のひな形・main-agent・prompts・principles・SKILL.md の書き方を直した（ふつうの計画は一周 6 観点で二周以上。consult.js・survey.js は 10 体のまま）。(4) プラグインの版 0.3.0。(5) dev/check.sh：模擬で体数も見る（既定 12 体、6 観点 × 8 案で 18 体、doubt なし 8 観点で 16 体、3 観点で 7 体、7 観点は止まる） | 済み | `2d10da9` |
 | 17 | ideate.js の体数の直しを main に入れる（利用者の指示。PR は作らず、main を作業枝の先へ fast-forward） | 済み | このメモを直したコミット |
-| 18 | 利用者の願い（上位のモデルが主担当で、自由に考察・発想・分析しやすく）に沿った直し（レビューの P1〜P12）。(1) 関わり方 (A) を段階①-2・②-1・②-2 の標準に（相談役の定義、①-2 の行、§1.5 を「止まった段階を続ける」一言に、止まったあとの扱い）。(2) 考察と判定の境（芯 9 に追記）、考察ノート（ideas/notes.md、map/notes.md）、主担当の先出し（ideate.js の `mainIdeas`）、規則を「必ず」から「照らして書く」に、広げる相に読ませないものを白名簿に。(3) ideate.js：`why`・`aside`・`more`・上限 12 案、`synth`（つなぐ一体）、`lensModels`・`readOnly`、`deepen`・`chain`、fresh を null にする条件、伸ばす・疑う相に全案を見せる。consult.js：`form: 'analysis'`、検査。survey.js：agentType・検査。(4) `tools/ideas-table.mjs`（extract・table・known）、push の間合い、試しの scratchpad。(5) dev/check.sh の持ち運び（Windows の python、`dev/syntax-check.mjs`）と、新しいケース。独立点検（opus・fable）で出た問題も直した | 済み。`bash dev/check.sh` 全部とおった（§6） | この作業枝（`git log main..`） |
+| 18 | 利用者の願い（上位のモデルが主担当で、自由に考察・発想・分析しやすく）に沿った直し（レビューの P1〜P12）。(1) 関わり方 (A) を段階①-2・②-1・②-2 の標準に（相談役の定義、①-2 の行、§1.5 を「止まった段階を続ける」一言に、止まったあとの扱い）。(2) 考察と判定の境（芯 9 に追記）、考察ノート（ideas/notes.md、map/notes.md）、主担当の先出し（ideate.js の `mainIdeas`）、規則を「必ず」から「照らして書く」に、広げる相に読ませないものを白名簿に。(3) ideate.js：`why`・`aside`・`more`・上限 12 案、`synth`（つなぐ一体）、`lensModels`・`readOnly`、`deepen`・`chain`、fresh を null にする条件、伸ばす・疑う相に全案を見せる。consult.js：`form: 'analysis'`、検査。survey.js：agentType・検査。(4) `tools/ideas-table.mjs`（extract・table・known）、push の間合い、試しの scratchpad。(5) dev/check.sh の持ち運び（Windows の python、`dev/syntax-check.mjs`）と、新しいケース。独立点検（opus・fable）で出た問題も直した | 済み。`bash dev/check.sh` 全部とおった（§6） | PR #2（5 コミット。main には merge コミットで入った） |
 
 いまの型の段階と、最初の版（`ba8f04d`）からの違いは、前のセッションの最後の答えにまとめた（要点：段階が五つ、①-1 は 〈中〉、①-2 は map/、②-1 は手順・ideate.js・目隠し・測れる終わりの目安・二周・掘る方向、②-2 は判定の表と見送りの台帳、③ は前提の誤りを戻す、型の芯は 9 項）。
 
@@ -87,7 +88,7 @@
 | 1 | 別のアカウントで、答えの §3.2 と §4 を確かめる。(a) claude.ai に marketplace を足す。`workflows` 欄（Claude Code だけの欄）があっても断られないか。資料の部品の表に workflows は無い。断られる部品として挙がっているのは `bin/` だけ。(b) 新しいクラウドのセッションで `claude plugin list` を見て、`operating-kit@synced` が出るか。(c) `/operating-kit:consult` などの名前で呼べるか。(d) 出なければ、README の setup script を入れ、`operating-kit@skills-dir` が出るか。(e) clone が通るか。足す・確かめるのは、利用者がそのアカウントで行うか、そのアカウントのセッションで主担当が行う | 利用者、または主担当 |
 | 2 | 本番の走り：実際のリポジトリで、段階①-1（survey.js）→ ①-2 → ②-1（ideate.js、6 観点・二周以上）→ ②-2 を通して回す（まだ一度もしていない）。今度は関わり方 (A) ＋ 工程 18 の直しで。物差し：(1) `counts.main.unique`（先出しの案のうち、広げた案と重ならなかった数）、(2) 主担当の時間のうち、事務と考察の割合、(3) 摩擦のメモ、(4) 先出しありと、ワークフローだけの案の一覧を、利用者が目隠しで読み比べる | 主担当（Fable 5.1。段階①-2〜②-2）。段階①-1 と照らす相は 〈中〉（Sonnet 5.5）、検討担当・(A) の相談役は 〈主〉（Opus 5.5） |
 | 3 | 正本（honeycomb-browser-grok の `docs/operating-kit/`）へ写す。利用者は「後で」と答えた。正本はこのセッションのリポジトリには無い（10/14 の zip だけ）。写すときは、正本の build.py が組み立てる plugin.json にも、三つを入れる：version、`workflows` 欄、scripts の meta.name（consult・ideate・survey）。入れないと、組み立て直したときに消える。工程 18 で足した `tools/ideas-table.mjs`（入れる先の `docs/operating-kit/tools/` に写る）も、build.py に足す | 利用者が時期と正本の場所を決めてから、主担当 |
-| 4 | 作業枝 `claude/free-ideation-a-standard` を main に入れる（利用者の許しのあと。版は 0.4.0 に上げてある。入れると自動同期で届く。PR の要否は利用者に聞く） | 利用者、主担当 |
+| 4 | （済み）作業枝 `claude/free-ideation-a-standard` を PR #2 で main に入れた（2026-10-17。版は 0.4.0）。残り：Downloads の別の写しとの食い違いを、利用者が決める | 利用者、主担当 |
 | 5 | 文書の三層化（核・段階の手引き・参照）と、HANDOFF を「今」と「履歴」に分けること（レビューの P13。芯 1・6 に触れうる）。本番の走りのあとで決める | 利用者が決めてから、主担当 |
 
 モデルの呼び名は、この型を作った時点（2026-10）の例。型の文書の中では 〈小〉〈中〉〈主〉〈上〉 で書いてある。
