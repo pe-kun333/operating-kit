@@ -12,6 +12,16 @@
 
 ## 0. 結論
 
+> **利用者の選び（2026-10-16）**：道 C。§5 の足し算は「scripts を workflows/ にも置く」だけ。
+> 作業枝に、そのための直しを入れた。
+> - plugin.json：version を 0.2.0 に上げ、`workflows` 欄（`./skills/operating-kit/scripts/` を指す。写しは作らない）を足した。
+> - scripts の meta.name を consult・ideate・survey にした。
+> - README：入れ方を C の手順に直し、クラウドに届かないときの setup script を足した。
+> - SKILL.md：呼び名を書き足した。
+> - dev/check.sh：プラグインの形の確かめを足した。
+>
+> PR #1 を main に入れるのは、利用者が決める（まだ入れていない）。
+
 **おすすめ：claude.ai のアカウントに、プラグインとして足す（下の道 C）。**
 
 - 別のアカウントごとに一度、claude.ai の Customize > Plugins > Add > Add marketplace に `pe-kun333/operating-kit` を入れ、Sync automatically を入れる。
@@ -107,7 +117,7 @@ exit 0
 ## 4. まだ確かめていないこと（別のアカウントで確かめる）
 
 - C：claude.ai で足したプラグインが、クラウドのセッションで読まれるか（3.2 の 3）。
-- C：claude.ai の Add marketplace が読む枝（既定の枝と見ている）。version を上げないとき、claude.ai 側で更新が届くか。
+- C：claude.ai の Add marketplace が読む枝（既定の枝と見ている）。version を上げないとき、claude.ai 側で更新が届くか。plugin.json の `workflows` 欄（Claude Code だけの欄）があっても、claude.ai が断らないか。資料で「入れられない」とされるのは `bin/` だけ。
 - D：setup script での git clone が、セッションに付いていないリポジトリで通るか。setup script で置いたプラグインが読まれるか（置き場所は試しと同じなので、読まれる見込み）。
 - 型の Workflow（`scripts/*.js`）が、synced や skills-dir のプラグインの中から、scriptPath で走るか。置き場所が `~/.claude/plugins/…` か `~/.claude/skills/…` に変わるので、SKILL.md の書き方で足りるかを見る。
 - 合図の語が、claude.ai/code のクラウドのセッションへの発言で効くか（資料の一覧に無い）。

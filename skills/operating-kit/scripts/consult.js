@@ -1,5 +1,5 @@
 export const meta = {
-  name: 'operating-kit-consult',
+  name: 'consult',
   description: '一つの論点を、観点ごとに読み取り専用で相談する（相談役・検討担当）',
   whenToUse: '相談の手続きの 2（段階③ で利用者が合図の語を送った論点）、関わり方 (B)(C)、検討担当にまとまった案を疑わせる・絞る観点で見させるとき（段階②-1 で案を広げるのは ideate.js。段階③ と段階の外で名指しの論点を広げるなら、相談役で観点を blind にする）',
   phases: [{ title: '相談', detail: '観点ごとに一体。読み取り専用で、結論と根拠だけを返す' }],

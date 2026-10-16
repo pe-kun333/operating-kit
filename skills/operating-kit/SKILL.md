@@ -5,8 +5,8 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 # 運用の型（operating-kit）
 
-- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し、案の一覧と見送りの台帳、照らす相と段階①-1 のモデル 〈中〉、段階①-1 の材料の種類（事例・場面・類推・引っかかり・周辺、外の資料の許し）、段階①-2 の地図と一覧（map/）、必ず入れる案の種類、捨てる前提の試し（〈試しの枝〉）、段階③ の前提の誤り、掘る方向の問い、段階②-1 の関わり方の既定 (B)）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
-- 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談・発想・下調べのワークフローは `scripts/`（consult.js・ideate.js・survey.js）。
+- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し、案の一覧と見送りの台帳、照らす相と段階①-1 のモデル 〈中〉、段階①-1 の材料の種類（事例・場面・類推・引っかかり・周辺、外の資料の許し）、段階①-2 の地図と一覧（map/）、必ず入れる案の種類、捨てる前提の試し（〈試しの枝〉）、段階③ の前提の誤り、掘る方向の問い、段階②-1 の関わり方の既定 (B)、プラグインの版 0.2.0 と、scripts をプラグインのワークフローとして呼べるようにしたこと（plugin.json の `workflows` 欄、meta.name を consult・ideate・survey に））を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
+- 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談・発想・下調べのワークフローは `scripts/`（consult.js・ideate.js・survey.js）。プラグインとして入っていれば、この三つは `/operating-kit:consult`・`/operating-kit:ideate`・`/operating-kit:survey` の名前でも呼べる（args は scriptPath で渡すときと同じ。起こしてよいのも同じく、合図の語で許されたときだけ）。
 - このファイルの中のパス（`assets/…` など）は、このスキルのフォルダからの道。
 
 ## この型は何か
