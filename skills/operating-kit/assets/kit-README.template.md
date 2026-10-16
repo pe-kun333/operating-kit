@@ -27,6 +27,7 @@
 |---|---|
 | `CLAUDE.template.md`・`main-agent.template.md`・`HANDOFF.template.md` | 決まり・主担当の進め方・再開用のメモのひな形（入れたときの元。今の決まりは CLAUDE.md・docs/main-agent.md・HANDOFF.md） |
 | `spec.template.md` | 実装担当に渡す仕様のひな形（使うたびに `docs/wip/<日付>/specs/<名前>.md` へ写す） |
+| `map-index.template.md` | 段階①-2 の地図と一覧のひな形（使うたびに `docs/wip/<①-1 を始めた日>/map/README.md` へ写す。切り口ごとの地図、部分の候補、観点の一覧 lenses.json、問いの一覧、制約の一覧 constraints.md） |
 | `ideas-index.template.md` | 段階②-1 の案の一覧のひな形（使うたびに `docs/wip/<②-1 を始めた日>/ideas/README.md` へ写す。判定の表は段階②-2 が書く） |
 | `wip-index.template.md` | 段階①-1 の索引のひな形（使うたびに `docs/wip/<日付>/README.md` へ写す） |
 | `prompts.md` | 段階ごとに新しいセッションへ貼る一言、移るときの言葉、合図の早見、ワークフローの渡し方 |
