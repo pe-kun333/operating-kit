@@ -5,7 +5,11 @@
   - 答えを書いた：`dev/research/2026-10-16-multi-account-answer.md`。
   - 利用者が選んだ道 C（claude.ai のアカウントに marketplace を足す）と、足し算（scripts を workflows として呼べるように）を、作業枝に入れた。
 - 利用者の指示（2026-10-16）で、PR #1 を main にマージした。HANDOFF.md と dev/ は残したまま。
-- 次は、別のアカウントで claude.ai に marketplace を足し、届くかを確かめること（§3 の 1）。
+- そのあと（2026-10-16 18:30 UTC ごろ）、利用者の案で、発想のワークフロー ideate.js の体数を変えた（作業枝。main にはまだ入れていない）。
+  - 上限を 18 体にした（consult.js・survey.js は 10 のまま）。
+  - ふつうの計画は、どの周も 6 観点。既定の観点に「極端にする」「ほかの立場」を足した。
+  - プラグインの版は 0.3.0。
+- 次は、二つ。この直しを main に入れるかを利用者が決めること（§4）。別のアカウントで claude.ai に marketplace を足し、届くかを確かめること（§3 の 1）。
 - リポジトリ：`pe-kun333/operating-kit`。作業枝：`claude/amazing-goldberg-34ipb3`。PR：https://github.com/pe-kun333/operating-kit/pull/1（2026-10-16 に main へマージ。merge コミットで入れたので、このメモにあるコミットの番号は main でも引ける）。
 - これからの直しは、main から作業枝を作り直して進める。main に入れるのは、利用者の許しのあとだけ。main に入れるときは、plugin.json と README の版を上げる。
 - このメモを最後に書いたセッション：https://claude.ai/code/session_01BigekiHYHBzGoW22RnwsDh。その前：https://claude.ai/code/session_01RPcGoX7kR34K2kB8TDGSKX、さらに前の引き継ぎ：https://claude.ai/code/session_01PQRoCf3cD7JN35oxnMjeqS
@@ -13,7 +17,7 @@
 
 ## 0. 引き継ぐ人へ（最初にすること）
 
-1. `git fetch origin main` → `git checkout main` → `git pull origin main`。`git status` が空であること。直すときは、main から作業枝を作る。
+1. `git fetch origin main` → `git checkout main` → `git pull origin main`。`git status` が空であること。直すときは、main から作業枝を作る。ただし、作業枝 `claude/amazing-goldberg-34ipb3` に、main にまだ入れていない直し（ideate.js の体数。§2）がある。それを続けるとき、または main に入れるときは、その作業枝を pull する。
 2. このファイルを読み、§3 の 1 から続ける。
 3. 確かめの道具：`bash dev/check.sh`（§5）。node と python3 だけで動く。
 4. 前のセッションのコンテナ（/tmp・/root/.claude の下）は残らない見込み。要るものは `dev/` に写してある。
@@ -40,7 +44,8 @@
 | 12 | 調べものの主張 84 件を、公式の資料の原文（44 ページを落として）で確かめ直す。確かめ役 2 体（claude-code-guide）と、主担当の直接の照らしと、この VM での試し | 済み：確か 68・一部 16・違う 0。結果は `dev/research/2026-10-16-multi-account.json` の `verified` | `bdc8d30` |
 | 13 | 利用者への答え：別のアカウントの多くのセッションに当てはめる道を比べ、おすすめを一つ | 済み：`dev/research/2026-10-16-multi-account-answer.md`（おすすめは道 C） | `bdc8d30` |
 | 14 | 利用者が選んだ道 C と足し算「scripts を workflows として呼べるように」を形にする。中身は四つ。(1) plugin.json：version 0.2.0、`workflows` 欄（`./skills/operating-kit/scripts/`）。(2) scripts の meta.name を consult・ideate・survey に。(3) README の入れ方（claude.ai に足す手順、CLI と版、クラウドに届かないときの setup script、`.skill` の行を外す）。(4) SKILL.md の呼び名と版の注、dev/check.sh の 5（プラグインの形） | 済み。`claude plugin validate` が通る。`~/.claude/skills/operating-kit` に置くと 0.2.0 として loaded（試しのあと消した） | `b235a50` |
-| 15 | PR #1 を main にマージする（利用者の指示。HANDOFF.md と dev/ は残す。merge コミット） | 済み | このメモを直したコミットと、その merge コミット |
+| 15 | PR #1 を main にマージする（利用者の指示。HANDOFF.md と dev/ は残す。merge コミット） | 済み | `4907ea5`・merge `d9a6fd9` |
+| 16 | ideate.js の体数（利用者の案）。(1) 上限 18 体（`MAX_AGENTS`）。一度に起こす観点は 6 のまま（`MAX_RUN`。doubt が false なら 8）。照らす・伸ばす疑うは、8 案ずつの塊で 6 ずつまで。(2) 既定の観点を 6 つに（極端にする・ほかの立場 を足し、LENSES の並びを入れ替えた）。(3) CLAUDE.md のひな形・main-agent・prompts・principles・SKILL.md の書き方を直した（ふつうの計画は一周 6 観点で二周以上。consult.js・survey.js は 10 体のまま）。(4) プラグインの版 0.3.0。(5) dev/check.sh：模擬で体数も見る（既定 12 体、6 観点 × 8 案で 18 体、doubt なし 8 観点で 16 体、3 観点で 7 体、7 観点は止まる） | 済み（作業枝。main には未） | このメモを直したコミット |
 
 いまの型の段階と、最初の版（`ba8f04d`）からの違いは、前のセッションの最後の答えにまとめた（要点：段階が五つ、①-1 は 〈中〉、①-2 は map/、②-1 は手順・ideate.js・目隠し・測れる終わりの目安・二周・掘る方向、②-2 は判定の表と見送りの台帳、③ は前提の誤りを戻す、型の芯は 9 項）。
 
@@ -49,6 +54,7 @@
 | 工程 | 枝 | 状態 |
 |---|---|---|
 | 利用者の問い「この型を別の自分のアカウントでも、多くのセッションに適用しやすくする方法」 | main（PR #1 でマージ済み） | 答えを書き、利用者の選び（道 C と workflows）を形にし、main に入れた。残りは、別のアカウントでの確かめ（§3 の 1） |
+| ideate.js の体数（上限 18 体、どの周も 6 観点。利用者の案） | 作業枝 `claude/amazing-goldberg-34ipb3`（main から作り直した上） | 直した。`bash dev/check.sh` が通る。main に入れるかは利用者が決める（§4） |
 
 - 答え：`dev/research/2026-10-16-multi-account-answer.md`。
   - おすすめは道 C：別のアカウントの claude.ai の Customize > Plugins に、marketplace `pe-kun333/operating-kit` を足す。
@@ -79,10 +85,14 @@
 
 ## 4. 未決の判断事項（利用者が決める）
 
-- **プラグインの版**：0.2.0 で main に入れた。この先、main に入れるたびに上げるか、version を省いて commit で追わせるか。いまは「上げる」。claude.ai 側の版の見方は資料に無い。
+- **ideate.js の体数の直し（0.3.0）を main に入れるか**：作業枝にある（§1 の 16）。入れると、claude.ai に足したアカウントには、Sync automatically で届く。
+- **クラウドのセッションの、同時に動く体数**：同時の数は CPU の数で減る（資料）。この VM は 4 CPU なので、同時に動くのは 2 体ほどと見込まれる。そうなら、18 体の周は待ち時間が長くなる。
+  - 環境の変数 `CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS`（1〜256）で上げられると、資料にある。
+  - 試していない。上げるかどうかと、いくつにするかは、利用者が決める。
+- **プラグインの版**：0.2.0 で main に入れた（作業枝は 0.3.0）。この先、main に入れるたびに上げるか、version を省いて commit で追わせるか。いまは「上げる」。claude.ai 側の版の見方は資料に無い。
 - **正本へ写す時期と、正本の場所**（§3 の 3）。
 
-決めたこと（参考）：PR #1 を main にマージする。HANDOFF.md と dev/ は残す（2026-10-16。marketplace の source が `./` なので、プラグインの中にも入るが、読まれはしない）。別のアカウントへは道 C（claude.ai のアカウントに marketplace を足す）。足し算は scripts を workflows として呼べるようにすることだけ（2026-10-16）。ふつうの計画は一周 4 観点で二周以上（2026-10-16）。正本へは後で写す（2026-10-16）。段階①-1 は 〈中〉（2026-10-16。前の比べの試しでは差が小さかったが、利用者の決め）。
+決めたこと（参考）：PR #1 を main にマージする。HANDOFF.md と dev/ は残す（2026-10-16。marketplace の source が `./` なので、プラグインの中にも入るが、読まれはしない）。別のアカウントへは道 C（claude.ai のアカウントに marketplace を足す）。足し算は scripts を workflows として呼べるようにすることだけ（2026-10-16）。ふつうの計画は、どの周も 6 観点で二周以上。ideate.js だけ上限 18 体、既定の観点に 極端にする・ほかの立場 を足す（2026-10-16。前の「一周 4 観点」を替えた）。正本へは後で写す（2026-10-16）。段階①-1 は 〈中〉（2026-10-16。前の比べの試しでは差が小さかったが、利用者の決め）。
 
 ## 5. ビルドとテストのコマンド
 
@@ -92,11 +102,16 @@
 bash dev/check.sh
 ```
 
-中身：(1) `node --check skills/operating-kit/scripts/*.js`、(2) ひな形の 〈〉 が `references/placeholders.md` の表にあるか、(3) 型の文書とスクリプトにモデル名が無いか、(4) 模擬の agent()（`dev/workflow-harness.mjs`）で ideate.js・survey.js・consult.js を 8 通り動かす（通るはずのものと、止まるはずのもの）、(5) プラグインの形（plugin.json の版と README の版が同じ、`workflows` 欄のフォルダがある、scripts の meta.name がファイル名と同じ。`claude` があれば `claude plugin validate` を plugin.json と marketplace に）。
+中身：(1) `node --check skills/operating-kit/scripts/*.js`、(2) ひな形の 〈〉 が `references/placeholders.md` の表にあるか、(3) 型の文書とスクリプトにモデル名が無いか、(4) 模擬の agent()（`dev/workflow-harness.mjs`）で ideate.js・survey.js・consult.js を 12 通り動かす（通るはずのものと、止まるはずのもの。ideate.js は体数も見る。case.json の `ideasPerLens` で、広げる一体が返す案の数を変えられる）、(5) プラグインの形（plugin.json の版と README の版が同じ、`workflows` 欄のフォルダがある、scripts の meta.name がファイル名と同じ。`claude` があれば `claude plugin validate` を plugin.json と marketplace に）。
 
 模擬の仕組みを一つだけ使うとき：`node dev/workflow-harness.mjs skills/operating-kit/scripts/ideate.js <case.json>`（case.json は `{"args": {...}, "fail": ["ラベルの一部"], "showPrompts": true}`）。
 
 ## 6. 最後に通った確かめ
+
+- 2026-10-16 18:30 UTC ごろ、ideate.js の体数の直しの上で（このメモを直したコミットと同じ中身）、`bash dev/check.sh`：全部とおった。
+  - 4 の模擬は 12 通り。ideate.js の体数は、既定 6 観点で 12 体、6 観点 × 8 案で 18 体（広げる 6・照らす 6・伸ばす疑う 6。48 案が 8 案ずつの 6 塊に入り、照らされない案は 0）、doubt なし 8 観点 × 8 案で 16 体、3 観点で 7 体。7 観点は止まる。
+  - 5：版 0.3.0。
+- 本物の Workflow での走りは、まだ（§3 の 2）。
 
 - 2026-10-16 17:50 UTC ごろ、道 C の直しの上で（このメモを直したコミットと同じ中身）、`bash dev/check.sh`：全部とおった。
   - 1〜4 は下と同じ。

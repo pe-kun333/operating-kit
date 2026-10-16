@@ -1,6 +1,6 @@
 // Workflow スクリプトを node で確かめるための模擬の仕組み。
 // 使い方：node harness.mjs <script.js> <case.json>
-// case.json：{ args, fail?: [label の部分文字列], throwFor?: [...] }
+// case.json：{ args, fail?: [label の部分文字列], throwFor?: [...], ideasPerLens?: 広げる一体が返す案の数（既定 4） }
 import { readFileSync } from 'node:fs'
 
 const [, , scriptPath, casePath] = process.argv
@@ -22,7 +22,7 @@ function fakeFor(prompt, opts) {
     const lens = (opts.label || '').split(':')[1] || '?'
     const kinds = s.properties.ideas.items.properties.kind.enum
     return {
-      ideas: [0, 1, 2, 3].map((i) => ({ title: `${lens}の案${i + 1}`, what: `${lens} ${i + 1}`, scene: '場面', touches: '面', kind: kinds[i % kinds.length], ...(s.properties.ideas.items.properties.parts ? { parts: [s.properties.ideas.items.properties.parts.items.enum[i % s.properties.ideas.items.properties.parts.items.enum.length]] } : {}) })),
+      ideas: Array.from({ length: tc.ideasPerLens || 4 }, (_, i) => i).map((i) => ({ title: `${lens}の案${i + 1}`, what: `${lens} ${i + 1}`, scene: '場面', touches: '面', kind: kinds[i % kinds.length], ...(s.properties.ideas.items.properties.parts ? { parts: [s.properties.ideas.items.properties.parts.items.enum[i % s.properties.ideas.items.properties.parts.items.enum.length]] } : {}) })),
       thin: lens === '問いを変える',
       questions: [`${lens}の問い`],
     }

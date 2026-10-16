@@ -17,8 +17,13 @@ print('表に無い 〈〉:', sorted(bad) or 'なし'); sys.exit(1 if bad else 0
 PY
 echo '== 3. モデル名'; if grep -rn -i 'opus\|sonnet\|haiku\|fable' $K/assets $K/references/prompts.md $K/references/principles.md $K/scripts; then fail=1; else echo 'なし'; fi
 echo '== 4. 模擬'; T=$(mktemp -d)
-run() { echo "$2" > "$T/tc.json"; node dev/workflow-harness.mjs "$K/scripts/$1" "$T/tc.json" | python3 -c "import json,sys; d=json.load(sys.stdin); ok=d['ok']==('$3'=='ok'); print(('ok ' if ok else 'NG ')+'$1', d.get('error') or ('agents=%d'%d['agents'])); sys.exit(0 if ok else 1)" || fail=1; }
-run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","background":"x","parts":["a","b"]}}' ok
+# run <script> <case> <ok|ng> [体数]：体数を書いたときは、その数で動くことも見る
+run() { echo "$2" > "$T/tc.json"; node dev/workflow-harness.mjs "$K/scripts/$1" "$T/tc.json" | python3 -c "import json,sys; d=json.load(sys.stdin); ok=d['ok']==('$3'=='ok') and ('${4:-}'=='' or d['agents']==int('${4:-0}')); print(('ok ' if ok else 'NG ')+'$1', d.get('error') or ('agents=%d'%d['agents'])+('（期待 ${4:-}）' if '${4:-}' else '')); sys.exit(0 if ok else 1)" || fail=1; }
+run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","background":"x","parts":["a","b"]}}' ok 12
+run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s"},"ideasPerLens":8}' ok 18
+run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","lenses":["使う人の場面","逆にする","ほかから借りる","制約を一つ外す","極端にする","ほかの立場","組み合わせる"]}}' ng
+run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","doubt":false,"lenses":["使う人の場面","逆にする","ほかから借りる","制約を一つ外す","極端にする","ほかの立場","組み合わせる","時間をずらす"]},"ideasPerLens":8}' ok 16
+run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","lenses":["使う人の場面","逆にする","ほかから借りる"]}}' ok 7
 run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","round":2,"known":["R1-L1-1 案"],"lenses":["作らずに済ませる",{"key":"k","ask":"a","read":["map/constraints.md"]}]}}' ok
 run ideate.js '{"args":{"topic":"t","model":"m"}}' ng
 run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","read":["map/constraints.md"]}}' ng

@@ -27,7 +27,7 @@ export const meta = {
 //                  （一周目は観点の read にも入れない。制約は段階②-2 の判定で当てる。constraints.md を読ませない観点には、指示文でも読まないと伝える）
 //   parts          対象の部分の一覧（任意。段階①-2 の地図と一覧の「部分の候補」から選ぶ。地図に無い切り口は主担当が材料から立てる）。
 //                  渡すと、案ごとにどの部分に効くかを必ず返させ、網羅を部分で測る
-//   lenses         観点の一覧（下の LENSES の数まで。今は 11）。段階①-2 の lenses.json の { key, ask } も、そのまま入れてよい。文字列は下の LENSES の名前、{ key, ask, read? } はそのまま使う。省くと一周目の既定の四つ。
+//   lenses         観点の一覧（下の LENSES の数まで。今は 11）。段階①-2 の lenses.json の { key, ask } も、そのまま入れてよい。文字列は下の LENSES の名前、{ key, ask, read? } はそのまま使う。省くと一周目の既定の六つ。
 //                  一周目は、対象の部分を観点にしたもの（{ key, ask }）と発想の型を半分ずつほど混ぜるとよい。ask に答えの例を書かない
 //   only           起こす観点の名前の一覧（任意）。空だった観点だけを頼み直すときと、観点を二回に分けるとき。
 //                  lenses は元と同じ並びで、round・parts・known も元と同じに渡す（id が変わらない）。返す値は、同じ周の二回目からは raw-R<周>-2.json・-3.json と番号を上げて写す（二回に分けた一回目は raw-R<周>.json。上書きしない）
@@ -41,8 +41,8 @@ export const meta = {
 //   doubt          false なら伸ばす・疑う相を起こさない（任意。既定 true。false なら一度に起こせる観点が 8 まで増える）
 //
 // 体数：広げるは観点ごとに一体（一度に 6 観点まで。doubt が false なら 8）。照らす（と伸ばす・疑う）は、案を数で均等に分けた塊ごとに一体ずつ。
-//   塊の数は、上限 10 体から広げるの体数を引いた残りに収まるだけ、かつ一塊 8 案ほど。ふつうは 4 観点で一周 10 体（照らす相・伸ばす疑う相が 3 体ずつ、1 体 5〜11 案ほど）を、二周以上回す。
-//   小さな計画は 3 観点で 5〜9 体。6 観点で起こすと、照らす相の 1 体が 12〜24 案を受け持ち、照らしが薄くなる。
+//   塊の数は一塊 8 案ほどで、上限 18 体から広げるの体数を引いた残りに収まるだけ（6 観点 × 8 案 = 48 案でも 6 塊で、1 体 8 案に収まる）。
+//   ふつうは 6 観点で一周 12〜18 体（1 観点 4〜5 案ほどなら照らす相・伸ばす疑う相が 3〜4 体ずつ）を、二周以上回す。小さな計画は 3 観点で 5〜9 体。
 // 案の id：R<周>-L<観点の番号>-<案の番号>（観点の番号は lenses の並びの位置。例 R2-L1-3）。
 //   主担当が足す案は R<周>-主-<番号>、関わり方 (B) の相談役の案は R<周>-B-<番号>、段階②-2 で足す案は 足-<番号>（docs/main-agent.md §4.1）。
 //
@@ -58,12 +58,14 @@ export const meta = {
 // 返す値にモデル名は入れていない。写すときも、集め方は run ID と役割名で書く。
 // 照らす・伸ばす・疑う相が空だった塊は、同じ args や only で頼み直さない（同じ id に別の案が入る）。docs/main-agent.md §4.2 のとおり主担当が補う。
 
-const MAX_AGENTS = 10 // CLAUDE.md の上限（合図の語（ワークフロー）の節）。変えたら workflows/*.js の上限も直す（一度に起こせる観点の数は、ここから決まる）
+const MAX_AGENTS = 18 // ideate.js だけの上限（CLAUDE.md の合図の語（ワークフロー）の節。consult.js・survey.js は 10）。広げる 6 と、8 案ずつの塊 6 つを照らす 6・伸ばす疑う 6。変えたら CLAUDE.md も直す
+const MAX_RUN = 6 // 一度に起こす観点の数（doubt が false なら MAX_RUN_NO_DOUBT）
+const MAX_RUN_NO_DOUBT = 8
 const PER_CHUNK = 8 // 照らす・伸ばす・疑う一体あたりの案の数の目安
 const KINDS = ['奇抜', 'やめる・減らす', '組み合わせる', '制約を外す', '作らない', 'そのほか'] // 前の五つは、案の一覧に必ず入れる種類（docs/main-agent.md §4.2 の 2）
 const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max']
 
-// 広げる用の観点（発想の型）。前の四つが一周目の既定（ふつうの計画は 4 観点で二周以上。照らす相の 1 体が 8 案ほどに収まるように）。後ろの七つは、二周目などに名前で選ぶ。
+// 広げる用の観点（発想の型）。前の六つが一周目の既定（ふつうの計画は 6 観点で二周以上）。後ろの五つは、二周目などに名前で選ぶ。
 // consult.js の既定の五つ（方向・抜け・別案・危うさ・使う人の目）は、まとまった案を点検する絞る用。
 const LENSES = [
   { key: '使う人の場面', ask: '使う人の具体的な場面（初めて使うとき、毎日使うとき、急いでいるとき、使わない人）を思い描き、そこで助かるものを考える。' },
@@ -71,14 +73,14 @@ const LENSES = [
   { key: 'ほかから借りる', ask: 'ほかの分野・ほかの道具の仕組みで、ここに持ち込めるものを考える。どの分野・どの道具の、どの仕組みかを名指しする（あなたの知っていることから。リポジトリの外は読みに行かない）。' },
   { key: '制約を一つ外す', ask: 'CLAUDE.md の決まり・大きな決めごとの一覧・戻すのが重い層から、制約を一つ選んで外せるとしたら何ができるかを考える。どれを外したかを書く。' },
   { key: '極端にする', ask: '量・数・速さ・範囲を 10 倍・100 倍にする、または全部に広げると何が起きるかを考え、そこから見える案を出す。' },
+  { key: 'ほかの立場', ask: '壊そうとする人・あとで直す人・初めての人のうち一つの立場を選び、その目で見て要るものを考える。選んだ立場を書く。' },
   { key: '組み合わせる', ask: 'このリポジトリに今ある仕組み同士をつなぐと生まれるものを考える。どれとどれかを名指しする。' },
   { key: '時間をずらす', ask: '一日後・一か月後・一年後に、使う人と仕組みがどうなっているかを思い描き、そのときに要るものを考える。' },
   { key: '既知の欠陥から', ask: '既知の欠陥・危うい所・困りごとの記録を起点に、直すだけでなく、それをなくす・生かす案を考える。' },
-  { key: 'ほかの立場', ask: '壊そうとする人・あとで直す人・初めての人のうち一つの立場を選び、その目で見て要るものを考える。選んだ立場を書く。' },
   { key: '問いを変える', ask: '今の問いを別の問いに言い換えると何が要るかを考える。言い換えた問いは questions にも書く。' },
   { key: '作らずに済ませる', ask: '新しく作らずに、使う人が自分でやる・今ある道具や手順で済ませる・決まりや使い方を決めるだけで足りる、という方向で考える。' },
 ]
-const FIRST_ROUND = 4
+const FIRST_ROUND = 6
 
 // ---- args の検査（まちがった値を黙って既定に置き換えない） ----
 if (typeof args === 'string') throw new Error('args は JSON の値で渡す（文字列にしない）')
@@ -113,9 +115,9 @@ if (new Set(known).size !== known.length) throw new Error('args.known に同じ�
 if (args.background !== undefined && typeof args.background !== 'string') throw new Error('args.background は文字列')
 const knownToExpand = args.knownToExpand === true
 const withGrow = args.doubt !== false
-const maxRun = MAX_AGENTS - (withGrow ? 4 : 2) // 照らす（と伸ばす・疑う）に二塊ぶんを残す（上限 10 なら 6・8）
+const maxRun = withGrow ? MAX_RUN : MAX_RUN_NO_DOUBT // 残りの体数（上限 − 観点）で、8 案ずつの塊を照らす（と伸ばして疑う）
 
-if (args.lenses !== undefined && (!Array.isArray(args.lenses) || !args.lenses.length)) throw new Error('args.lenses は観点の配列（省くと一周目の既定の四つ）')
+if (args.lenses !== undefined && (!Array.isArray(args.lenses) || !args.lenses.length)) throw new Error('args.lenses は観点の配列（省くと一周目の既定の六つ）')
 const lenses = (args.lenses || LENSES.slice(0, FIRST_ROUND)).map((l) => {
   if (typeof l === 'string') {
     const found = LENSES.find((x) => x.key === l)
