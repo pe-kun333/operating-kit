@@ -1,7 +1,7 @@
 {
  "run_id": "wf_7722305f-e79",
  "task_id": "w19huics6",
- "status": "調べる四体は答えあり。確かめ役（claims の確かめ直し）は利用制限で失敗（resets 19:30 UTC）。主張はまだ確かめ直していない。",
+ "status": "確かめ直し済み（2026-10-16 17:20 UTC ごろ）。主張 84 件：確か 68・一部 16・違う 0。答えは dev/research/2026-10-16-multi-account-answer.md。",
  "lenses": [
   {
    "lens": "プラグインと marketplace",
@@ -1320,5 +1320,959 @@
    "relevance": "CLI・Desktop の端末なら、型を入れるとき（§1）に extraKnownMarketplaces を足せば、別のアカウントでも、そのリポジトリを開けば足すよう促される。クラウドには効かない。"
   }
  ],
- "verified": null
+ "verified": {
+  "run_id": "wf_14116f9d-bf7",
+  "date": "2026-10-16",
+  "method": "公式の資料 44 ページ（と索引 2 つ）の原文を落とし（code.claude.com の .md、claude.com/docs の .md、support.claude.com を文字にしたもの）、確かめ役 2 体（claude-code-guide）が主張を半分ずつ原文の引用つきで確かめた。主担当は要の主張を原文で直接照らし、この VM で試した（main_checks）。",
+  "counts": {
+   "確か": 68,
+   "一部": 16
+  },
+  "checks": [
+   {
+    "index": 0,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/install（Choose an install scope）",
+    "quote": "Committing that entry turns the plugin on for your collaborators but doesn't download it to their machines, so each collaborator also runs `claude plugin install <name>@<marketplace> --scope project` once.",
+    "note": "原文どおり。「外部ソースのプラグインは」の限定も正しい。同じリポジトリ内の相対パスの plugin は各自の install が要らない（https://code.claude.com/docs/en/plugins/loading「Enabled in project settings but not installed」）。"
+   },
+   {
+    "index": 1,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/loading（Check which stage a plugin reached）、https://code.claude.com/docs/en/plugins/install（Add a marketplace）",
+    "quote": "When you run `claude plugin marketplace add`, Claude Code writes the marketplace to `extraKnownMarketplaces` in your user settings as well as to disk.",
+    "note": "#ref での固定、/plugin install と claude plugin install の形、user settings への書き込み、同じマシンの設定の共有（terminal・デスクトップのローカル・VS Code）は原文どおり。"
+   },
+   {
+    "index": 2,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/org（Require plugins per repository）",
+    "quote": "The `extraKnownMarketplaces` entries apply only in a folder the contributor has trusted, and in an untrusted folder Claude Code ignores them without a message.",
+    "note": "対話セッションは信頼ダイアログ承認後にのみ登録。-p 実行は、対話で承認済みのフォルダか ~/.claude.json の hasTrustDialogAccepted を立てた場合（原文）。claim の要約で言い過ぎはない。"
+   },
+   {
+    "index": 3,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/loading（Enabled in project settings but not installed）、https://code.claude.com/docs/en/plugins/marketplace-reference（Plugin sources）",
+    "quote": "A relative-path plugin needs no install record because it loads from the marketplace itself. / `\".\"` on its own means the root itself.",
+    "note": "原文どおり。\"./\" は marketplace-reference と publish の例（単一 plugin のリポジトリで source \"./\"）でも使われている。相対パスの解決が効くのは github・git・file・directory の marketplace（url 型は不可）と原文にある。"
+   },
+   {
+    "index": 4,
+    "status": "一部",
+    "file": "https://code.claude.com/docs/en/plugins/install（Cloud session タブ）、https://code.claude.com/docs/en/cloud-environments（What carries over from your setup・Add personal preferences）",
+    "quote": "A cloud session ... has no plugin browser and doesn't load the plugins you installed on your own machine or the ones your repository's `.claude/settings.json` turns on. / Your user `~/.claude/CLAUDE.md` | No | Lives on your machine, not in the repo.",
+    "note": "plugin の非読込、repo の CLAUDE.md・rules・skills・agents・commands・単一リポの hooks と権限が読まれることは原文どおり。ただし「~/.claude/CLAUDE.md と ~/.claude/skills/ は読まれない」は利用者の端末の物を指す表。同じ文書の setup script の例では、VM 上に書いた ~/.claude/CLAUDE.md が読み込まれると書かれている。『端末の ~/.claude の物は届かない』と限定すべき。"
+   },
+   {
+    "index": 5,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/skills（Use skills in Cowork and cloud sessions）",
+    "quote": "Cloud sessions additionally load project skills committed to the cloned repository's `.claude/skills/`.",
+    "note": "claude.ai で有効化したスキルの同期読み込み（Cowork と cloud）も同じ節の前段に原文がある。プラグインとしての同期がクラウドに届くことは、クラウド関連の資料に synced の語が無いことからも明記されていない。"
+   },
+   {
+    "index": 6,
+    "status": "確か",
+    "file": "https://claude.com/docs/skills/how-to（Package your skill）、https://support.claude.com/en/articles/12512180-using-skills-in-claude（Add and use custom skills・Upload errors）",
+    "quote": "The ZIP must contain the skill directory itself as its top level, because Claude looks for `<skill-name>/SKILL.md` inside the archive.",
+    "note": "ZIP の形、Customize > Skills の「+」→「+ Create skill」→「Upload a skill」、SKILL.md 必須、フォルダ名と skill 名の一致（upload error 項目）は原文どおり。Team と Enterprise だけの共有と公開も原文どおり（how-to の「Share or publish one skill」）。"
+   },
+   {
+    "index": 7,
+    "status": "確か",
+    "file": "https://claude.com/docs/skills/how-to（Add scripts）",
+    "quote": "In chat on claude.ai, the skill's whole folder, scripts included, is copied into the code execution sandbox, so also keep the path readable relative to `SKILL.md`.",
+    "note": "Claude Code と Cowork で ${CLAUDE_SKILL_DIR} が置き換えられ、チャットではフォルダごとコピーされる、が原文どおり。"
+   },
+   {
+    "index": 8,
+    "status": "一部",
+    "file": "https://claude.com/docs/plugins/overview（Find and add a plugin）、https://claude.com/docs/plugins/platform-support（Hosts for a marketplace you add yourself / Marketplace and plugin limits）",
+    "quote": "For a marketplace you add yourself, GitHub and GitHub Enterprise repositories work, and so do public GitLab and Bitbucket repositories. / Up to 25 marketplaces that you add yourself, counted for your account in each organization.",
+    "note": "公開 GitHub はそのまま追加可、非公開は GitHub 連携と Claude GitHub App が要る、25 件まで、は原文どおり。ただし「そのあと Discover から plugin を追加する」は原文に無い。Discover の説明は Anthropic の既定 marketplace・directory・組織提供のもの。自分で足した marketplace の plugin は「appear alongside the others」としか書かれていない。"
+   },
+   {
+    "index": 9,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/install（Plugins from your claude.ai account）、https://code.claude.com/docs/en/plugins/loading（Sign-in requirements for terminal sync）",
+    "quote": "In a terminal session they sync in the background each time you start Claude Code while signed in with that account.",
+    "note": "次回起動時の同期、v2.1.273 以降、API キー・ANTHROPIC_AUTH_TOKEN・apiKeyHelper・非必須トラフィック停止・bare モードでは同期しない、CLI で入れた plugin はアカウントに上がらない、はすべて原文どおり。"
+   },
+   {
+    "index": 10,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/loading（Name conflicts）",
+    "quote": "When an enabled plugin from any other origin matches its name, Claude Code loads that plugin and reports the synced copy as not loaded.",
+    "note": "原文どおり。synced は優先度が最も低い。"
+   },
+   {
+    "index": 11,
+    "status": "確か",
+    "file": "https://claude.com/docs/plugins/platform-support（Compare component support by app）",
+    "quote": "Agents (`agents/*.md`) | Ignored | Loads | Loads ; Hooks (`hooks/hooks.json`) | Ignored | Loads | Loads",
+    "note": "表どおり。チャットではコマンドは skill として読まれ、agents と hooks は読まれない。"
+   },
+   {
+    "index": 12,
+    "status": "一部",
+    "file": "https://code.claude.com/docs/en/plugins/loading（Which marketplaces and plugins auto-update）、https://code.claude.com/docs/en/plugins/install（Keep plugins updated）",
+    "quote": "on for marketplaces added from claude.ai, and off for every other marketplace",
+    "note": "公式マーケットプレイス（claude-plugins-official など）は既定で on、それ以外は off、までは原文どおり。ただし claude.ai から追加した marketplace も既定で on と明記されており、『それ以外は既定で無効』は言い過ぎ。managed settings の autoUpdate と DISABLE_AUTOUPDATER は原文どおり。"
+   },
+   {
+    "index": 13,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/loading（Versions and updates・How Claude Code computes the version）、https://code.claude.com/docs/en/plugins/host-marketplace（Release a new version）",
+    "quote": "Because the manifest comes first, a manifest that pins \"version\": \"1.0.0\" keeps every user on the cached copy until its author changes the string, however many commits they push.",
+    "note": "原文どおり。github・url は commit SHA の 12 文字。Git 上の marketplace の相対パス plugin は導入先ディレクトリの commit SHA。version を省くなら plugin.json と marketplace entry の両方から省く（host-marketplace の注）。"
+   },
+   {
+    "index": 14,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/host-marketplace（Grant access to a private marketplace・What background auto-update does with credentials）",
+    "quote": "On GitHub, `gh auth login` followed by `gh auth setup-git` stores one. / If a user sets `GITHUB_TOKEN` or another provider token in the environment, that alone doesn't authenticate the background check.",
+    "note": "HTTPS は資格情報ヘルパー経由でプロンプトなし、SSH は ssh-agent、自動更新はプロンプトなしで資格情報が取れるときだけ成功、GITHUB_TOKEN だけでは認証されない、すべて原文どおり。"
+   },
+   {
+    "index": 15,
+    "status": "確か",
+    "file": "/home/user/operating-kit/.claude-plugin/plugin.json、/home/user/operating-kit/.claude-plugin/marketplace.json、https://raw.githubusercontent.com/pe-kun333/operating-kit/main/.claude-plugin/plugin.json（WebFetch で取得）、https://github.com/pe-kun333/operating-kit（表示）",
+    "quote": "作業枝の plugin.json は name operating-kit・version 0.1.0・license MIT。marketplace.json は name operating-kit・plugins[0] の source \"./\"。github.com の表示は Public。",
+    "note": "公開は github.com の表示で Public と確認した（API は 403 で未確認）。main の plugin.json と marketplace.json も name・version 0.1.0・MIT・source \"./\" が一致。ただし description は main と作業枝で違う（作業枝は『考察と発想』の段を含み、main は含まない）。前の調べ役の『原文は未確認』は解消。"
+   },
+   {
+    "index": 16,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/install（Confirm the plugin works）、https://claude.com/docs/plugins/overview（Use a plugin）",
+    "quote": "Type `/` and look for the plugin's skills under its name, in the form `/<plugin>:<skill>`. / Type the plugin's name, or `plugin-name:skill-name`, to narrow the list.",
+    "note": "原文どおり。"
+   },
+   {
+    "index": 17,
+    "status": "確か",
+    "file": "https://claude.com/docs/plugins/platform-support（Organization controls）、https://claude.com/docs/plugins/share（If you can't share a plugin）",
+    "quote": "An Owner sets each plugin to **Not available**, **Available to install**, **Installed by default**, or **Required**.",
+    "note": "原文どおり。Share は自分で作った・アップロードしたプラグインだけに出る。個人プラン（Pro・Max）で特定の人への Share ができないことも原文どおり。Publish to org の Requires review・Open・Off も原文どおり。"
+   },
+   {
+    "index": 18,
+    "status": "一部",
+    "file": "https://claude.com/docs/plugins/share（The plugin file）",
+    "quote": "It becomes a separate plugin on their account",
+    "note": ".plugin か zip を Add > Upload plugin で受け取ると別プラグインとして入る、は原文どおり。『共有の更新は届かない』は原文に明記が無い。『later edits』の箇条は特定の人への Share だけに付いている。別プラグイン扱いからの推し量り。"
+   },
+   {
+    "index": 19,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/org（Choose a delivery mechanism）、https://code.claude.com/docs/en/server-managed-settings（Platform availability）",
+    "quote": "Server-managed settings: set the plugin keys as JSON at Organization settings > Claude Code > Managed settings. Requires an Owner role in your Claude organization. A cloud session fetches these settings before it installs plugins.",
+    "note": "原文どおり。Team と Enterprise の制限は Platform availability の『A Team or Enterprise OAuth login』で確認できる。"
+   },
+   {
+    "index": 20,
+    "status": "確か",
+    "file": "https://claude.com/docs/plugins/org-sync（Plugin sources that organization sync accepts）、https://code.claude.com/docs/en/plugins/host-marketplace（Distribute through organization settings）",
+    "quote": "on github.com and gitlab.com, the marketplace repository must be private or internal",
+    "note": "原文どおり。ただしこれは組織への同期（Team・Enterprise の Owner が行う）の条件。個人プランで自分が足す marketplace には当てはまらず、公開 GitHub も可（platform-support の表）。"
+   },
+   {
+    "index": 21,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（Script requirements・Environment caching・Add personal preferences）",
+    "quote": "Exit zero: if the script exits non-zero, the session fails to start.",
+    "note": "root・Ubuntu 24.04 で動く、終了コード 0、約 5 分以内でキャッシュ、~/.claude/CLAUDE.md を書く公式の例、すべて原文どおり。"
+   },
+   {
+    "index": 22,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/create（Test and debug）、https://code.claude.com/docs/en/plugins/publish（Validate・Release a new version）",
+    "quote": "It checks the manifest and the frontmatter of every skill, agent, and command file. Add `--strict` to fail on warnings too.",
+    "note": "validate の検査範囲と --strict は原文どおり。claude plugin eval がプラグインあり・なしを比べて採点するのも create ページに原文がある。eval の専用ページ（plugin-evals）は索引（https://code.claude.com/docs/llms.txt）に載っているが、資料に本文が無いので読んでいない。"
+   },
+   {
+    "index": 23,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（Configure your environment・Organization-shared environments）",
+    "quote": "Environments you create are personal to your account",
+    "note": "『personal to your account』は原文どおり。Owner が作る共有環境は Team と Enterprise のみ、も原文どおり。"
+   },
+   {
+    "index": 24,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（Set environment variables・Add network secrets）",
+    "quote": "Anyone who uses the environment can read the values. / You can't view the value again after saving.",
+    "note": ".env 形式、環境を使う人全員が読める、API キーは network secret として宛先 host に限って付与、保存後は値を見られない、すべて原文どおり。"
+   },
+   {
+    "index": 25,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（Setup scripts・Environment caching）",
+    "quote": "A setup script is a Bash script that runs when a new cloud session starts, before Claude Code launches.",
+    "note": "原文どおり。キャッシュは filesystem のスナップショットで、ファイルは残り、動いているプロセスは残らない、も原文どおり。"
+   },
+   {
+    "index": 26,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（Environment caching）",
+    "quote": "so a change to the script reaches an existing session only when its VM was reclaimed and is rebuilt.",
+    "note": "約 7 日の期限切れ、スクリプトか許可ホストの変更での再構築、一時停止からの復帰では再実行されない、は原文どおり。"
+   },
+   {
+    "index": 27,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（Add personal preferences without committing to the repo）",
+    "quote": "Run `/context` in your next cloud session and confirm `/root/.claude/CLAUDE.md` appears under **Memory files**.",
+    "note": "原文どおり。"
+   },
+   {
+    "index": 28,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（What carries over from your setup）",
+    "quote": "Your repo's `.claude/rules/` | Yes | Part of the clone",
+    "note": "CLAUDE.md・.claude/rules/・skills/agents/commands・単一リポの .mcp.json・単一リポの hooks と permission rules は原文どおり。"
+   },
+   {
+    "index": 29,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/cloud-environments（What carries over from your setup）",
+    "quote": "User-scoped `enabledPlugins` lives in `~/.claude/settings.json` on your machine",
+    "note": "届かないもの（~/.claude/CLAUDE.md、~/.claude/skills・agents・commands、user settings だけで有効な plugin、user・local の claude mcp add、repo 宣言の plugin）は原文どおり。『届かない』は端末から持ち越されないという意味。setup script で VM に書いたものは読まれる（check 27 の例）。"
+   },
+   {
+    "index": 30,
+    "status": "一部",
+    "file": "https://code.claude.com/docs/en/skills（Use skills in Cowork and cloud sessions）、https://code.claude.com/docs/en/cloud-environments（What carries over from your setup）",
+    "quote": "Cowork sessions and cloud sessions, including routines, don't read `~/.claude/skills/` on your machine.",
+    "note": "原文は『あなたのマシンの ~/.claude/skills/』を指す。claude.ai で有効化したスキルを読むこと、routine も同じ、は原文どおり。ただし『~/.claude/skills/ は読まれない』は言い過ぎで、VM の /root/.claude/skills/ に置かれたものは読まれる。主担当の観察（session-start-hook が一覧に出る）を、この VM で /root/.claude/skills/session-start-hook/SKILL.md が存在することで私も確認した。"
+   },
+   {
+    "index": 31,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/settings（Settings in cloud sessions）",
+    "quote": "**User and project local settings** (`~/.claude/settings.json` and `.claude/settings.local.json`): not read.",
+    "note": "原文どおり。単一リポのクラウドでは .claude/settings.json が読まれる。/config はクラウドでは値を変えず、環境変数か repo の settings.json を使うよう案内される、も原文どおり。"
+   },
+   {
+    "index": 32,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/install（Install from your shell・Add a marketplace）",
+    "quote": "Run `claude plugin install` in your shell to install a plugin without starting a Claude Code session, for example from a setup script.",
+    "note": "setup script からの install の例、--yes は command 型 source にだけ要る（「Some plugins install by running a command ... pass --yes」）、他人の marketplace は先に marketplace add、いずれも原文どおり。operating-kit は source \"./\" なので --yes は要らない。"
+   },
+   {
+    "index": 33,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/plugins/loading（Synced plugins）",
+    "quote": "Synced plugins load in Cowork sessions and in terminal sessions where you sign in with your claude.ai account",
+    "note": "原文どおり。cloud session は挙がっていない。プラグイン同期の先として cloud の資料に記述が無いことも確認した。"
+   },
+   {
+    "index": 34,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/claude-code-on-the-web（Environment expired）、https://code.claude.com/docs/en/cloud-environments（What's available in cloud sessions）",
+    "quote": "Restored: your conversation history. Not restored: background work that was still running when the VM was reclaimed, such as subagents and shell commands",
+    "note": "原文どおり。毎回 fresh clone、Ubuntu 24.04。4 vCPU・16GB・30GB は目安で『may change』と書かれている点を添える。"
+   },
+   {
+    "index": 35,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/memory（Auto memory）",
+    "quote": "Files are not shared across machines or cloud environments.",
+    "note": "原文どおり。同じ git リポジトリの worktree 間では共有される、も原文どおり。"
+   },
+   {
+    "index": 36,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/routines（Create a routine・Repositories and branch permissions）",
+    "quote": "Routines belong to your individual claude.ai account. They are not shared with teammates",
+    "note": "原文どおり。プロンプトの自己完結、各 run で clone しデフォルトブランチから始める（プロンプトで指定すれば変えられる）、research preview、すべて原文どおり。"
+   },
+   {
+    "index": 37,
+    "status": "一部",
+    "file": "https://code.claude.com/docs/en/routines（Usage and limits・Connectors）",
+    "quote": "Scheduled runs, including one-off runs | 100 per hour | Your account / API fires | 100 per hour | Your account, counted separately from **Run now**",
+    "note": "schedule は 1 アカウント 100/時、最短 1 時間、接続済み connector は既定で全部入り承認なしで書き込みも可、は原文どおり。ただし 30/時は『Run now・API fire・one-off の再実行』の 3 つを合わせた routine あたりの上限で、API fire はアカウント 100/時にも別に掛かる。Run now にも 100/時（アカウント）が掛かる。『その他の API fire はアカウント 100/時』という言い方は不正確。"
+   },
+   {
+    "index": 38,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/claude-projects（Projects are in public beta…・Write project instructions・Get skills, plugins, connectors, and tools into threads）",
+    "quote": "Projects are in public beta on Pro and Max plans and rolling out gradually",
+    "note": "Pro・Max の public beta、Team・Enterprise は未対応、instructions 16,000 字、MEMORY.md、Project settings > Plugins、Environment、Repositories、リポジトリが無くても research や文書の thread は動く、すべて原文どおり。ただし rolling out gradually で、Pro・Max でも全員に出るとは限らない。"
+   },
+   {
+    "index": 39,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/claude-projects（Limitations）",
+    "quote": "A project belongs to one user. You can't share a project or its threads with another user, and thread transcripts don't have the share option other cloud sessions have.",
+    "note": "原文どおり。組織向けの管理機能はベータ中に無い、も原文どおり。"
+   },
+   {
+    "index": 40,
+    "status": "確か",
+    "file": "https://code.claude.com/docs/en/claude-projects（What threads pick up from your repositories）",
+    "quote": "Each cloud thread clones every repository in the project and loads `CLAUDE.md` and skills from all of them. Permission rules, hooks, and `env` come only from the `.claude/settings.json` in the directory the thread starts in.",
+    "note": "原文どおり。複数リポジトリの thread では permission と hooks が効かない（表『Don't apply in an Anthropic-hosted environment』）、も原文どおり。"
+   },
+   {
+    "index": 41,
+    "status": "一部",
+    "file": "https://code.claude.com/docs/en/web-quickstart（Connect from your terminal）、https://code.claude.com/docs/en/claude-code-on-the-web（Quick setup for Team and Enterprise）",
+    "quote": "Anthropic stores it encrypted with your claude.ai account, and your cloud sessions use it for GitHub access until you remove it.",
+    "note": "/web-setup の gh token の暗号化保存、Quick setup は Team と Enterprise のみで既定 off、は原文どおり。『新しいアカウントでは GitHub の接続をそのアカウントで済ませる必要がある』は原文に無い推し量り。原文は、初回の claude.ai/code 訪問で GitHub 接続を促すこと、/web-setup には claude.ai のサインインが要ること、を書くだけ。"
+   },
+   {
+    "index": 42,
+    "status": "確か",
+    "file": "code_web-quickstart.md（## Pre-fill sessions）",
+    "quote": "prompt_url: URL to fetch the prompt text from, for prompts too long to embed in a query string. The URL must allow cross-origin requests. Ignored when prompt is also set.",
+    "note": "欄は prompt（別名 q）・prompt_url・repositories（別名 repo）・environment の四つで、主張どおり。prompt_url は cross-origin 許可が要り、prompt と同時に指定すると無視される（主張には無い条件）。"
+   },
+   {
+    "index": 43,
+    "status": "確か",
+    "file": "code_claude-code-on-the-web.md（## Move tasks between terminal and cloud）",
+    "quote": "The cloud VM clones your current directory's GitHub remote at your current branch, not your local checkout, so push first if you have local commits.",
+    "note": "clone 元は GitHub remote の現在ブランチで、未 push のコミットは入らない（原文どおり）。bundle は remote が無いか Claude GitHub App 未導入のとき（原文どおり）。claude -p と --cloud <session-id> で追記できる、claude auth login のアカウントに紐づき Bedrock 等では使えない、も原文どおり。組織の allow_remote_sessions が要るという条件は主張に無い。"
+   },
+   {
+    "index": 44,
+    "status": "確か",
+    "file": "code_cloud-environments.md（### What carries over from your setup）・code_server-managed-settings.md（## Platform availability、### Security approval dialogs）",
+    "quote": "Your organization's server-managed settings | Yes, except in Claude Tag sessions",
+    "note": "サーバー管理設定はクラウドに届く（Claude Tag を除く）、Team・Enterprise の OAuth ログインが要る、MDM などの endpoint-managed は届かない、managed の claudeMd は承認なしで届く（doesn't require approval）。いずれも原文どおり。"
+   },
+   {
+    "index": 45,
+    "status": "確か",
+    "file": "code_cloud-environments.md（### Setup scripts vs. SessionStart hooks・#### Limitations in cloud sessions）・code_hooks.md（SessionStart の CLAUDE_CODE_REMOTE の段落）",
+    "quote": "a session with several repositories doesn't load hooks from any repository's .claude/settings.json",
+    "note": "SessionStart は起動と再開のたびに走る。CLAUDE_CODE_REMOTE が true かで、クラウドだけ動かす判定ができる。repo の hook が読まれるのは単一リポのセッションだけ。ユーザーの ~/.claude/settings.json の hook は届かない。いずれも原文どおり。"
+   },
+   {
+    "index": 46,
+    "status": "確か",
+    "file": "code_routines.md（### Repositories and branch permissions）・code_web-quickstart.md（### Select a repository and branch）",
+    "quote": "Claude starts from the repository's default branch unless your prompt specifies otherwise.",
+    "note": "Routine は既定でデフォルトブランチから始まり、プロンプトで変えられる。claude.ai/code では、リポジトリ選択の後ろの枝の操作で別ブランチから始められる。どちらも原文どおり。"
+   },
+   {
+    "index": 47,
+    "status": "確か",
+    "file": "code_claude-projects.md（### Run a thread on your own computer）",
+    "quote": "Starts with the project's instructions, but not with its memory files loaded",
+    "note": "Remote Control で手元のマシンに走らせた thread は、project instructions は受け取るが project memory は読み込まれない。原文どおり。"
+   },
+   {
+    "index": 48,
+    "status": "確か",
+    "file": "support_12512180-using-skills-in-claude.txt（Add and use custom skills・Upload errors）・claudecom_skills_how-to.md（## Package your skill）",
+    "quote": "Upload a ZIP file containing your skill folder.",
+    "note": "Customize > Skills の「+」→「+ Create skill」→「Upload a skill」、ZIP、SKILL.md が必須、フォルダ名と skill 名の一致、いずれも原文どおり（Upload errors の欄）。"
+   },
+   {
+    "index": 49,
+    "status": "確か",
+    "file": "support_12512180-using-skills-in-claude.txt（How to enable skills）",
+    "quote": "For individual Free, Pro, and Max plans: Navigate to Settings > Capabilities and ensure that Code execution and file creation is enabled.",
+    "note": "Free・Pro・Max は Settings > Capabilities、Team・Enterprise は Organization settings > Plugins & skills の Policy タブ。対応は原文どおり。"
+   },
+   {
+    "index": 50,
+    "status": "一部",
+    "file": "support_12512180-using-skills-in-claude.txt（Add and use custom skills・Share a skill・Privacy）",
+    "quote": "Custom skills you upload aren't visible to colleagues until you share them. Admins can see their names and sharing status, but not their files.",
+    "note": "同僚に見えないこと、共有は Team・Enterprise のみ、個人プランは各自アップロード、は原文どおり。ただし「本人だけに見える」は原文に無く、管理者は名前と共有状態を見られる（言い過ぎ）。"
+   },
+   {
+    "index": 51,
+    "status": "一部",
+    "file": "code_skills.md（#### Where synced skills load・#### Skills synced from claude.ai）",
+    "quote": "While you or Claude work in the session: a check runs about every 10 minutes.",
+    "note": "Cowork とクラウドは開始時に読み込む、端末は一方向に同期し送り返さない、API キーやクラウドプロバイダでは同期しない、/skills で見られる、は原文どおり。10 分は作業中の間隔。セッションが idle のときは約 40 分おきで、その部分が抜けている。"
+   },
+   {
+    "index": 52,
+    "status": "確か",
+    "file": "code_skills.md（### Use skills in Cowork and cloud sessions）",
+    "quote": "Cowork sessions and cloud sessions, including routines, don't read ~/.claude/skills/ on your machine. Cloud sessions additionally load project skills committed to the cloned repository's .claude/skills/.",
+    "note": "『届かない』は原文の『利用者のマシンの ~/.claude/skills/』の話。repo の .claude/skills/ に commit したものは届く、も原文どおり。"
+   },
+   {
+    "index": 53,
+    "status": "確か",
+    "file": "code_plugins_install.md（### Cloud session tab）",
+    "quote": "A cloud session ... has no plugin browser and doesn't load the plugins you installed on your own machine or the ones your repository's .claude/settings.json turns on.",
+    "note": "原文どおり。"
+   },
+   {
+    "index": 54,
+    "status": "確か",
+    "file": "claudecom_plugins_overview.md（## Find the plugin in each app）・code_plugins_install.md（### Plugins from your claude.ai account）",
+    "quote": "Each plugin is saved to your account, so it's also available in Cowork and Claude Code without installing it again.",
+    "note": "claude.ai で足したものは Cowork と Claude Code に届く。CLI で入れたものはマシンに残り、アカウントには上がらない。どちらも原文どおり。Claude Code 側は同じアカウントでサインインした端末（v2.1.273 以降）という条件がある（主張では省略）。"
+   },
+   {
+    "index": 55,
+    "status": "確か",
+    "file": "claudecom_plugins_platform-support.md（## Compare installation, sync, and admin controls）・claudecom_plugins_overview.md（### Find and add a plugin）",
+    "quote": "Up to 25 marketplaces that you add yourself, counted for your account in each organization. Each plugin can contain up to 5,000 files and 200 MB",
+    "note": "Git リポジトリ（GitHub・GHE・公開の GitLab/Bitbucket）か zip（.claude-plugin/plugin.json を一つ含む）を足せる。25 まで、5,000 ファイル・200 MB まで。いずれも原文どおり。"
+   },
+   {
+    "index": 56,
+    "status": "確か",
+    "file": "claudecom_plugins_platform-support.md（## Compare component support by app の表）",
+    "quote": "Agents (agents/*.md) | Ignored | Loads | Loads",
+    "note": "チャットは agents と hooks を無視し、ローカル MCP も無視する。Cowork と Claude Code は hooks と agents を読む。workflows/ は表に無い。すべて表どおり。"
+   },
+   {
+    "index": 57,
+    "status": "確か",
+    "file": "code_workflows.md（冒頭の Note・### Turn workflows off・#### Resume after you leave the session）",
+    "quote": "Workflows are available in the CLI, the Desktop app, the IDE extensions, non-interactive mode with claude -p, and the Agent SDK.",
+    "note": "有料プラン、CLI・Desktop・IDE 拡張・claude -p・Agent SDK、Pro は /config の行、の各点は原文どおり。クラウドで実行結果が残るとの記述も原文にある（resume の節）。チャットと Cowork の記載は無い。原文は API アクセスや Bedrock 等も挙げるが、主張の省略は誤りではない。"
+   },
+   {
+    "index": 58,
+    "status": "確か",
+    "file": "code_workflows.md（### Distribute a workflow in a plugin）",
+    "quote": "Place the script in a workflows/ directory at the plugin root ... runs as /acme-tools:release-audit.",
+    "note": "plugin ルートの workflows/ に置くと /<plugin 名>:<meta.name> で走る、原文の例どおり（manifest の workflows 欄でも指定できる）。"
+   },
+   {
+    "index": 59,
+    "status": "確か",
+    "file": "code_workflows.md（#### Where the keyword works）",
+    "quote": "The keyword is an opt-in only in a prompt you type yourself: at the interactive prompt, in an IDE extension panel, in a Remote Control client, or in an Agent SDK application ...",
+    "note": "対話プロンプト・IDE 拡張・Remote Control・人の入力を明示した SDK で効き、-p・スケジュール・webhook・PR コメントの中継では起動しない、は原文どおり。claude.ai/code の Web 入力がどこに入るかは書かれていない（newFacts）。"
+   },
+   {
+    "index": 60,
+    "status": "確か",
+    "file": "support_10185728-understanding-claude-s-personalization-features.txt（## Instructions for Claude・## Project instructions）",
+    "quote": "Any instructions you add here will be applied to all of your conversations with Claude. / These instructions only apply to chats within that project.",
+    "note": "全会話に適用され、プロジェクトの指示はそのプロジェクトのチャットだけ、は原文どおり。場所は左下のイニシャル → Settings → Instructions for Claude（『プロフィール』は言い換え）。"
+   },
+   {
+    "index": 61,
+    "status": "確か",
+    "file": "support_14546867-set-organization-preferences.txt（## Set up organization instructions・## How organization and user instructions interact）",
+    "quote": "The maximum length is 3,000 characters. / Changes may take up to an hour to take effect across Claude products.",
+    "note": "Owner（と Primary Owner）だけが設定でき、3,000 字、個人の指示と矛盾すれば組織側が優先、反映は最大 1 時間。いずれも原文どおり。対象は Team と Enterprise のみ（主張の省略）。"
+   },
+   {
+    "index": 62,
+    "status": "確か",
+    "file": "support_11817273-how-does-claude-s-memory-work.txt（### Project memory・### One memory across chat and Claude Cowork・### Sensitive topics in memory）",
+    "quote": "Cowork sessions that run locally on your computer don't use memory.",
+    "note": "topic 単位の自動保存、プロジェクトごとのメモリ、Cowork はクラウド実行時のみ共有、機微な話題は既定で保存されない、インポートは実験的で別記事。いずれも原文どおり。同じ記事に旧メモリ版の記述もあるが、主張は現行の記述に沿う。"
+   },
+   {
+    "index": 63,
+    "status": "確か",
+    "file": "claudecom_plugins_platform-support.md（表の Organization controls 行）・claudecom_plugins_org-rollout.md・code_plugins_org.md（### Require a marketplace and its plugins）",
+    "quote": "An Owner sets each plugin to Not available, Available to install, Installed by default, or Required",
+    "note": "claude.ai 側の四つの設定、Claude Code の端末には managed settings の extraKnownMarketplaces と enabledPlugins で配る、いずれも原文どおり。"
+   },
+   {
+    "index": 64,
+    "status": "一部",
+    "file": "code_plugins_loading.md（### When auto-update runs・#### Which marketplaces and plugins auto-update）・code_plugins_install.md（### Choose an install scope）",
+    "quote": "on for Anthropic's official marketplaces such as claude-plugins-official, off for knowledge-work-plugins and first-party-plugins, on for marketplaces added from claude.ai, and off for every other marketplace",
+    "note": "スコープは user・project・local の三つ。project は commit 後に共同作業者が claude plugin install --scope project を一度実行する、は原文どおり。自動更新は、公式（claude-plugins-official）が既定 on、claude.ai から追加した marketplace も既定 on、knowledge-work-plugins と first-party-plugins は off。『公式以外は既定で off』は言い過ぎ。"
+   },
+   {
+    "index": 65,
+    "status": "確か",
+    "file": "/home/user/operating-kit/README.md（4〜21 行）・/home/user/operating-kit/.claude-plugin/plugin.json・/home/user/operating-kit/.claude-plugin/marketplace.json",
+    "quote": "claude.ai・Cowork：`operating-kit.skill` を、自分のアカウントのスキルとして入れます。",
+    "note": "plugin.json は version 0.1.0・license MIT。marketplace 名は operating-kit。README は Claude Code で marketplace add と install、claude.ai と Cowork で operating-kit.skill を案内し、起動は /operating-kit:operating-kit。いずれも確かめた。ただし operating-kit.skill はリポジトリに無い（newFacts）。版の届き方は 68 を参照。"
+   },
+   {
+    "index": 66,
+    "status": "確か",
+    "file": "/home/user/operating-kit/skills/operating-kit/SKILL.md（3 行目 description・31 行目・83〜95 行目）",
+    "quote": "リポジトリの無い一回きりの相談で型だけを使いたいときは、必ずこのスキルを使う。",
+    "note": "description に『リポジトリの無い一回きりの相談で型だけ使いたいとき』が入る（原文の語は『相談』で、主張の『会話』は言い換え）。§1〜§3 は Claude Code 向け（31 行目）、§4 は型だけ使う、守ることは全使い方に効く（87 行目）。いずれも原文どおり。"
+   },
+   {
+    "index": 67,
+    "status": "確か",
+    "file": "code_web-quickstart.md（### Select a repository and branch・### Describe the task and submit）",
+    "quote": "change the branch in the control after the repository selector / Each task gets its own session and its own branch",
+    "note": "原文どおり。"
+   },
+   {
+    "index": 68,
+    "status": "確か",
+    "file": "code_plugins_host-marketplace.md（### Release a new version・## Keep users up to date）・code_plugins_loading.md（## Versions and updates）",
+    "quote": "If you set \"version\": \"1.0.0\" and push new commits without changing it, users don't receive them.",
+    "note": "version を固定したままのコミットは届かず、claude plugin update は already at the latest version と出す。version を省けば commit SHA で追う。自前の marketplace の自動更新は既定で off（Turn on auto-update の節）。いずれも原文どおり。補足: operating-kit の plugin.json は version 0.1.0 固定なので、今のままでは新しいコミットは既存の利用者に届かない（newFacts）。"
+   },
+   {
+    "index": 69,
+    "status": "一部",
+    "file": "code_cloud-environments.md（### What carries over from your setup）・code_settings.md（## Settings in cloud sessions）・code_plugins_loading.md（### Plugins shared through a repository）",
+    "quote": "Your user ~/.claude/CLAUDE.md | No | Lives on your machine, not in the repo.",
+    "note": "clone に入らないもの（repo 宣言のプラグイン・マーケットプレイス、ユーザーの settings、~/.claude の CLAUDE.md と skills）の列挙は、利用者のマシンのファイルの話として原文どおり。ただし同じ節に、setup script で書いた ~/.claude/CLAUDE.md は読まれるという公式の例がある。『読まれない』と一律に言うのは言い過ぎ。"
+   },
+   {
+    "index": 70,
+    "status": "確か",
+    "file": "code_plugins_install.md（### Cloud session tab）・code_claude-code-on-the-web.md（### Manage context）",
+    "quote": "Commands that only run in the terminal interface, such as /plugin or /resume, aren't available.",
+    "note": "plugin browser は無く、/plugin は使えない（terminal 専用のコマンドの例）。原文どおり。"
+   },
+   {
+    "index": 71,
+    "status": "確か",
+    "file": "code_skills.md（### Choose where skills load の表・#### Where synced skills load）",
+    "quote": "Personal | ~/.claude/skills/<skill-name>/SKILL.md | All your projects on this machine, but not Cowork or cloud sessions",
+    "note": "claude.ai のアカウントで有効にしたスキルは Cowork・クラウド・サインインした端末で読まれ、端末では ~/.claude/skills/synced/ に降りる（v2.1.273 以降）。~/.claude/skills はその機械だけ。いずれも表どおり。"
+   },
+   {
+    "index": 72,
+    "status": "確か",
+    "file": "claudecom_plugins_overview.md（### Find and add a plugin・### Manage installed plugins）・claudecom_plugins_platform-support.md・code_plugins_loading.md（### Plugins synced from claude.ai）",
+    "quote": "For a marketplace you added yourself from github.com, you can also turn on Sync automatically.",
+    "note": "Add marketplace（owner/repo、非公開は GitHub 連携と App）、Upload plugin（zip か .plugin、.claude-plugin/plugin.json を一つ）、足したプラグインは chat・Cowork・Claude Code（<name>@synced）に届く、github.com の Sync automatically。いずれも原文どおり。"
+   },
+   {
+    "index": 73,
+    "status": "確か",
+    "file": "code_plugins_loading.md（#### Sign-in requirements for terminal sync）",
+    "quote": "Claude Code neither downloads nor loads synced plugins in these terminal sessions, even after you sign in with /login: a session where ANTHROPIC_AUTH_TOKEN, CLAUDE_CODE_OAUTH_TOKEN, or an apiKeyHelper script supplies the credential ...",
+    "note": "ANTHROPIC_AUTH_TOKEN など・--bare・--setting-sources に user が無い、は原文どおり。原文はさらに、非必須トラフィックの停止と --safe-mode も挙げる（主張は一部の例）。"
+   },
+   {
+    "index": 74,
+    "status": "一部",
+    "file": "claudecom_plugins_platform-support.md（表）・code_workflows.md（### Turn workflows off・#### Resume after you leave the session）",
+    "quote": "Workflows are available in the CLI, the Desktop app, the IDE extensions, non-interactive mode with claude -p, and the Agent SDK.",
+    "note": "チャットは agents と hooks を読まない、は表どおり。ただし workflow の面の一覧は CLI・Desktop・IDE・-p・Agent SDK で、クラウドは一覧に無い。クラウドは実行結果を保存すると書かれているだけなので、『（とクラウドのセッション）と書かれている』は言い過ぎ。"
+   },
+   {
+    "index": 75,
+    "status": "確か",
+    "file": "code_workflows.md（### Save the workflow for reuse・### Distribute a workflow in a plugin・### Pass input to a saved workflow）・/home/user/operating-kit/skills/operating-kit/scripts/consult.js（1〜3 行）・ideate.js・survey.js（同じ位置）",
+    "quote": "The workflow runs as /<name> in future sessions from either location.",
+    "note": ".claude/workflows/ は clone した人に共有され /<name> で走り、args も渡せる。plugin の workflows/ は /<plugin>:<meta.name>。3 本とも先頭が export const meta で、name は operating-kit-consult・operating-kit-ideate・operating-kit-survey で主張どおり。ただし 3 本はリポジトリの .claude/workflows/ にも workflows/ にも無く、skills/operating-kit/scripts/ にある。"
+   },
+   {
+    "index": 76,
+    "status": "一部",
+    "file": "code_workflows.md（### Set a size guideline・### Turn workflows off・#### Where the keyword works）・code_model-config.md（### When ultracode is available）",
+    "quote": "The default is medium, or small when you're signed in on a Pro plan with Claude Code v2.1.271 or later.",
+    "note": "keyword が利用者の入力でだけ効く、Pro で /config の Dynamic workflows の行、workflows を切ると ultracode も使えない、xhigh を持たないモデルでは使えない（When ultracode is available）は原文どおり。規模の既定 small は『Pro かつ Claude Code v2.1.271 以降』のとき（主張は省略）。small は 5 体未満。"
+   },
+   {
+    "index": 77,
+    "status": "一部",
+    "file": "code_model-config.md（### Model aliases・#### Fable and usage credits）",
+    "quote": "Unless you set ANTHROPIC_DEFAULT_FABLE_MODEL, the fable alias resolves to Fable 5.1",
+    "note": "Anthropic API では opus=Opus 5.5・sonnet=Sonnet 5.5・haiku=Haiku 5.5、fable=Fable 5.1、『Requires usage credits』の表示も原文どおり。ただし Bedrock と Google Cloud のエージェント基盤では sonnet と haiku が古い版、Microsoft Foundry では opus も古い版と、プロバイダで違う（主張は省略）。『CLI の版で上がっていく』は原文では『プロバイダごとの推奨版を指し、時間とともに更新される』。"
+   },
+   {
+    "index": 78,
+    "status": "一部",
+    "file": "code_cloud-environments.md（#### Add personal preferences without committing to the repo・### Environment caching・### Configure your environment）",
+    "quote": "In an Anthropic-hosted environment, add a setup script that writes ~/.claude/CLAUDE.md for preferences you'd rather not put in a shared repository.",
+    "note": "公式の例、root で走る、約 7 日キャッシュ、環境はアカウントに紐づく（Environments you create are personal to your account）は原文どおり。『どのリポジトリのセッションにも効く』は原文に無い。環境はセッション開始時に選ぶもので、リポジトリとの紐付けは書かれていない（推し量り）。"
+   },
+   {
+    "index": 79,
+    "status": "確か",
+    "file": "code_hooks.md（### SessionStart・plain text の上限の節）・code_cloud-environments.md（#### Limitations in cloud sessions）",
+    "quote": "Claude's first response still waits for the hooks to finish, so their context reaches Claude. / capped at 10,000 characters",
+    "note": "会話の始めに文脈として入る、10,000 字の上限、repo の settings のフックは単一リポのクラウドでも走る。いずれも原文どおり。上限を超えると、ファイルに保存して先頭 2,000 字の preview になる（主張の省略）。"
+   },
+   {
+    "index": 80,
+    "status": "一部",
+    "file": "code_web-quickstart.md（## Pre-fill sessions）",
+    "quote": "You can prefill the prompt, repositories, and environment for a new session by adding query parameters to the claude.ai/code URL.",
+    "note": "表にあるのは prompt・prompt_url・repositories・environment の四つで、model と branch は無い。『入れられない』とは書かれていないので、表に無いことからの推し量り。枝は画面のブランチ操作で変える（#67）。"
+   },
+   {
+    "index": 81,
+    "status": "確か",
+    "file": "code_claude-projects.md（冒頭の Note・### Choose models and let Claude manage context・### Give a project standing context・### Get skills, plugins, connectors, and tools into threads）・code_claude-code-on-the-web.md（### Connect from your terminal の段落）",
+    "quote": "Project instructions | Text sent to each new thread and to Claude in the project conversation, up to 16,000 characters.",
+    "note": "Pro・Max の公開ベータで、段階的に展開中（サイドバーに出なければ待機）。project instructions 16,000 字、project memory（MEMORY.md）、Project settings の Plugins と Thread model・effort が新しい thread に効く。repo の settings.json のプラグインは thread で読まれない。thread には GitHub App が要る。いずれも原文どおり。"
+   },
+   {
+    "index": 82,
+    "status": "確か",
+    "file": "code_skills.md（#### Using skill frontmatter outside Claude Code）・claudecom_skills_how-to.md（### Required fields・## Package your skill）・/home/user/operating-kit/skills/operating-kit/SKILL.md（1〜4 行）",
+    "quote": "Restricting frontmatter to the spec's six fields avoids the unexpected-key error above.",
+    "note": "claude.ai アップロードに使える欄は name・description・license・compatibility・metadata・allowed-tools の六つ、ほかは hard error、description は 1,024 characters（字）。いずれも原文どおり。六つの一覧の出どころは how-to ではなく code_skills.md。今の SKILL.md は name と description だけで、description は 474 字（rg の文字数検査で確認）、UTF-8 では 1,074 バイト。原文の上限は字なので通る。バイトで数える仕組みだと超えるが、資料では確かめられない。"
+   },
+   {
+    "index": 83,
+    "status": "確か",
+    "file": "code_plugins_install.md（### Choose an install scope）・code_plugins_host-marketplace.md（### Register the marketplace for everyone in a repository）・code_plugins_loading.md（### Plugins shared through a repository）",
+    "quote": "Committing that entry turns the plugin on for your collaborators but doesn't download it to their machines, so each collaborator also runs claude plugin install <name>@<marketplace> --scope project once.",
+    "note": "project スコープの共同作業者は各自一度インストールする。marketplace を --scope project で足して commit すると、信頼したフォルダを開いた人に登録される。クラウドは信頼ダイアログが出ないので登録されない。いずれも原文どおり。"
+   }
+  ],
+  "answers": [
+   {
+    "q": "QA1. claude.ai のアカウントで足したプラグイン（Customize > Plugins）は、claude.ai/code のクラウドのセッションに読まれるか（スキルだけか、プラグインとしてか）。",
+    "answer": "資料で言えること：\n・スキルとしては読まれる。claude.ai で有効化したスキルは、クラウドセッション（と routine）がセッション開始時に同期して読む。\n・プラグインとして読まれる、とは資料に書かれていない。claude.ai アカウントの plugin の同期先は、Cowork と、claude.ai でサインインした terminal セッションとだけ書かれ、クラウドセッションは挙がらない。クラウドの install の節も、端末に入れた plugin と repo の settings で有効の plugin は読まない、と書くだけで、アカウントの plugin には触れない。\n・例外として、プラグインをクラウドに届ける経路が明記されているのは Projects（Pro・Max の beta）のみ。Project settings > Plugins に足した plugin は、新しい cloud thread に読み込まれる。通常の claude.ai/code のセッションとは別の経路。\n資料に無いこと（推し量り）：通常のクラウドセッションで、アカウントの plugin が plugin として読まれるか。この VM では /root/.claude/plugins/synced/ の bucket だけがあり中身は空（このアカウントには synced plugin が無い）。CLAUDE_CODE_SYNC_PLUGINS=1 は資料に無い変数なので、プラグイン同期の経路かは確かめられない。\n型を claude.ai 経由でクラウドに届けるなら、資料で確かめられるのはスキルとして入れる経路（operating-kit.skill を Customize > Skills に上げる）。ただし、その .skill ファイルは作業枝に無い（newFacts を参照）。",
+    "status": "一部言える",
+    "file": "https://code.claude.com/docs/en/skills（Use skills in Cowork and cloud sessions）、https://code.claude.com/docs/en/plugins/loading（Plugins synced from claude.ai）、https://code.claude.com/docs/en/claude-projects（Get skills, plugins, connectors, and tools into threads）",
+    "quote": "Plugins: add them in Project settings > Plugins; they load into each new cloud thread. （Projects 節）／ Cloud sessions additionally load project skills committed to the cloned repository's `.claude/skills/`. （Skills 節）",
+    "half": "A"
+   },
+   {
+    "q": "QA2. クラウドの環境の setup script（または SessionStart hook）で claude plugin marketplace add と claude plugin install（user scope）をしたプラグインは、そのクラウドのセッションで読まれるか。setup script と Claude Code の起動の順、--yes などの要るフラグ、キャッシュとの関係。",
+    "answer": "資料で言えること：\n1. 順番：setup script は新規セッションの開始時に、Claude Code の起動前に root で走る。終了コード 0 が要り、非 0 だとセッションは起動しない。\n2. 例：setup script からシェルで claude plugin install を呼ぶのは資料の用途として書かれている。入れた plugin は、次に Claude Code を起動したとき（または /reload-plugins の後）に読み込まれる。\n3. marketplace：他人の marketplace なら、install の前に claude plugin marketplace add pe-kun333/operating-kit が要る。1 行で済ませるなら claude plugin install operating-kit --marketplace pe-kun333/operating-kit（CLI v2.1.292 以降。確認なしで追加し、user settings に宣言される）。この環境の CLI は 2.1.301 なので使える版。\n4. --yes：command 型の source にだけ要る。operating-kit は source \"./\"（相対パス）なので不要。--scope は既定が user なので省略してよい。\n5. キャッシュ：5 分以内に終わると環境キャッシュ（ファイルシステムのスナップショット）になり、次のセッションは setup script を再実行しない。インストールしたファイルは残る。\n6. 更新：setup script や許可ホストを変えたとき、約 7 日の期限切れ、VM の作り直しのときだけ再構築される。キャッシュから起動したセッションは、入れた時点の版のまま。\n7. SessionStart hook で入れる案：起動後に走るので、その回の plugin は読み込まれず /reload-plugins が要る。単一リポジトリのクラウドでだけ読まれる。\n資料に無いこと（推し量り）：\n・setup script の中で claude コマンドが PATH にあるか。cloud-environments の Installed tools 表に Claude CLI は無い。\n・setup script で入れた plugin が、その cloud セッションで読まれるか。部品はそろうが、クラウドで読まれると明記した箇所は無い。Cloud タブが言うのは、端末に入れた plugin と repo の settings の plugin が読まれないことだけ。\n確かめ方（推奨）：セッション内で Claude に claude plugin list を実行させ、plugin の行を見る（plugins/install の『Confirm the plugin works』にシェルの確認手順がある）。",
+    "status": "一部言える",
+    "file": "https://code.claude.com/docs/en/cloud-environments（Setup scripts・Script requirements・Environment caching・Installed tools）、https://code.claude.com/docs/en/plugins/install（Install from your shell・Add a marketplace and install in one command）、https://code.claude.com/docs/en/plugins/loading（Check which stage a plugin reached・Plugins and marketplaces that aren't on disk at session start）",
+    "quote": "Run `claude plugin install` in your shell to install a plugin without starting a Claude Code session, for example from a setup script. / plugins it installs load the next time you start Claude Code, or when you run `/reload-plugins` in a session that's already open. / Some plugins install by running a command ... pass `--yes` there to accept it.",
+    "half": "A"
+   },
+   {
+    "q": "QA3. claude.ai 側のプラグインの更新（Sync automatically、Check for updates など）は、plugin.json の version をどう見るか。CLI の自動更新は、サードパーティの marketplace でどう入れるか。",
+    "answer": "資料で言えること（claude.ai 側）：\n・更新の入り口：marketplace の Check for updates で最新を取る。github.com から自分で足した marketplace は Sync automatically を入れられる（push で同期）。同期後に新しい版が自動で届く。\n・version の扱い：資料は、plugin.json の version を利用者に見える版番号とし、公開のたびに上げるよう書く。claude.ai が version をどう比べて更新の有無を決めるかは書かれていない。確かめられない。\n・参考（Claude Code 側）：claude.ai の marketplace から同期された plugin は、claude.ai が記録した版を使い、manifest の version は読まれないと書かれている。ただしこれは Claude Code の読み込みの話で、claude.ai の更新判定そのものではない。\nCLI の自動更新（サードパーティ marketplace）：\n・既定は off。公式マーケットプレイスと claude.ai から追加した marketplace だけ既定 on。\n・入れ方：(a) セッションの /plugin → Marketplaces → 対象 → Enable auto-update。ただしクラウドのセッションには /plugin が無いので、この方法は使えない。(b) 管理設定の extraKnownMarketplaces の autoUpdate: true（managed settings）。(c) 設定ファイル（user settings を含む）の extraKnownMarketplaces エントリの autoUpdate。\n・手動：claude plugin update operating-kit@operating-kit。claude plugin marketplace update は listing だけ更新し、入れた plugin の版は変えない。\n・注意：plugin.json に version 0.1.0 を固定したままだと、update は already at the latest version となり、自動更新でも同じ。版を上げるか、version を plugin.json と marketplace entry の両方から省いて commit SHA で追わせる。\n・自動更新のタイミング：対話セッションで最初のメッセージ後に、最大 10 分の遅延をおいて走る。クラウドでの実行は資料に無い。",
+    "status": "一部言える",
+    "file": "https://claude.com/docs/cowork/guide/plugins（Use a Git repository as a marketplace）、https://claude.com/docs/plugins/overview（Get updates）、https://claude.com/docs/plugins/build（Write the manifest）、https://code.claude.com/docs/en/plugins/install（Keep plugins updated）、https://code.claude.com/docs/en/plugins/loading（When auto-update runs）、https://code.claude.com/docs/en/plugins/host-marketplace（Turn on auto-update・Release a new version）",
+    "quote": "Select **Check for updates** on a marketplace to pull the latest plugins from its repository, or turn on **Sync automatically**. / **`version`**: the release number people see for the plugin. Raise it on every release / On by default ... on for marketplaces added from claude.ai, and off for every other marketplace.",
+    "half": "A"
+   },
+   {
+    "q": "QA4. 個人プラン（Pro・Max）で、公開 GitHub のリポジトリ pe-kun333/operating-kit を claude.ai の marketplace として足す条件（marketplace.json・plugin.json の要件、source が \"./\" で良いか、上限）。リポジトリの .claude-plugin/ を読んで、満たすかも見る。",
+    "answer": "足し方：Customize > Plugins > Add > Add marketplace に owner/repo（pe-kun333/operating-kit）を入れる。公開 GitHub はそのまま追加でき、GitHub App の許可は要らない（非公開のときだけ GitHub 連携と Claude GitHub App が要る）。\n上限：自分で足す marketplace は 1 アカウント 25 まで。plugin は 5,000 ファイル・200 MB まで。Cowork のガイドでは、1 marketplace あたり plugin 500、marketplace リポジトリのアーカイブ 512 MB。\nmarketplace.json の要件（資料）：ファイルは .claude-plugin/marketplace.json。name・owner（owner.name が必須）・plugins が必須。plugin entry は name と source が必須。name は英数字・.・_・- で英数字始まり、..を含まない。予約名でないこと。\nsource \"./\"：相対パスは ./ で始め、\".\" 単独でマーケットプレイスのルートを指す。単一 plugin のリポジトリで、plugin と同じ name の entry に \"./\" を使う例が公式にある。\nplugin.json の要件（資料）：.claude-plugin/plugin.json、name が必須。version は利用者に見える版番号なので公開のたびに上げるよう書かれている。\n作業枝の確認（満たすか）：\n・marketplace.json：name operating-kit（予約名に無い）、owner.name hihumi、plugins[0] の name operating-kit、source \"./\"。満たす。\n・plugin.json：name operating-kit、version 0.1.0、license MIT、author、repository・homepage の URL。満たす。\n・top-level の bin/ は無い（あると claude.ai は install しない）。README.md がルートにある。\n・components：skills/operating-kit/SKILL.md（これは chat でも読まれる）。scripts/*.js は chat の対象外（agents と hooks と workflows は chat では読まれない）。\n・main の plugin.json と marketplace.json も同じ name・version・source。ただし description は作業枝と違う（作業枝は『考察と発想』の段を含み、main は含まない）。\n資料に無いこと：claude.ai の personal の Add marketplace がどの branch を読むか（Claude Code の owner/repo#ref に当たる指定は claude.ai 側の資料に無い）。作業枝の内容を使うなら、読まれる branch を確かめる必要がある。",
+    "status": "一部言える",
+    "file": "https://claude.com/docs/plugins/overview（Find and add a plugin）、https://claude.com/docs/plugins/platform-support（Compare installation, sync, and admin controls）、https://claude.com/docs/cowork/guide/plugins（Limits）、https://code.claude.com/docs/en/plugins/marketplace-reference（Marketplace file・Top-level fields・Plugin entries・Relative path plugin source）、https://code.claude.com/docs/en/plugins/publish（Add the marketplace file to your repository）、/home/user/operating-kit/.claude-plugin/marketplace.json、/home/user/operating-kit/.claude-plugin/plugin.json",
+    "quote": "For a marketplace you add yourself, GitHub and GitHub Enterprise repositories work, and so do public GitLab and Bitbucket repositories. / Up to 25 marketplaces that you add yourself ... Each plugin can contain up to 5,000 files and 200 MB / `\".\"` on its own means the root itself. / with one entry whose `source` is `\"./\"`, the repository root",
+    "half": "A"
+   },
+   {
+    "q": "QB1 setup script で書いた ~/.claude/CLAUDE.md はクラウドセッションで読まれるか",
+    "answer": "読まれると資料で言える。公式の例（code_cloud-environments.md「Add personal preferences without committing to the repo」）が、setup script で ~/.claude/CLAUDE.md を書くと、それがユーザーの指示としてセッションに読み込まれる形を示す。確かめ方は、クラウドセッションで /context を実行し Memory files に /root/.claude/CLAUDE.md が出ること。setup script が書いたファイルはキャッシュ（ファイルシステムのスナップショット）に残るが、変更が既存セッションに届くのは VM が作り直されたときだけ。なお、資料の原文は /tmp/claude-0/-home-user-operating-kit/ca612e26-6529-5674-9859-b2a463a08f55/scratchpad/docs/ にある。",
+    "status": "資料で言える",
+    "file": "code_cloud-environments.md（#### Add personal preferences without committing to the repo）",
+    "quote": "In an Anthropic-hosted environment, add a setup script that writes ~/.claude/CLAUDE.md for preferences you'd rather not put in a shared repository.",
+    "half": "B"
+   },
+   {
+    "q": "QB1 「持ち越されない」は、利用者のマシンのファイルの話か、VM の ~/.claude を読まない話か",
+    "answer": "利用者のマシンのファイルの話。『What carries over from your setup』の表は、『Your user ~/.claude/CLAUDE.md』『Your user ~/.claude/skills/』の行に No と書き、理由を『Lives on your machine, not in the repo』とする。VM の ~/.claude を読まない、とは書かれていない。同じ節の直後に setup script で ~/.claude/CLAUDE.md を書く例がある。",
+    "status": "資料で言える",
+    "file": "code_cloud-environments.md（### What carries over from your setup）",
+    "quote": "Your user ~/.claude/CLAUDE.md | No | Lives on your machine, not in the repo.",
+    "half": "B"
+   },
+   {
+    "q": "QB1 setup script で書いた ~/.claude/skills/<name>/SKILL.md と ~/.claude/settings.json は読まれるか",
+    "answer": "資料に無い。スキルの表は『Personal（~/.claude/skills/）は Cowork・クラウドのセッションには読まれない』、設定の節は『ユーザーの ~/.claude/settings.json は not read。マシンに残る』と書き、setup script で VM に書いた場合の例外は書かれていない。資料が挙げる経路は、claude.ai のアカウントで有効化したスキル（synced）、repo の .claude/skills/、環境変数、repo の .claude/settings.json。このセッションで基盤が置いた ~/.claude/skills/session-start-hook が一覧に出ているという観察は、資料の書き方と食い違う（基盤の配置と setup script の配置が同じかも不明）ので、根拠にしない。確かめるなら、クラウドセッションで /skills と /context を実行して読み込みを見る。",
+    "status": "資料に無い",
+    "file": "code_skills.md（### Use skills in Cowork and cloud sessions・### Choose where skills load の表）",
+    "quote": "Cowork sessions and cloud sessions, including routines, don't read ~/.claude/skills/ on your machine.",
+    "half": "B"
+   },
+   {
+    "q": "QB1 setup script から claude plugin install を呼んだプラグインは、クラウドで読まれるか",
+    "answer": "一部言える。文書は、シェルの claude plugin install を『for example from a setup script』と例に挙げる。ただし、その結果のプラグインがクラウドセッションで読まれるかは書かれていない。クラウドの plugin の節は、マシンに入れたプラグインは読まれないと書くだけなので、確かめが要る。",
+    "status": "一部言える",
+    "file": "code_plugins_install.md（### Install from your shell）",
+    "quote": "Run `claude plugin install` in your shell to install a plugin without starting a Claude Code session, for example from a setup script.",
+    "half": "B"
+   },
+   {
+    "q": "QB2 claude.ai にスキルを上げるとき、.skill の拡張子を受けるか（ZIP だけか）",
+    "answer": "資料で言えるのは ZIP だけ。『You upload a skill to Claude as a ZIP file』『Upload a ZIP file containing your skill folder』とあり、ZIP の先頭はスキルのフォルダ（<skill-name>/SKILL.md）。.skill という拡張子は、どの資料にも出てこない。README が案内する operating-kit.skill は、リポジトリに実体が無い（.skill も .zip も見つからない）。資料どおりに上げるなら、operating-kit/ フォルダを先頭にした ZIP。.skill が受け付けられるかは資料から確かめられない。",
+    "status": "一部言える",
+    "file": "claudecom_skills_how-to.md（## Package your skill）",
+    "quote": "You upload a skill to Claude as a ZIP file.",
+    "half": "B"
+   },
+   {
+    "q": "QB2 claude.ai にアップロードするときに frontmatter で許される欄",
+    "answer": "資料で言える。claude.ai へのアップロードで使えるのは name・description・license・compatibility・metadata・allowed-tools の六つ。ほかの欄があると、無視されるのではなく、パッケージ化かアップロードが hard error で失敗する。Claude Code 専用の欄（例：argument-hint、when_to_use、disable-model-invocation）は、この経路では使えない。",
+    "status": "資料で言える",
+    "file": "code_skills.md（#### Using skill frontmatter outside Claude Code）",
+    "quote": "If you include any field the spec doesn't allow, packaging or upload fails with a hard error instead of ignoring the field.",
+    "half": "B"
+   },
+   {
+    "q": "QB2 description の上限は字かバイトか",
+    "answer": "字（characters）と書かれる。『Up to 1,024 characters』。バイトの上限は資料に無い。spec の原文（agentskills.io/specification）は、今回の環境から接続できず（名前解決の失敗）、直接は確かめられなかった。上限の根拠は、資料が spec を引く文だけ。",
+    "status": "一部言える",
+    "file": "claudecom_skills_how-to.md（### Required fields）",
+    "quote": "Up to 1,024 characters, the limit in the Agent Skills specification",
+    "half": "B"
+   },
+   {
+    "q": "QB2 リポジトリの skills/operating-kit/SKILL.md の frontmatter は条件を満たすか",
+    "answer": "資料の条件（字の単位）では満たす。name は operating-kit で、小文字とハイフンのみ、フォルダ名 operating-kit と一致。frontmatter は name と description だけで、ファイルの先頭行が ---。description は 474 字（rg の文字数検査で確認）。UTF-8 では 1,074 バイトあるが、上限は字と書かれているので通る。バイトで数える仕組みなら超える。ZIP は operating-kit/SKILL.md が先頭に来る形にする（skills/ の下で operating-kit フォルダごと zip する）。",
+    "status": "資料で言える",
+    "file": "/home/user/operating-kit/skills/operating-kit/SKILL.md（1〜4 行）",
+    "quote": "name: operating-kit",
+    "half": "B"
+   },
+   {
+    "q": "QB3 Workflow（dynamic workflows）はクラウドのセッション・claude.ai のチャット・Cowork で使えるか",
+    "answer": "一部言える。資料は、有料プランで使え、動く面は CLI・Desktop アプリ・IDE 拡張・claude -p・Agent SDK と書く（Turn workflows off の節）。クラウドは、実行結果を会話履歴と一緒に残すと書かれる（resume の節）ので、動く前提の記述はあるが、面の一覧には入っていない。claude.ai のチャットと Cowork は、資料に記載が無い（使えるとも使えないとも書かれていない）。",
+    "status": "一部言える",
+    "file": "code_workflows.md（冒頭の Note・### Turn workflows off・#### Resume after you leave the session）",
+    "quote": "Workflows are available in the CLI, the Desktop app, the IDE extensions, non-interactive mode with claude -p, and the Agent SDK.",
+    "half": "B"
+   },
+   {
+    "q": "QB3 リポジトリの .claude/workflows/ と plugin の workflows/ は、クラウドのセッションで読まれるか",
+    "answer": "一部言える。repo の .claude/workflows/ は『shared with everyone who clones the repo』と書かれる。クラウドは clone から作られるので読まれる見込みは高いが、クラウドで読むと明記した文は無い（推し量り）。plugin の workflows/ は、クラウドがマシンに入れたプラグインも repo の settings で有効にしたプラグインも読まない（install の Cloud session タブ）ので、クラウドで読まれる経路は資料に見当たらない。チャットは、platform-support の表に workflows/ が無いので、資料に記載が無い。",
+    "status": "一部言える",
+    "file": "code_workflows.md（### Save the workflow for reuse・### Distribute a workflow in a plugin）",
+    "quote": ".claude/workflows/ in your project: shared with everyone who clones the repo",
+    "half": "B"
+   },
+   {
+    "q": "QB3 個人プランで要る設定・規模の目安",
+    "answer": "資料で言える。有料プラン（all paid plans）で使える。Pro は /config の Dynamic workflows の行を on にする。規模の目安（size guideline）の既定は medium（10 体未満）。ただし Pro で Claude Code v2.1.271 以降のときは small（5 体未満）。unrestricted・small・medium・large から選べ、/config workflowSizeGuideline=small のようにも設定できる。止めるには、/config の行、~/.claude/settings.json の disableWorkflows、CLAUDE_CODE_DISABLE_WORKFLOWS=1、組織なら managed settings か admin 画面。",
+    "status": "資料で言える",
+    "file": "code_workflows.md（### Set a size guideline・### Turn workflows off）",
+    "quote": "The default is medium, or small when you're signed in on a Pro plan with Claude Code v2.1.271 or later.",
+    "half": "B"
+   },
+   {
+    "q": "QB4 setup script の中で、環境の環境変数は見えるか",
+    "answer": "資料に無い。文書は、環境の値はセッション作成時に読まれ、Claude が実行するコマンドから読める環境変数になると書く（Set environment variables の節）。setup script からそれが見えるかは書かれていない。setup script 固有の CLAUDE_CODE_REMOTE の記述は、SessionStart hook の例にだけある。",
+    "status": "資料に無い",
+    "file": "code_cloud-environments.md（### Set environment variables）",
+    "quote": "A session reads the environment's values into ordinary environment variables that any command Claude runs can read",
+    "half": "B"
+   },
+   {
+    "q": "QB4 setup script の作業ディレクトリ",
+    "answer": "資料に無い。setup script は『before Claude Code launches』に走り、root・Ubuntu 24.04 で動くと書かれるが、作業ディレクトリは書かれていない。例のスクリプトは ~/.claude（root の場合 /root/.claude）を使う。",
+    "status": "資料に無い",
+    "file": "code_cloud-environments.md（## Setup scripts）",
+    "quote": "A setup script is a Bash script that runs when a new cloud session starts, before Claude Code launches.",
+    "half": "B"
+   },
+   {
+    "q": "QB4 setup script は、リポジトリが clone された後に走るか",
+    "answer": "一部言える。web-quickstart の手順は『Clone and prepare: your repository is cloned ..., and your setup script runs if configured』と書き、Start a task でも『Claude clones the repositories, runs your setup script if configured, and starts working』と書くので、clone の後に setup script と読める。ただし cloud-environments の文書に『clone の後』と明記した文は無く、明記されるのは『Claude Code の起動前』だけ。なお、setup script のリクエストには network secret が付かない（Claude Code がプロキシに接続するのは起動後）。",
+    "status": "一部言える",
+    "file": "code_web-quickstart.md（## How sessions run・### Start a task）",
+    "quote": "Clone and prepare: your repository is cloned to an Anthropic-managed VM, and your setup script runs if configured.",
+    "half": "B"
+   },
+   {
+    "q": "QB5 claude.ai/code の prefill URL（prompt・prompt_url・repositories・environment）の欄",
+    "answer": "資料で言える。欄は四つ。prompt（別名 q。入力欄に事前入力される。送信はされない）、prompt_url（取得する URL）、repositories（別名 repo。owner/repo をカンマ区切り）、environment（名前か ID）。値は URL エンコードする。",
+    "status": "資料で言える",
+    "file": "code_web-quickstart.md（## Pre-fill sessions）",
+    "quote": "Prompt text to prefill in the input box. The alias q is also accepted.",
+    "half": "B"
+   },
+   {
+    "q": "QB5 prefill URL でモデル・枝・effort を入れられるか",
+    "answer": "一部言える。表にあるのは上の四つだけで、モデルと枝は無い。入れられないとも書かれていない（推し量り）。枝は画面でリポジトリ選択の後ろの枝の操作で変える、と書かれる。effort と model は、クラウドではセッション内で /model <名前> と /effort <値> を引数で渡せる（Manage context）が、それを URL のプロンプトの先頭に書けるかは資料に無い。",
+    "status": "一部言える",
+    "file": "code_web-quickstart.md（### Select a repository and branch・## Pre-fill sessions）",
+    "quote": "At claude.ai/code, to start Claude from a feature branch instead of the default, change the branch in the control after the repository selector.",
+    "half": "B"
+   },
+   {
+    "q": "QB5 prompt_url の条件",
+    "answer": "資料で言える。取得する URL は cross-origin のリクエストを許す必要がある。prompt と同時に指定した場合は無視される。長い指示文を URL 経由で渡すための欄。",
+    "status": "資料で言える",
+    "file": "code_web-quickstart.md（## Pre-fill sessions）",
+    "quote": "The URL must allow cross-origin requests. Ignored when prompt is also set.",
+    "half": "B"
+   }
+  ],
+  "newFacts": [
+   {
+    "fact": "README は Claude Code の更新を『claude plugin update operating-kit@operating-kit で受け取ります』と案内しているが、plugin.json は version 0.1.0 を固定している（main も同じ）。資料では、version を固定したままコミットを足すと update は already at the latest version となり、利用者は古い写しのままになる。",
+    "file": "/home/user/operating-kit/README.md（Claude Code（marketplace から）） と /home/user/operating-kit/.claude-plugin/plugin.json",
+    "quote": "新しい版は `claude plugin update operating-kit@operating-kit` で受け取ります。 ／ https://code.claude.com/docs/en/plugins/publish: If you set `version` in `plugin.json` and later push commits without changing it, `claude plugin update` prints `<name> is already at the latest version (1.0.0).` and users keep the old copy.",
+    "relevance": "型の README の更新案内は、版を上げるか version を省かない限り効かない。型の版を上げる際に効く。",
+    "half": "A"
+   },
+   {
+    "fact": "README は claude.ai と Cowork に operating-kit.skill を入れるよう案内しているが、この作業枝の working tree には *.skill・*.zip・*.plugin のファイルが無い。",
+    "file": "/home/user/operating-kit/README.md（claude.ai・Cowork） と /home/user/operating-kit（ファイル検索）",
+    "quote": "**claude.ai・Cowork**：`operating-kit.skill` を、自分のアカウントのスキルとして入れます。",
+    "relevance": "claude.ai のアカウントにスキルとして入れる経路の入れ物が、この checkout に無い。作る手順か、別の場所に置く場所が要る。",
+    "half": "A"
+   },
+   {
+    "fact": "プラグインをクラウドのセッションに届ける経路として資料に明記があるのは Projects だけ。Project settings > Plugins に足したプラグインは、新しい cloud thread に読み込まれる。Projects は Pro・Max の public beta で、rolling out gradually とある。",
+    "file": "https://code.claude.com/docs/en/claude-projects（Get skills, plugins, connectors, and tools into threads・Projects are in public beta）",
+    "quote": "Plugins: add them in **Project settings > Plugins**; they load into each new cloud thread. Plugins that a repository declares in its `.claude/settings.json` don't load in cloud threads.",
+    "relevance": "claude.ai 上で、型をプラグインとしてクラウドの thread に届ける唯一の資料記載の経路。ただし通常の claude.ai/code のセッションとは別で、全アカウントに出るとは限らない。",
+    "half": "A"
+   },
+   {
+    "fact": "この VM の /root/.claude/skills/ には、利用者の端末から持ち越されていない session-start-hook が置かれており、このセッションのスキル一覧に出ている。資料では『~/.claude/skills/ は読まれない』は利用者の端末のものを指す。VM 上に置いたものは別。資料の setup script の例（VM の ~/.claude/CLAUDE.md が読み込まれる）と同じ理屈で、VM の ~/.claude/skills/ に置いた SKILL.md も読まれる見込み。ただしスキルについて明記は無い。",
+    "file": "/root/.claude/skills/session-start-hook/SKILL.md（この VM で存在を確認）、https://code.claude.com/docs/en/cloud-environments（Add personal preferences without committing to the repo）",
+    "quote": "In an Anthropic-hosted environment, add a [setup script](#setup-scripts) that writes `~/.claude/CLAUDE.md` for preferences you'd rather not put in a shared repository. Claude Code loads that file as user instructions in the session.",
+    "relevance": "setup script で VM の ~/.claude/skills/ に型のスキルを置く案の根拠。ただし、スキル版での読み込みは資料に明記が無く、この VM で実地に確かめるべき点。",
+    "half": "A"
+   },
+   {
+    "fact": "作業枝の plugin.json と marketplace.json の description は『下調べ・整備・考察と発想・計画とデザイン・実装』で段②の分け方を含むが、公開 main の同じファイルは『下調べ・整備・計画とデザイン・実装』で分け方を含まない。main から入れると、作業枝の直しは入らない。",
+    "file": "https://raw.githubusercontent.com/pe-kun333/operating-kit/main/.claude-plugin/plugin.json と marketplace.json（WebFetch で取得）、/home/user/operating-kit/.claude-plugin/plugin.json",
+    "quote": "main: 判断は主担当一人、下調べ・整備・計画とデザイン・実装を段階ごとの新しいセッションで進め ／ 作業枝: 判断は主担当一人、下調べ・整備・考察と発想・計画とデザイン・実装を段階ごとの新しいセッションで進め",
+    "relevance": "別アカウントに入れるときに、どの branch（main か作業枝）を入れるかで型の中身が変わる。SKILL.md 冒頭の『正本へはまだ入れていない』と整合。",
+    "half": "A"
+   },
+   {
+    "fact": "plugin 経由の workflow は、プラグインルートの workflows/ に置くか、manifest の workflows 欄で指す場所に置いたものが /<plugin>:<meta.name> で走る。型の 3 本（consult.js・ideate.js・survey.js）は skills/operating-kit/scripts/ にあり、plugin.json に workflows 欄は無い。そのため、プラグインを入れても自動では workflow として見つからない見込み（SKILL は scriptPath で指す形）。",
+    "file": "https://code.claude.com/docs/en/workflows（Distribute a workflow in a plugin）、/home/user/operating-kit/skills/operating-kit/scripts/（export const meta の 3 本）、/home/user/operating-kit/.claude-plugin/plugin.json",
+    "quote": "Place the script in a `workflows/` directory at the plugin root, or point to a different location with the [`workflows` manifest field]. Plugin workflows are namespaced by the plugin name.",
+    "relevance": "プラグインとして入れた型で、Workflow を /operating-kit:<name> で呼べるかは、置き場所を変えるか manifest に書くまで確かめられない。",
+    "half": "A"
+   },
+   {
+    "fact": "Workflow の利用面は、資料では CLI・Desktop・IDE 拡張・claude -p・Agent SDK と、クラウドセッションの結果保存。claude.ai チャットと Cowork は挙がらない。ultracode の合図は対話プロンプトなどに限られ、-p・スケジュール・webhook では効かない。",
+    "file": "https://code.claude.com/docs/en/workflows（Turn workflows off・Where the keyword works・Resume after you leave the session）",
+    "quote": "Workflows are available in the CLI, the Desktop app, the IDE extensions, [non-interactive mode] with `claude -p`, and the [Agent SDK]. / The keyword is an opt-in only in a prompt you type yourself",
+    "relevance": "別アカウントのチャットや Cowork で、型の Workflow（相談・発想のスクリプト）を使う前提は資料で支えられない。",
+    "half": "A"
+   },
+   {
+    "fact": "この VM の環境変数 CLAUDE_CODE_SYNC_PLUGINS=1 は資料に無い。資料にあるのは CLAUDE_CODE_SYNC_SKILLS=1（非対話の -p 実行で、スキルの同期を待つ）と CLAUDE_CODE_SYNC_PLUGIN_INSTALL=1（-p 実行で plugin の install を待つ）。CLAUDE_CODE_REMOTE=true は、資料で remote web 環境で true と書かれており、一致する。",
+    "file": "https://code.claude.com/docs/en/skills（Where synced skills load）、https://code.claude.com/docs/en/plugins/org（When each surface applies the plugin keys）、https://code.claude.com/docs/en/hooks（Common input fields・環境変数の注）",
+    "quote": "To make a non-interactive run download your skills and wait for the list before it answers the prompt, set `CLAUDE_CODE_SYNC_SKILLS` to `1`. / Set `CLAUDE_CODE_SYNC_PLUGIN_INSTALL=1` to make the run wait for the install before its first query. / The `$CLAUDE_CODE_REMOTE` environment variable is `\"true\"` in remote web environments",
+    "relevance": "CLAUDE_CODE_SYNC_PLUGINS=1 が plugin 同期の経路かどうかは、資料からは確かめられない。QA1 の判断材料としては、資料外の変数として扱うのが安全。",
+    "half": "A"
+   },
+   {
+    "fact": "SessionStart hook の additionalContext と stdout は、10,000 字を超えると、ファイルに書き出され、Claude には先頭 2,000 字のプレビューとファイルパスが渡される。10,000 字までという理解は、この点を足す必要がある。",
+    "file": "https://code.claude.com/docs/en/hooks（Add context for Claude）",
+    "quote": "If a value exceeds 10,000 characters, Claude Code writes the text to a file in the session directory and passes Claude the file path with a preview of up to the first 2,000 characters instead.",
+    "relevance": "型の一言や文脈を SessionStart hook で注入する場合の上限の正確な扱い。",
+    "half": "A"
+   },
+   {
+    "fact": "operating-kit の plugin.json は version を 0.1.0 に固定している。版を上げずにコミットを足しても、既存の利用者には新しいコミットが届かない。README が案内する claude plugin update も、already at the latest version で止まる。",
+    "file": "/home/user/operating-kit/.claude-plugin/plugin.json",
+    "quote": "\"version\": \"0.1.0\"（文書側：If you set \"version\": \"1.0.0\" and push new commits without changing it, users don't receive them.）",
+    "relevance": "型を別のアカウントや人に広げるとき、直しのたびに version を上げるか、version を省く運用が要る（code_plugins_host-marketplace.md の Release a new version）。",
+    "half": "B"
+   },
+   {
+    "fact": "ultracode の合図が効く入力経路の一覧（対話プロンプト・IDE 拡張パネル・Remote Control・人の入力を明示した SDK）に、claude.ai/code の Web や Desktop のクラウドセッションへの入力は書かれていない。効くかどうかは資料から確かめられない。",
+    "file": "code_workflows.md（#### Where the keyword works）",
+    "quote": "The keyword is an opt-in only in a prompt you type yourself: at the interactive prompt, in an IDE extension panel, in a Remote Control client, or in an Agent SDK application ...",
+    "relevance": "クラウドセッションで合図の語を使う運用の前に、実機で一度確かめる必要がある。",
+    "half": "B"
+   },
+   {
+    "fact": "Workflows の面の一覧（CLI・Desktop・IDE 拡張・claude -p・Agent SDK）に、クラウドセッション・claude.ai チャット・Cowork は入っていない。クラウドは、実行結果を会話履歴と一緒に残すという記述で示唆されるだけ。",
+    "file": "code_workflows.md（### Turn workflows off・#### Resume after you leave the session）",
+    "quote": "Workflows are available in the CLI, the Desktop app, the IDE extensions, non-interactive mode with claude -p, and the Agent SDK. The same disable settings apply on every surface.",
+    "relevance": "QB3 の答えの根拠。クラウドやチャットで使う前提を置くときは、文書の一覧に無いことを踏まえる。",
+    "half": "B"
+   },
+   {
+    "fact": "setup script のリクエストには network secret が付かない。Claude Code がエージェントプロキシに接続するのは起動後で、setup script が終わった後になる。",
+    "file": "code_cloud-environments.md（#### Requests that never get the secret）",
+    "quote": "Setup script requests: Claude Code connects to the agent proxy when it launches, after the setup script has run",
+    "relevance": "setup script の中で、network secret を付けた API を叩く取得処理は組めない。",
+    "half": "B"
+   },
+   {
+    "fact": "文書は、個人の好みを書く setup script を共有環境に置かず、自分の環境に置くよう勧める。環境は個人に紐づき、共有環境は Team・Enterprise の Owner だけが作れる。",
+    "file": "code_cloud-environments.md（#### Add personal preferences without committing to the repo）",
+    "quote": "Put the script on one of your own environments rather than a shared one.",
+    "relevance": "別のアカウントは、それぞれの環境で setup script を一度設定する必要がある。",
+    "half": "B"
+   },
+   {
+    "fact": "setup script から shell の claude plugin install を呼ぶ道が、install の文書に例として書かれている。ただし、その後にクラウドで読まれるかは書かれていない。",
+    "file": "code_plugins_install.md（### Install from your shell）",
+    "quote": "Run `claude plugin install` in your shell to install a plugin without starting a Claude Code session, for example from a setup script.",
+    "relevance": "QB1 の skills・settings の代わりに試せる道。読み込みは実機で確かめる。",
+    "half": "B"
+   },
+   {
+    "fact": "プラグインの自動更新の既定は、公式の marketplace が on、claude.ai から追加された marketplace も on、それ以外は off。公式以外を一律に off とは書かれていない。",
+    "file": "code_plugins_loading.md（#### Which marketplaces and plugins auto-update）",
+    "quote": "on for marketplaces added from claude.ai, and off for every other marketplace",
+    "relevance": "claude.ai 経由で配ると、Claude Code 側の自動更新は既定で on になる。code_plugins_install の『claude.ai の marketplace』と合わせて確かめる。",
+    "half": "B"
+   },
+   {
+    "fact": "SKILL.md に Claude Code 専用の欄（例：argument-hint や when_to_use）を足すと、claude.ai へのアップロードは hard error で失敗する。今の SKILL.md は、この条件に入っている。",
+    "file": "code_skills.md（#### Using skill frontmatter outside Claude Code）",
+    "quote": "If you include any field the spec doesn't allow, packaging or upload fails with a hard error instead of ignoring the field.",
+    "relevance": "型の SKILL.md を直すとき、claude.ai 用の ZIP が作れなくなる恐れがある。",
+    "half": "B"
+   },
+   {
+    "fact": "README が案内する operating-kit.skill はリポジトリに無い（.skill も .zip も見つからない）。資料も .skill の拡張子に触れない。claude.ai 用の配布物は、ZIP を作る手順を別に持つ必要がある。",
+    "file": "/home/user/operating-kit/README.md（21 行目）",
+    "quote": "claude.ai・Cowork：`operating-kit.skill` を、自分のアカウントのスキルとして入れます。",
+    "relevance": "claude.ai 向けの配布の手順に穴がある。",
+    "half": "B"
+   },
+   {
+    "fact": "組織に所属するアカウントでは、claude --cloud と -p --cloud は、Owner が Claude Code の管理設定で allow_remote_sessions を有効にしていないと使えない。",
+    "file": "code_claude-code-on-the-web.md（### Send follow-ups from the CLI の Note）",
+    "quote": "Your organization's allow_remote_sessions policy must also be enabled. An Owner can turn it on in the Claude Code admin settings",
+    "relevance": "Team・Enterprise の別アカウントでは、まずこの設定を確かめる。",
+    "half": "B"
+   },
+   {
+    "fact": "operating-kit のリポジトリには .claude/・workflows/・docs/ が無い。3 本のスクリプトは skills/operating-kit/scripts/ にあり、ヘッダーは Workflow ツールに scriptPath（絶対パス）と args で渡す形を前提にしている。",
+    "file": "/home/user/operating-kit/skills/operating-kit/scripts/consult.js（9 行目）",
+    "quote": "Workflow ツールに scriptPath（このファイルの絶対パス）と args で渡す。",
+    "relevance": "QB3。.claude/workflows/ や plugin の workflows/ に置いていないので、/<name> の形では自動で並ばない。",
+    "half": "B"
+   },
+   {
+    "fact": "Projects は Pro・Max の公開ベータで、段階的に展開されている。Team・Enterprise は未対応。サイドバーに出ないアカウントは、展開を待つ必要がある。",
+    "file": "code_claude-projects.md（冒頭の Note）",
+    "quote": "Projects are in public beta on Pro and Max plans and rolling out gradually",
+    "relevance": "checks の 81 の補足。別のアカウントで Projects が使えるかは、プランと展開状況で決まる。",
+    "half": "B"
+   }
+  ],
+  "main_checks": [
+   {
+    "what": "クラウドのセッションが、claude.ai のアカウントのプラグインを同期する仕組みを持つか",
+    "how": "このクラウドのセッション（Claude Code 2.1.301）の起動の記録 /tmp/claude-code-*.diag.log を読んだ",
+    "result": "起動時に plugins_sync_starting → plugins_sync_no_changes（count 0、had_manifest false）→ plugins_sync_wait が出ていた。skills_sync も並んで走り、13 のスキルを落としていた。資料はクラウドを同期先に挙げないが、クラウドのセッションも起動時にアカウントのプラグインを同期しに行く。このアカウントにはプラグインが無いので、届いたプラグインが読まれるところまでは見ていない。"
+   },
+   {
+    "what": "VM の ~/.claude/skills/ に置いたスキルが、クラウドのセッションで読まれるか",
+    "how": "実行中のこのセッションで ~/.claude/skills/okprobe-skill/SKILL.md を書いた（試しのあと消した）",
+    "result": "数秒でこのセッションのスキルの一覧（system-reminder）に okprobe-skill が出た。基盤が置いた ~/.claude/skills/session-start-hook も一覧にある。資料の『~/.claude/skills/ は読まれない』は、利用者のマシンのファイルが持ち越されない意味で、VM の ~/.claude/skills/ は読まれる。setup script で置いた場合も、同じ場所なので読まれる見込みが高い（setup script そのものは試していない）。"
+   },
+   {
+    "what": "~/.claude/skills/<名>/ に .claude-plugin/plugin.json を置くと、プラグインとして読まれるか（skills-dir）",
+    "how": "このリポジトリの .claude-plugin/ と skills/ を ~/.claude/skills/okprobe/ に写し（plugin.json の name を okprobe に）、シェルで claude plugin list と --json を見た（試しのあと消した）",
+    "result": "okprobe@skills-dir、Scope user、Status loaded。install の手順は要らない（資料 plugins/loading・plugins/create の skills-dir の記述どおり）。"
+   },
+   {
+    "what": "リポジトリの .claude/skills/<名>/ に置いたプラグイン（project scope の skills-dir）",
+    "how": "この作業ディレクトリと、別の試しのディレクトリの .claude/skills/ に置き、シェルで claude plugin list を見た（試しのあと消した）",
+    "result": "どちらも『this workspace was not trusted when plugins were scanned』で飛ばされた。シェルの claude から見た信頼で、セッションそのものでどうなるかは分からない。資料は project scope のプラグインに信頼の確かめを要すると書き、クラウドは信頼のダイアログを出さない。確かでない道として扱う。"
+   },
+   {
+    "what": "この VM で、公開の marketplace からプラグインを入れられるか",
+    "how": "claude plugin marketplace add pe-kun333/operating-kit と claude plugin install operating-kit@operating-kit を走らせ、claude plugin list と installed_plugins.json を見た（試しのあと uninstall・marketplace remove・~/.claude を元に戻した）",
+    "result": "入った（scope user、version 0.1.0、gitCommitSha ba8f04d = main の最初のコミット）。中身は最初の版（assets のひな形 5 つ。map-index・wip-index・ideas-index は無い）。別のアカウントが main から入れると、作業枝の直しは入らない。このリポジトリはこのセッションに付いているので、付いていないリポジトリのセッションの setup script で git clone が通るかは試していない（GitHub の proxy はセッションに付いたリポジトリだけを通す。raw.githubusercontent.com は Trusted の許しの一覧にあり、公開のファイルは届くと資料にある）。"
+   },
+   {
+    "what": "claude.ai の Add marketplace で枝を選べるか",
+    "how": "claudecom_plugins_overview.md・platform-support を読んだ",
+    "result": "入れるのは repository URL か owner/repo だけで、枝や ref の欄は書かれていない。CLI の owner/repo#ref に当たるものは無い（読まれる枝は資料に無い。既定の枝と見るのが自然）。"
+   },
+   {
+    "what": "SKILL.md の description の長さ",
+    "how": "python で数えた",
+    "result": "474 字・1,074 バイト。claude.ai の上限は 1,024 characters（資料は字と書く）。"
+   }
+  ]
+ }
 }
