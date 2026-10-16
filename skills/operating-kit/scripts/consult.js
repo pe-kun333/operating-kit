@@ -23,9 +23,9 @@ export const meta = {
 //   blind       background を見せない観点（目隠し）。true なら全部、観点の名前の一覧ならその観点だけ（観点に blind: true と書いてもよい）。
 //               案を広げさせる観点には見せない（主担当の見立てに引きずられないように）。疑わせる観点には見せる。省くと全部に見せる。
 //               lenses を省いたとき（既定の五つ）は true にできない（既定の五つは目隠しにしない。スクリプトが止める）。
-//               目隠しの観点には、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、見送りの台帳、計画書の決めごとも読ませない（read は全部の観点に共通なので、
+//               目隠しの観点には、HANDOFF.md、案の一覧のフォルダ（sources/ 以外）、考察ノート、cards.md、raw-R*.json、tries/、思いつきの置き場、見送りの台帳、計画書の決めごとも読ませない（指示文で伝える。read は全部の観点に共通なので、
 //               blind を使うときは、そこを read に入れない。HANDOFF.md・wip/ の下の案の一覧のフォルダ（sources/ 以外）・wip/ の下の cards.md・notes.md・tries/・
-//               raw-R*.json・ideas-inbox.md・ideas-shelf.md・.. を含むパス・wip のフォルダごとはスクリプトが止める（ideate.js と同じ検査。後ろの注を落とし、
+//               raw-R*.json・ideas-inbox.md・ideas-shelf.md・.. を含むパス・wip のフォルダごと・map のフォルダごとはスクリプトが止める（ideate.js と同じ検査。後ろの注を落とし、
 //               大文字と小文字を分けずに見る）。topic には論点だけを書き、案・おすすめは background に）
 //
 // 返すもの：{ topic, role, model, form, answered, empty, blind, answers: [{ lens, answer }] }
@@ -149,6 +149,7 @@ const READ_BANS = [
   [/(^|\/)wip\/[^/]+\/ideas(-[^/]*)?(\/(?!sources(\/|$))|$)/, '案の一覧のフォルダ（sources/ 以外）'],
   [/(^|\/)wip\/(.*\/)?tries(\/|$)/, '試しの結果（tries/）'],
   [/(^|\/)wip\/(.*\/)?(cards|notes)\.md$/, '考察ノート・カード'],
+  [/(^|\/)wip\/[^/]+\/map\/?$/, 'map のフォルダごと（ファイルを名指しする）'],
   [/(^|\/)wip(\/[^/]+)?\/?$/, 'wip のフォルダごと（ファイルを名指しする）'],
 ]
 // 理由を返す（問題なしなら空）。頭の空白は先に落とす（落とさないと、切ったときに空になって素通りする）
@@ -166,7 +167,7 @@ if (blind.length) {
   }
 }
 const BLIND_KEEP = [
-  '- 主担当の見立てを見ないため、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、見送りの台帳、計画書の決めごとは読まない（読むものに挙がっていても）。',
+  '- 主担当の見立てを見ないため、HANDOFF.md、案の一覧のフォルダ（sources/ 以外のすべて）、考察ノート（notes.md）、cards.md、raw-R*.json、tries/、思いつきの置き場、見送りの台帳、計画書の決めごと（HANDOFF.md の §0 の 4・§4.1・§4.2 を含む）は読まない（読むものに挙がっていても）。HANDOFF.md を読む決まり（CLAUDE.md の「作業の始め方」など）は、この相では行わない。',
   '- 別案は alternatives に。案そのものには根拠が無くてよい（入れる所が分かれば、ファイルと行を付ける）。主張には根拠を付ける。',
 ]
 

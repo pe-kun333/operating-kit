@@ -8,14 +8,19 @@
 //       書く先が既にあれば失敗（上書きしない決まり。同じ周の二回目からは raw-R<周>-2.json と番号を上げる。--force で上書き）。
 //   node ideas-table.mjs table <raw.json> [--run <run ID>]
 //       ideate.js の返す値（raw-R<周>.json）の ideas を、案の一覧の「観点 × 案の表」の行にして標準出力へ（見出しの行は出さない）。
+//       そのあとに、つなぐ一体の案（synth.ideas。R<周>-X-<番号>）も行にする。
 //       列：| id | 短い名前 | 何を（一文） | 観点 | 種類 | 部分 | 出どころ |
 //       種類は広げた担当の自己申告（kind）。付け直しは主担当が手で（「（→ ）」は出さない）。部分は「・」でつなぐ。
 //       出どころは R<周>（--run があれば R<周>・<run ID>）。主担当の案（main: true）は「主担当」。
+//       つなぐ一体の案は、観点が「つなぐ」、部分は空、出どころは R<周>・つなぐ（--run があれば R<周>・<run ID>・つなぐ）。
 //   node ideas-table.mjs known <raw.json>...
-//       渡した全部の raw の案を「<id> <短い名前>」にして、JSON の配列で標準出力へ（ideate.js の known にそのまま渡せる）。
-//       同じ id が二つあれば失敗。
+//       渡した全部の raw の案（ideas と synth.ideas）を「<id> <短い名前>」にし、そのあとに、各 raw の asked.known
+//       （置き場・台帳から載せた案は、ideas に無く asked.known にだけある）の行のうち、まだ出ていない id のものを、そのまま足して、
+//       JSON の配列で標準出力へ（ideate.js の known にそのまま渡せる）。順は、全部の raw の ideas・synth.ideas（ファイルの順）、そのあとに asked.known から足したもの。
+//       ideas と synth.ideas で同じ id が二つあれば失敗。asked.known どうし・ideas との id の重なりは失敗にせず、最初の一つだけ残す。
 //   node ideas-table.mjs --help
-// table と known は、ideas の各案がオブジェクトで、id が空でない文字列であることを見る（違えば失敗）。
+// table と known は、ideas と synth.ideas の各案がオブジェクトで、id が空でない文字列であることを見る（違えば失敗。synth が null の周は synth.ideas を見ない）。
+// known は、asked.known があれば、空でない文字列の配列であることも見る。
 // 引数が足りない・知らないコマンドは、使い方を出して終了コード 1。
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 
@@ -24,10 +29,12 @@ const USAGE = [
   '  node ideas-table.mjs extract <出力のファイル> <書く先.json> [--force]',
   '      出力のファイル（JSON）の result だけを整形して書く。書く先が既にあれば失敗（--force で上書き）',
   '  node ideas-table.mjs table <raw.json> [--run <run ID>]',
-  '      ideas を「観点 × 案の表」の行にして標準出力へ',
+  '      ideas と、つなぐ一体の案（synth.ideas）を「観点 × 案の表」の行にして標準出力へ',
   '      列：| id | 短い名前 | 何を（一文） | 観点 | 種類 | 部分 | 出どころ |',
+  '      つなぐ一体の案は、観点が「つなぐ」、出どころが R<周>・つなぐ（--run があれば R<周>・<run ID>・つなぐ）',
   '  node ideas-table.mjs known <raw.json>...',
-  '      全部の案を「<id> <短い名前>」の JSON の配列にして標準出力へ（ideate.js の known に渡せる）',
+  '      全部の案（ideas と synth.ideas）を「<id> <短い名前>」の JSON の配列にして標準出力へ（ideate.js の known に渡せる）',
+  '      そのあとに、各 raw の asked.known の行のうち、まだ出ていない id のものを足す（置き場・台帳から載せた案のため）',
 ].join('\n')
 
 const usage = (msg) => {
@@ -52,14 +59,23 @@ const readJson = (file) => {
     fail(`JSON として読めない：${file}（${e.message}）`)
   }
 }
+const hasId = (x) => x && typeof x === 'object' && !Array.isArray(x) && typeof x.id === 'string' && x.id.trim() !== ''
 const readIdeas = (file) => {
   const raw = readJson(file)
   if (!raw || typeof raw !== 'object' || !Array.isArray(raw.ideas)) fail(`${file} に ideas の配列が無い（ideate.js の返す値を写した raw-R<周>.json を渡す）`)
   raw.ideas.forEach((x, i) => {
-    if (!x || typeof x !== 'object' || Array.isArray(x) || typeof x.id !== 'string' || !x.id.trim()) fail(`${file} の ideas の ${i + 1} 番目に id が無い`)
+    if (!hasId(x)) fail(`${file} の ideas の ${i + 1} 番目に id が無い`)
   })
+  // つなぐ一体の案（synth を起こさなかった周は null）
+  if (raw.synth !== undefined && raw.synth !== null) {
+    if (typeof raw.synth !== 'object' || Array.isArray(raw.synth) || !Array.isArray(raw.synth.ideas)) fail(`${file} の synth に ideas の配列が無い`)
+    raw.synth.ideas.forEach((x, i) => {
+      if (!hasId(x)) fail(`${file} の synth.ideas の ${i + 1} 番目に id が無い`)
+    })
+  }
   return raw
 }
+const synthIdeas = (raw) => (raw.synth ? raw.synth.ideas : [])
 
 const extract = (rest) => {
   const force = rest.includes('--force')
@@ -103,13 +119,19 @@ const table = (rest) => {
   if (pos.length !== 1) usage('table には <raw.json> を一つ渡す')
   const raw = readIdeas(pos[0])
   if (!Number.isInteger(raw.round)) fail(`${pos[0]} に round（周の番号）が無い`)
+  const from = `R${raw.round}${runId ? `・${runId}` : ''}` // 出どころ（R<周> か R<周>・<run ID>）
+  const row = (cells) => `| ${cells.map(cell).join(' | ')} |`
   const rows = raw.ideas.map((x) => {
-    const source = x.main ? '主担当' : `R${raw.round}${runId ? `・${runId}` : ''}`
+    const source = x.main ? '主担当' : from
     const partsText = Array.isArray(x.parts) ? x.parts.join('・') : ''
-    return `| ${[x.id, x.title, x.what, x.lens, x.kind, partsText, source].map(cell).join(' | ')} |`
+    return row([x.id, x.title, x.what, x.lens, x.kind, partsText, source])
   })
+  // つなぐ一体の案は、広げた案・主担当の案のあとに
+  synthIdeas(raw).forEach((x) => rows.push(row([x.id, x.title, x.what, 'つなぐ', x.kind, '', `${from}・つなぐ`])))
   if (rows.length) console.log(rows.join('\n'))
 }
+
+const idOf = (line) => line.trim().split(/\s+/)[0] // 「<id> <短い名前>」の id（最初の空白まで。ideate.js と同じ）
 
 const known = (rest) => {
   const flags = rest.filter((a) => a.startsWith('--'))
@@ -117,13 +139,28 @@ const known = (rest) => {
   if (!rest.length) usage('known には <raw.json> を一つ以上渡す')
   const seen = new Map()
   const out = []
+  const askedKnown = []
   for (const file of rest) {
     const raw = readIdeas(file)
-    for (const x of raw.ideas) {
+    for (const x of [...raw.ideas, ...synthIdeas(raw)]) {
       if (seen.has(x.id)) fail(`同じ id が二つある：${x.id}（${seen.get(x.id)} と ${file}）`)
       seen.set(x.id, file)
       out.push(`${x.id} ${String(x.title).replace(/\s*[\r\n]+\s*/g, ' ')}`)
     }
+    // 置き場・台帳から載せた案は、ideas に無く asked.known にだけある
+    const ak = raw.asked && typeof raw.asked === 'object' ? raw.asked.known : undefined
+    if (ak !== undefined && ak !== null) {
+      if (!Array.isArray(ak) || !ak.every((k) => typeof k === 'string' && k.trim() !== '')) fail(`${file} の asked.known が、空でない文字列の配列でない`)
+      askedKnown.push(...ak)
+    }
+  }
+  // asked.known の行は、まだ出ていない id のものだけ、そのまま足す（重なりは失敗にせず、最初の一つだけ残す）
+  const added = new Set()
+  for (const line of askedKnown) {
+    const id = idOf(line)
+    if (seen.has(id) || added.has(id)) continue
+    added.add(id)
+    out.push(line)
   }
   console.log(JSON.stringify(out, null, 2))
 }

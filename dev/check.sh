@@ -39,21 +39,24 @@ run ideate.js '{"args":{"topic":"t","model":"m","lightModel":"s","lenses":[{"key
 run survey.js '{"args":{"model":"m","topics":[{"key":"a","ask":"x","read":"/tmp/given.pdf"},{"key":"b","ask":"y","periphery":true}],"external":true,"externalScope":"公式だけ"}}' ok
 run survey.js '{"args":{"model":"m","topics":[{"key":"a","ask":"x","periphery":true},{"key":"b","ask":"y","periphery":true}]}}' ng
 run consult.js '{"args":{"topic":"t","model":"m","background":"x","blind":["別案"]}}' ok
-# chk <script> <case> '<python の式>'：走りが ok で、式が真なら ok。式の中では d（出力の JSON）・out（返す値）・calls・
+# chk <script> <case> '<python の式>'：走りが ok で、式が真なら ok。chkng は、走りが ng（止まる）で、式が真なら ok。
+#   式の中では d（出力の JSON）・out（返す値）・calls・err（止まったときのエラー文）・
 #   P(label)（指示文。showPrompts のとき）・S(label)（schema。showSchemas のとき）・M(label)（呼び出しの model）が使える
-chk() { echo "$2" > "$T/tc.json"; node dev/workflow-harness.mjs "$K/scripts/$1" "$T/tc.json" > "$T/out.json"; printf '%s' "$3" > "$T/expr.txt"; "${PY[@]}" - "$T/out.json" "$T/expr.txt" "$1" <<'PY' || fail=1
+chk_() { echo "$3" > "$T/tc.json"; node dev/workflow-harness.mjs "$K/scripts/$2" "$T/tc.json" > "$T/out.json"; printf '%s' "$4" > "$T/expr.txt"; "${PY[@]}" - "$T/out.json" "$T/expr.txt" "$2" "$1" <<'PY' || fail=1
 import json,sys
-d=json.load(open(sys.argv[1],encoding='utf-8')); e=open(sys.argv[2],encoding='utf-8').read()
-out=d.get('out') or {}; calls=d.get('calls') or []; prompts=d.get('prompts') or []; schemas=d.get('schemas') or []
+d=json.load(open(sys.argv[1],encoding='utf-8')); e=open(sys.argv[2],encoding='utf-8').read(); want=sys.argv[4]
+out=d.get('out') or {}; calls=d.get('calls') or []; prompts=d.get('prompts') or []; schemas=d.get('schemas') or []; err=d.get('error') or ''
 P=lambda label: [p for c,p in zip(calls,prompts) if c['label']==label][0]
 S=lambda label: [x for c,x in zip(calls,schemas) if c['label']==label][0]
 M=lambda label: [c['model'] for c in calls if c['label']==label][0]
-try: ok=bool(d['ok'] and eval(e))
+try: ok=bool((d['ok'] if want=='ok' else not d['ok']) and eval(e))
 except Exception as x: ok=False; e+='　例外 '+repr(x)
-print(('ok ' if ok else 'NG ')+sys.argv[3], (e[:90]+'…' if len(e)>90 else e) if ok else e+'　'+(d.get('error') or ''))
+print(('ok ' if ok else 'NG ')+sys.argv[3]+('' if want=='ok' else '（止まる）'), (e[:90]+'…' if len(e)>90 else e) if ok else e+'　'+err)
 sys.exit(0 if ok else 1)
 PY
 }
+chk() { chk_ ok "$@"; }
+chkng() { chk_ ng "$@"; }
 I='"topic":"t","model":"m","lightModel":"s"'
 # ideate.js：主担当の先出しの案（広げる 6 ＋ 照らす 4 ＋ 伸ばす 4。広げる相には見せない）
 chk ideate.js '{"args":{'"$I"',"mainIdeas":[{"id":"R1-主-1","title":"主の案一","what":"何を","kind":"奇抜"},{"id":"R1-主-2","title":"主の案二","what":"何を","kind":"作らない","why":"主の筋道"}]},"showPrompts":true}' \
@@ -69,6 +72,10 @@ run ideate.js '{"args":{'"$I"',"known":["R1-主-1 a"],"mainIdeas":[{"id":"R1-主
 run ideate.js '{"args":{'"$I"',"mainIdeas":[{"id":"R1-主-01","title":"a","what":"b","kind":"奇抜"}]}}' ng
 run ideate.js '{"args":{'"$I"',"mainIdeas":[{"id":"R1-主-0","title":"a","what":"b","kind":"奇抜"}]}}' ng
 run ideate.js '{"args":{'"$I"',"parts":["a","b"],"mainIdeas":[{"id":"R1-主-1","title":"a","what":"b","kind":"奇抜","parts":["a","a"]}]}}' ng
+# 観点が多すぎて mainIdeas と only が両立しないとき、エラー文で伝える（mainIdeas が無ければ伝えない）
+L7='"lenses":["使う人の場面","逆にする","ほかから借りる","制約を一つ外す","極端にする","ほかの立場","組み合わせる"]'
+chkng ideate.js '{"args":{'"$I"','"$L7"',"mainIdeas":[{"id":"R1-主-1","title":"a","what":"b","kind":"奇抜"}]}}' "'一度に起こす観点は 6 まで' in err and 'mainIdeas を渡す周は' in err"
+chkng ideate.js '{"args":{'"$I"','"$L7"'}}' "'一度に起こす観点は 6 まで' in err and 'mainIdeas を渡す周は' not in err"
 # 広げる相が全部空なら、主担当の案の unique は数えない（total は数える）
 chk ideate.js '{"args":{'"$I"',"mainIdeas":[{"id":"R1-主-1","title":"a","what":"b","kind":"奇抜"}]},"fail":["広げる:"]}' \
   "out['counts']['main']=={'total':1,'unique':None} and any('counts.main.unique は数えない' in l for l in d['logs'])"
@@ -112,6 +119,8 @@ chk ideate.js '{"args":{'"$I"',"round":2,"lenses":["使う人の場面","逆に�
   "d['maxActive']==1 and any('逐次' in l for l in d['logs']) and out['asked']['chain'] is True and '先の観点が出した案' not in P('広げる:使う人の場面') and '- 使う人の場面：使う人の場面の案1 — 使う人の場面 1' in P('広げる:逆にする') and 'この周の先の観点の案は、上に挙げた一覧だけで見る' in P('広げる:逆にする')"
 chk ideate.js '{"args":{'"$I"',"round":2,"lenses":["使う人の場面","逆にする"],"chain":true},"throwFor":["広げる:使う人の場面"],"showPrompts":true}' \
   "out['empty']['spread']==['使う人の場面'] and out['counts']['rawSpread']==4 and '先の観点が出した案' not in P('広げる:逆にする')"
+# chain の周は fresh を数えない（先の観点の案を見せているため）
+chk ideate.js '{"args":{'"$I"',"round":2,"known":["R1-L1-1 案"],"chain":true}}' "out['counts']['fresh'] is None and any('fresh は数えない（chain のため）' in l for l in d['logs'])"
 # chain：答えの ideas に null があっても落ちない
 chk ideate.js '{"args":{'"$I"',"round":2,"lenses":["使う人の場面","逆にする"],"chain":true},"spreadNullIdea":true,"showPrompts":true}' \
   "out['asked']['chain'] is True and out['empty']['spread']==[] and '- 使う人の場面：使う人の場面の案1 — 使う人の場面 1' in P('広げる:逆にする')"
@@ -136,9 +145,21 @@ done
 for r in 'docs/wip/x/ideas/sources/a.md' 'docs/wip/x/ideas/sources/' 'src/features/ideas/index.ts' 'lib/tries/trie.ts' 'docs/notes.md' 'docs/wip/x/map/README.md'; do
   chk ideate.js '{"args":{'"$I"',"read":["'"$r"'"]}}' "out['asked']['read']==['$r']"
 done
+# map のフォルダごとも止める（ファイルを名指しする）
+for r in 'docs/wip/x/map' 'docs/wip/x/map/'; do
+  run ideate.js '{"args":{'"$I"',"read":["'"$r"'"]}}' ng
+done
+# constraints.md は大文字と小文字を分けずに見る（共通の read と一周目の観点の read は止める。二周目の観点の read は通し、その観点には「読まない」を出さない）
+run ideate.js '{"args":{'"$I"',"round":2,"read":["docs/wip/x/map/Constraints.md"]}}' ng
+run ideate.js '{"args":{'"$I"',"lenses":["逆にする",{"key":"k","ask":"a","read":["docs/wip/x/map/Constraints.md"]}]}}' ng
+chk ideate.js '{"args":{'"$I"',"round":2,"lenses":["逆にする",{"key":"k","ask":"a","read":["docs/wip/x/map/Constraints.md"]}]},"showPrompts":true}' \
+  "out['asked']['lenses'][1]['read']==['docs/wip/x/map/Constraints.md'] and 'map/constraints.md）は読まない' not in P('広げる:k') and 'map/constraints.md）は読まない' in P('広げる:逆にする')"
 # ideate.js：questions は三つまで・案は 12 まで・why・more・aside。伸ばす・疑う相に全部の案と照らした前提。HANDOFF.md を読む決まりはしない
 chk ideate.js '{"args":{'"$I"'},"showPrompts":true,"showSchemas":true}' \
   "S('広げる:逆にする')['properties']['questions']['maxItems']==3 and S('広げる:逆にする')['properties']['ideas']['maxItems']==12 and 'why' in S('広げる:逆にする')['properties']['ideas']['items']['properties'] and out['more']==[] and out['asides']==[] and '## この周の全部の案（組み合わせ' in P('伸ばす・疑う:塊1') and '（奇抜）' in P('伸ばす・疑う:塊1') and '前提：前提' in P('伸ばす・疑う:塊1') and '筋道（広げた担当の推し量り。事実ではない）：筋道' in P('照らす:塊1') and all('HANDOFF.md を読む決まり' in P(c['label']) for c in calls if c['label'].startswith(('広げる:','照らす:')))"
+# more は二周目でその観点を掘る目安（only で頼み直す目安ではない）
+chk ideate.js '{"args":{'"$I"'},"showPrompts":true}' \
+  "all('二周目でその観点を掘る目安になる' in P(c['label']) and '頼み直す目安になる' not in P(c['label']) for c in calls if c['label'].startswith('広げる:'))"
 # consult.js
 chk consult.js '{"args":{"topic":"t","model":"m","form":"analysis","lenses":[{"key":"k","ask":"a"}]}}' "out['form']=='analysis' and out['answers'][0]['answer']['analysis']=='a'"
 run consult.js '{"args":{"topic":"t","model":"m","form":"x"}}' ng
@@ -153,6 +174,10 @@ run consult.js '{"args":{"topic":" ","model":"m"}}' ng
 run consult.js '{"args":{"topic":"t","model":"m","background":5}}' ng
 chk consult.js '{"args":{"topic":"t","model":"m","form":"analysis","lenses":[{"key":"k","ask":"a","blind":true}]},"showPrompts":true}' \
   "'analysis は散文' in P('相談役:k') and 'claims だけ' in P('相談役:k') and 'alternatives' not in P('相談役:k')"
+# blind の観点には、考察ノート・生の案・試しの結果も読ませず、HANDOFF.md を読む決まりもさせない
+chk consult.js '{"args":{"topic":"t","model":"m","lenses":[{"key":"k","ask":"a","blind":true},{"key":"j","ask":"b"}]},"showPrompts":true}' \
+  "all(w in P('相談役:k') for w in ['notes.md','raw-R','tries/','作業の始め方']) and '作業の始め方' not in P('相談役:j')"
+run consult.js '{"args":{"topic":"t","model":"m","lenses":[{"key":"k","ask":"a","blind":true}],"read":["docs/wip/x/map"]}}' ng
 # survey.js
 run survey.js '{"args":{"model":"m","topics":[{"key":"a/b","ask":"x"}]}}' ng
 run survey.js '{"args":{"model":"m","scope":1,"topics":[{"key":"a","ask":"x"}]}}' ng
@@ -205,6 +230,40 @@ tl ng 'extract（result が 0）' extract "$T/wf-zero.json" "$T/raw-zero.json"
 tlchk "$T/tl.err" 'extract（result が 0）のメッセージ' '"result がオブジェクトでない" in s and "    at " not in s'
 tl ng 'table --run 空' table "$T/raw-R1.json" --run ''
 tlchk "$T/tl.err" 'table --run 空のメッセージ' '"--run には run ID が要る" in s'
+# つなぐ一体の案（synth.ideas）も table と known に入れる
+cat > "$T/raw-synth.json" <<'JSON'
+{"round":1,"ideas":[{"id":"R1-L1-1","title":"a","what":"b","lens":"使う人の場面","kind":"奇抜","parts":["a"]}],"synth":{"roots":[],"ideas":[{"id":"R1-X-1","title":"つなぐ案","what":"組み合わせ","from":["R1-L1-1"],"kind":"組み合わせる"}],"gaps":["空白"]}}
+JSON
+tl ok 'table（synth）' table "$T/raw-synth.json"
+tlchk "$T/tl.out" 'table のつなぐの行' 'len(s.splitlines())==2 and s.splitlines()[1]=="| R1-X-1 | つなぐ案 | 組み合わせ | つなぐ | 組み合わせる |  | R1・つなぐ |"'
+tl ok 'table（synth・--run）' table "$T/raw-synth.json" --run abc
+tlchk "$T/tl.out" 'table のつなぐの行（--run）' 's.splitlines()[0].endswith("| R1・abc |") and s.splitlines()[1].endswith("| R1・abc・つなぐ |")'
+tl ok 'known（synth）' known "$T/raw-synth.json"
+tlchk "$T/tl.out" 'known に synth の id' 'json.loads(s)==["R1-L1-1 a","R1-X-1 つなぐ案"]'
+# asked.known の行（置き場・台帳から載せた案）を、まだ出ていない id のものだけ、全部の ideas のあとに足す
+cat > "$T/raw-asked.json" <<'JSON'
+{"round":2,"ideas":[{"id":"R2-L1-1","title":"c","what":"d","lens":"逆にする","kind":"奇抜"}],"synth":null,"asked":{"known":["R1-L1-1 別の書き方","R1-主-9 置き場の案","R2-L1-1 重なる行","R1-主-9 二度目"]}}
+JSON
+tl ok 'known（asked.known）' known "$T/raw-asked.json" "$T/raw-R1.json"
+tlchk "$T/tl.out" 'known に asked.known の行を足す（重なる id は二重に出ない）' 'json.loads(s)==["R2-L1-1 c","R1-L1-1 案|一","R1-主-1 主の案","R1-主-9 置き場の案"]'
+# ideas（と synth.ideas）どうしの id の重なりは、今までどおり失敗
+tl ng 'known（ideas どうしの同じ id。asked.known があっても）' known "$T/raw-asked.json" "$T/raw-asked.json"
+cat > "$T/raw-synth-dup.json" <<'JSON'
+{"round":1,"ideas":[{"id":"R1-L1-1","title":"a","what":"b","lens":"l","kind":"奇抜"}],"synth":{"roots":[],"ideas":[{"id":"R1-L1-1","title":"x","what":"y","from":[],"kind":"奇抜"}],"gaps":[]}}
+JSON
+tl ng 'known（ideas と synth.ideas の同じ id）' known "$T/raw-synth-dup.json"
+# synth.ideas に id の無い案があれば失敗
+cat > "$T/raw-synth-noid.json" <<'JSON'
+{"round":1,"ideas":[],"synth":{"roots":[],"ideas":[{"id":"R1-X-1","title":"x","what":"y","from":[],"kind":"奇抜"},{"title":"x","what":"y","from":[],"kind":"奇抜"}],"gaps":[]}}
+JSON
+tl ng 'table（synth.ideas に id が無い）' table "$T/raw-synth-noid.json"
+tlchk "$T/tl.err" 'table（synth.ideas に id が無い）のメッセージ' '"synth.ideas の 2 番目に id が無い" in s and "    at " not in s'
+tl ng 'known（synth.ideas に id が無い）' known "$T/raw-synth-noid.json"
+tlchk "$T/tl.err" 'known（synth.ideas に id が無い）のメッセージ' '"synth.ideas" in s and "    at " not in s'
+# asked.known が文字列の配列でなければ失敗（黙って落とさない）
+echo '{"round":2,"ideas":[],"asked":{"known":"R1-L1-1 a"}}' > "$T/raw-asked-bad.json"
+tl ng 'known（asked.known が配列でない）' known "$T/raw-asked-bad.json"
+tlchk "$T/tl.err" 'known（asked.known が配列でない）のメッセージ' '"asked.known" in s and "    at " not in s'
 rm -rf "$T"
 echo '== 5. プラグインの形'; "${PY[@]}" - "$K" <<'PY' || fail=1
 import json,re,glob,os,sys

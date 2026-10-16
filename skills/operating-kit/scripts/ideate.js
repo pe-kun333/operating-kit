@@ -25,7 +25,8 @@ export const meta = {
 //                  次は入れない（共通の read にも観点の read にも。スクリプトが止める。パスは後ろの注（最初の空白・（・(・§・# から先）を落とし、
 //                  大文字と小文字を分けずに見る）：HANDOFF.md、wip/ の下の案の一覧のフォルダ（ideas/・ideas-*/）の sources/ 以外のすべて
 //                  （README.md・cards.md・notes.md・raw-R*.json・tries/ など）、wip/ の下の cards.md・notes.md（地図のフォルダの notes.md も）と tries/、raw-R*.json、
-//                  思いつきの置き場・見送りの台帳（既定の名前 ideas-inbox.md・ideas-shelf.md）、.. を含むパス、wip のフォルダごと（docs/wip/・docs/wip/<日付>/。ファイルを名指しする）。
+//                  思いつきの置き場・見送りの台帳（既定の名前 ideas-inbox.md・ideas-shelf.md）、.. を含むパス、wip のフォルダごと（docs/wip/・docs/wip/<日付>/。ファイルを名指しする）、
+//                  map のフォルダごと（docs/wip/<日付>/map/。ファイルを名指しする）。
 //                  段階①-1 の索引の「思いつき」の節も読ませない（指示文で伝える）。案の一覧のフォルダの sources/ の材料は入れてよい。
 //                  段階①-2 の制約の一覧（map/constraints.md）は、read に入れない（どの周でも。スクリプトが止める）。二周目からは、制約を外す方向の観点の read にだけ入れてよい
 //                  （一周目は観点の read にも入れない。制約は段階②-2 の判定で当てる。constraints.md を読ませない観点には、指示文でも読まないと伝える）
@@ -72,11 +73,11 @@ export const meta = {
 //   raw は重なりを除く前の数（広げた案と主担当の案の全部）で、量の照らしにそのまま使わない。rawSpread は広げた案だけ。byKindSelf は広げた担当の自己申告（主担当の案も数える）。
 //   byLens は走らせた観点ごと（主担当の案があれば「主担当」も）。
 //   fresh は、広げた案（主担当の案は数えない）のうち、調査担当が known との重なりを見つけなかった案の数。known が無いとき、knownToExpand のとき、deepen のとき、
-//   照らされなかった案（unlit）があるとき、広げる相が空だった観点があるとき、広げた案が 0 件のときは null。
+//   chain のとき、照らされなかった案（unlit）があるとき、広げる相が空だった観点があるとき、広げた案が 0 件のときは null。
 //   main は、主担当の案があるとき { total, unique }（無ければ null）。unique は、照らす相の重なり（overlaps）で、広げた案とどちらの側からも重ならなかった主担当の案の数
 //   （広げる相が空だった観点があるとき、広げた案が 0 件のとき、照らされなかった案（広げた案も主担当の案も）があるときは null）。
 //   案の main は、主担当の案なら true、広げた案なら false（広げた担当の答えの欄では上書きしない）。synth は、つなぐ一体の案の数（起こさなかった・空だったときは null。空なら empty.synth が true）。
-//   more は、12 案に届いてなお出せる案があると答えた観点の key（頼み直す目安）。asides は観点の外で浮かんだ考え [{ from, note }]（自由文。案ではない）。
+//   more は、12 案に届いてなお出せる案があると答えた観点の key（二周目でその観点を掘る目安。同じ id になるので only で頼み直さない）。asides は観点の外で浮かんだ考え [{ from, note }]（自由文。案ではない）。
 //   案の why（筋道）は広げた担当の推し量りで、事実ではない。
 //   終わりの目安（docs/main-agent.md §4.2）を照らすのは主担当。asked は頼んだ中身（あとで、どの known で測ったかなどを確かめるため）。
 // 返す値は、要約する前に、通知が示す出力のファイルの JSON の result だけを、案の一覧のフォルダ（docs/wip/<②-1 を始めた日>/ideas/ か ideas-<短い名前>/）の raw-R<周>.json にコマンドで写してコミットする
@@ -177,9 +178,9 @@ if (new Set(keys).size !== keys.length) throw new Error(`観点の名前が重�
 const unknownOnly = only.filter((k) => !keys.includes(k))
 if (unknownOnly.length) throw new Error(`only に lenses に無い観点がある：${unknownOnly.join('・')}`)
 const run = lenses.map((lens, i) => ({ lens, n: i + 1 })).filter(({ lens }) => !only.length || only.includes(lens.key))
-const CONSTRAINTS = 'constraints.md'
-if (read.some((r) => r.includes(CONSTRAINTS))) throw new Error('段階①-2 の制約の一覧（map/constraints.md）は、共通の read に入れない（二周目からは、制約を外す方向の観点の read にだけ。docs/main-agent.md §2.2）')
-if (round === 1 && lenses.some((l) => l.read.some((r) => r.includes(CONSTRAINTS)))) throw new Error('一周目は、制約の一覧（map/constraints.md）を観点の read にも入れない（制約は段階②-2 の判定で当てる）')
+const CONSTRAINTS_RE = /constraints\.md/i
+if (read.some((r) => CONSTRAINTS_RE.test(r))) throw new Error('段階①-2 の制約の一覧（map/constraints.md）は、共通の read に入れない（二周目からは、制約を外す方向の観点の read にだけ。docs/main-agent.md §2.2）')
+if (round === 1 && lenses.some((l) => l.read.some((r) => CONSTRAINTS_RE.test(r)))) throw new Error('一周目は、制約の一覧（map/constraints.md）を観点の read にも入れない（制約は段階②-2 の判定で当てる）')
 // 広げる相に見せないもの（主担当の見立て・前の周の案が入る所）。consult.js にも同じ関数がある。
 // パスは \ を / にし、後ろの注（最初の空白・（・(・§・# から先）を落とし、小文字にして見る。ideas・tries・notes.md・cards.md は wip/ の下に限る
 const READ_BANS = [
@@ -189,6 +190,7 @@ const READ_BANS = [
   [/(^|\/)wip\/[^/]+\/ideas(-[^/]*)?(\/(?!sources(\/|$))|$)/, '案の一覧のフォルダ（sources/ 以外）'],
   [/(^|\/)wip\/(.*\/)?tries(\/|$)/, '試しの結果（tries/）'],
   [/(^|\/)wip\/(.*\/)?(cards|notes)\.md$/, '考察ノート・カード'],
+  [/(^|\/)wip\/[^/]+\/map\/?$/, 'map のフォルダごと（ファイルを名指しする）'],
   [/(^|\/)wip(\/[^/]+)?\/?$/, 'wip のフォルダごと（ファイルを名指しする）'],
 ]
 // 理由を返す（問題なしなら空）。頭の空白は先に落とす（落とさないと、切ったときに空になって素通りする）
@@ -205,7 +207,8 @@ for (const list of [read, ...lenses.map((l) => l.read)]) {
     if (why) throw new Error(`read に入れない：${r}（${why}。広げる相に見せないため。案の一覧のフォルダは sources/ だけ読ませる。docs/main-agent.md §4.1）`)
   }
 }
-if (run.length > maxRun) throw new Error(`一度に起こす観点は ${maxRun} まで（照らす${withGrow ? '・伸ばす・疑う' : ''}と合わせて ${MAX_AGENTS} 体以内）。only で分けて二回にする`)
+if (run.length > maxRun) throw new Error(`一度に起こす観点は ${maxRun} まで（照らす${withGrow ? '・伸ばす・疑う' : ''}と合わせて ${MAX_AGENTS} 体以内）。only で分けて二回にする`
+  + (Array.isArray(args.mainIdeas) && args.mainIdeas.length ? `（mainIdeas を渡す周は only で分けられない。観点を ${maxRun} までにする）` : ''))
 
 // 主担当の先出しの案（広げる相には見せない）
 const MAIN_KEYS = ['id', 'title', 'what', 'scene', 'touches', 'kind', 'parts', 'why']
@@ -304,7 +307,7 @@ const spreadPrompt = (lens, prev) => [
   prev && prev.length ? `\n## この周で先の観点が出した案（重ねない。その先へ積む）\n${prev.map((p) => `- ${p.lens}：${p.title} — ${p.what}`).join('\n')}` : '',
   '',
   '## 返し方',
-  '- 案は 4〜6 つを目安に、実りが多ければ 12 まで。12 に届いてなお出せる案があるときは more を true に（頼み直す目安になる）。ありきたりな案が先に浮かんだら、先に短く出してよい。そのあとは、それと違う方向に出す。',
+  '- 案は 4〜6 つを目安に、実りが多ければ 12 まで。12 に届いてなお出せる案があるときは more を true に（二周目でその観点を掘る目安になる）。ありきたりな案が先に浮かんだら、先に短く出してよい。そのあとは、それと違う方向に出す。',
   '- この観点に合う案が少なければ、少ないまま返し、thin を true にする（数を合わせるために出さない）。',
   '- できれば一つは、今ある面・保存の形・流れのどれかを変えないと入らない、大きく外れた案（kind は「奇抜」）にする。',
   '- 種類を散らすことより、観点に沿って掘ることを優先する。kind は案ごとに付ける（案の一覧で照らす種類は、奇抜・やめる・減らす・組み合わせる・制約を外す・作らない の五つ。観点に合うなら入れてよい）。',
@@ -315,7 +318,7 @@ const spreadPrompt = (lens, prev) => [
   KEEP,
   '- CLAUDE.md と決まりの文書の決まりは、この相では案を減らす理由にしない。決まりに反する案も出す（反するかどうかは書かなくてよい。次の段階で当てる）。',
   noPeek(showKnown || deepen.length > 0, Boolean(prev && prev.length)),
-  lens.read.some((r) => r.includes(CONSTRAINTS)) ? '' : '- 段階①-2 の制約の一覧（map/constraints.md）は読まない（制約は段階②-2 の判定で当てる）。',
+  lens.read.some((r) => CONSTRAINTS_RE.test(r)) ? '' : '- 段階①-2 の制約の一覧（map/constraints.md）は読まない（制約は段階②-2 の判定で当てる）。',
 ].join('\n')
 
 const lightPrompt = (chunk, all) => [
@@ -669,6 +672,7 @@ const spreadWhy = empty.spread.length ? `広げる相が空だった観点 ${emp
 const freshWhy = !known.length ? 'known が無い'
   : knownToExpand ? 'knownToExpand のため'
   : deepen.length ? 'deepen のため'
+  : chain ? 'chain のため'
   : spreadWhy
 const fresh = freshWhy ? null : spreadIdeas.filter((x) => !(x.light.overlaps_known || []).length).length
 if (known.length && fresh === null) log(`fresh は数えない（${freshWhy}）。飽和は主担当が照らす`)
