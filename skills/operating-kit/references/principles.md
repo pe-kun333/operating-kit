@@ -1,6 +1,6 @@
 # 型の芯と、変えてよい所
 
-（正本：honeycomb-browser-grok の `docs/operating-kit/README.md` の §1・§2・§5。版は SKILL.md の頭。§2 の 9 と、段階②-1・②-2 の分け方は、このブランチの直しで、正本へはまだ入れていない）
+（正本：honeycomb-browser-grok の `docs/operating-kit/README.md` の §1・§2・§5。版は SKILL.md の頭。§2 の 9 と、段階②-1・②-2 の分け方は、このブランチの直しで、正本へはまだ入れていない。ほかのこのブランチの直しは SKILL.md の頭の「型の版」の注）
 
 ## 1. 何のための型か
 

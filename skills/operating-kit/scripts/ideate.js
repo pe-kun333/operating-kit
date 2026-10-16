@@ -19,14 +19,15 @@ export const meta = {
 //   effort         広げる・伸ばす・疑う相の effort（任意。low・medium・high・xhigh・max。CLAUDE.md の役割の表に指定が無ければ省く）
 //   lightEffort    照らす相の effort（任意。同じく、表に指定が無ければ省く）
 //   round          周の番号（任意。既定 1）。案の id に入る
-//   read           全員が読むもの（省くと、CLAUDE.md と、段階①-2 で整えた索引と地図。観点の read は、これに足す）。索引と地図はパスを名指しして渡す
+//   read           全員が読むもの（省くと、CLAUDE.md と、段階①-2 の地図と一覧。観点の read は、これに足す）。地図と一覧（map/README.md と地図のファイル）はパスを名指しして渡す
 //                  （HANDOFF.md は読ませないので、省くと担当が探すことになる）。
 //                  次は入れない（広げる相・照らす相の指示文でも読ませない）：HANDOFF.md、案の一覧のフォルダの README.md・cards.md・raw-R*.json、
-//                  思いつきの置き場、見送りの台帳、段階①-1 の索引の「思いつき」の節。案の一覧のフォルダの sources/ の材料は入れてよい。
-//                  段階①-2 の制約の一覧（map/constraints.md）は、一周目（round 1）には入れない（広げる相の指示文でも読ませない。制約は段階②-2 の判定で当てる）
-//   parts          対象の部分の一覧（任意。段階①-2 の地図の系統・面と、使う人の場面から選ぶ。地図に無い切り口は主担当が材料から立てる）。
+//                  思いつきの置き場、見送りの台帳、段階①-1 の索引の「思いつき」の節、試しの結果（tries/）。案の一覧のフォルダの sources/ の材料は入れてよい。
+//                  段階①-2 の制約の一覧（map/constraints.md）は、read に入れない（どの周でも。スクリプトが止める）。二周目からは、制約を外す方向の観点の read にだけ入れてよい
+//                  （一周目は観点の read にも入れない。制約は段階②-2 の判定で当てる。constraints.md を読ませない観点には、指示文でも読まないと伝える）
+//   parts          対象の部分の一覧（任意。段階①-2 の地図と一覧の「部分の候補」から選ぶ。地図に無い切り口は主担当が材料から立てる）。
 //                  渡すと、案ごとにどの部分に効くかを必ず返させ、網羅を部分で測る
-//   lenses         観点の一覧（10 まで）。文字列は下の LENSES の名前、{ key, ask, read? } はそのまま使う。省くと一周目の既定の六つ。
+//   lenses         観点の一覧（下の LENSES の数まで。今は 11）。段階①-2 の lenses.json の { key, ask } も、そのまま入れてよい。文字列は下の LENSES の名前、{ key, ask, read? } はそのまま使う。省くと一周目の既定の六つ。
 //                  一周目は、対象の部分を観点にしたもの（{ key, ask }）と発想の型を半分ずつほど混ぜるとよい。ask に答えの例を書かない
 //   only           起こす観点の名前の一覧（任意）。空だった観点だけを頼み直すときと、観点を二回に分けるとき。
 //                  lenses は元と同じ並びで、round・parts・known も元と同じに渡す（id が変わらない）。返す値は、同じ周の二回目からは raw-R<周>-2.json・-3.json と番号を上げて写す（二回に分けた一回目は raw-R<周>.json。上書きしない）
@@ -130,12 +131,15 @@ if (new Set(keys).size !== keys.length) throw new Error(`観点の名前が重�
 const unknownOnly = only.filter((k) => !keys.includes(k))
 if (unknownOnly.length) throw new Error(`only に lenses に無い観点がある：${unknownOnly.join('・')}`)
 const run = lenses.map((lens, i) => ({ lens, n: i + 1 })).filter(({ lens }) => !only.length || only.includes(lens.key))
+const CONSTRAINTS = 'constraints.md'
+if (read.some((r) => r.includes(CONSTRAINTS))) throw new Error('段階①-2 の制約の一覧（map/constraints.md）は、共通の read に入れない（二周目からは、制約を外す方向の観点の read にだけ。docs/main-agent.md §2.2）')
+if (round === 1 && lenses.some((l) => l.read.some((r) => r.includes(CONSTRAINTS)))) throw new Error('一周目は、制約の一覧（map/constraints.md）を観点の read にも入れない（制約は段階②-2 の判定で当てる）')
 if (run.length > maxRun) throw new Error(`一度に起こす観点は ${maxRun} まで（照らす${withGrow ? '・伸ばす・疑う' : ''}と合わせて ${MAX_AGENTS} 体以内）。only で分けて二回にする`)
 
 // ---- 指示文 ----
-const readList = (extra) => (read.length ? read : ['CLAUDE.md と、段階①-2 で整えた索引と地図（対象に関係する所だけ）']).concat(extra || []).map((r) => `- ${r}`).join('\n')
+const readList = (extra) => (read.length ? read : ['CLAUDE.md と、段階①-2 の地図と一覧（map/README.md と地図のファイル。constraints.md は除く。対象に関係する所だけ）']).concat(extra || []).map((r) => `- ${r}`).join('\n')
 const KEEP = '- あなたが守るのは、読み取り専用・このリポジトリの文書とコードだけを読む（リポジトリの外のフォルダ、環境変数、鍵は読まない）・判定しない（順位・点数・おすすめ・採否を付けない）の三つ。'
-const PEEK = 'HANDOFF.md、案の一覧のフォルダ（docs/wip/ の ideas/・ideas-*/）の README.md・cards.md・raw-R*.json、思いつきの置き場、見送りの台帳、段階①-1 の索引（docs/wip/<日付>/README.md）の「思いつき」の節'
+const PEEK = 'HANDOFF.md、案の一覧のフォルダ（docs/wip/ の ideas/・ideas-*/）の README.md・cards.md・raw-R*.json・tries/、思いつきの置き場、見送りの台帳、段階①-1 の索引（docs/wip/<日付>/README.md）の「思いつき」の節'
 const SOURCES = '案の一覧のフォルダの sources/ の材料は、読むものに挙がっていれば読んでよい。'
 const NO_PEEK = `- これも守る：主担当の見立てと前の周の案を見ないため、${PEEK}は読まない。${SOURCES}`
 const NO_PEEK_KNOWN = `- これも守る：主担当の見立てを見ないため、${PEEK}は読まない（前の周の案は、上に挙げた名前だけで見る）。${SOURCES}` // 前の周の案の名前を見せる相
@@ -171,7 +175,7 @@ const spreadPrompt = (lens) => [
   KEEP,
   '- CLAUDE.md と決まりの文書の決まりは、この相では案を減らす理由にしない。決まりに反する案も出す（反するかどうかは書かなくてよい。次の段階で当てる）。',
   knownToExpand && known.length ? NO_PEEK_KNOWN : NO_PEEK,
-  round === 1 ? '- 一周目なので、段階①-2 の制約の一覧（map/constraints.md）は読まない（制約は段階②-2 の判定で当てる）。' : '',
+  lens.read.some((r) => r.includes(CONSTRAINTS)) ? '' : '- 段階①-2 の制約の一覧（map/constraints.md）は読まない（制約は段階②-2 の判定で当てる）。',
 ].join('\n')
 
 const lightPrompt = (chunk, all) => [
