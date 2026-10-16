@@ -5,8 +5,8 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 # 運用の型（operating-kit）
 
-- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し、案の一覧と見送りの台帳、照らす相と段階①-1 のモデル 〈中〉、段階①-1 の材料の種類（事例・場面・類推・引っかかり・周辺、外の資料の許し）、段階①-2 の地図と一覧（map/）、必ず入れる案の種類、捨てる前提の試し（〈試しの枝〉）、段階③ の前提の誤り、掘る方向の問い、段階②-1 の関わり方の既定 (B)、プラグインの版 0.2.0 と、scripts をプラグインのワークフローとして呼べるようにしたこと（plugin.json の `workflows` 欄、meta.name を consult・ideate・survey に）、ideate.js の上限 18 体と一周 6 観点（既定に 極端にする・ほかの立場 を足す。プラグインの版 0.3.0））を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
-- 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談・発想・下調べのワークフローは `scripts/`（consult.js・ideate.js・survey.js）。プラグインとして入っていれば、この三つは `/operating-kit:consult`・`/operating-kit:ideate`・`/operating-kit:survey` の名前でも呼べる（args は scriptPath で渡すときと同じ。起こしてよいのも同じく、合図の語で許されたときだけ）。
+- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し、案の一覧と見送りの台帳、照らす相と段階①-1 のモデル 〈中〉、段階①-1 の材料の種類（事例・場面・類推・引っかかり・周辺、外の資料の許し）、段階①-2 の地図と一覧（map/）、必ず入れる案の種類（10-17 で「照らす種類」に替えた）、捨てる前提の試し（〈試しの枝〉）、段階③ の前提の誤り、掘る方向の問い、段階②-1 の関わり方の既定 (B)（10-17 で (A) に替えた）、プラグインの版 0.2.0 と、scripts をプラグインのワークフローとして呼べるようにしたこと（plugin.json の `workflows` 欄、meta.name を consult・ideate・survey に）、ideate.js の上限 18 体と一周 6 観点（既定に 極端にする・ほかの立場 を足す。プラグインの版 0.3.0）。2026-10-17：関わり方 (A) を段階①-2・②-1・②-2 の標準に、考察と判定の境（芯の 9）、考察ノート（notes.md）、主担当の先出し（ideate.js の `mainIdeas`）、規則を「必ず」から「照らして書く」に、ideate.js の追加（why・aside・more・synth・lensModels・readOnly・deepen・chain、read の白名簿）、consult.js の `form: 'analysis'`、`tools/ideas-table.mjs`、push の間合い、dev/check.sh の持ち運び。プラグインの版は 0.4.0 に上げた）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
+- 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談・発想・下調べのワークフローは `scripts/`（consult.js・ideate.js・survey.js）、ワークフローの出力を案の一覧に写す道具は `tools/`（ideas-table.mjs）。プラグインとして入っていれば、この三つは `/operating-kit:consult`・`/operating-kit:ideate`・`/operating-kit:survey` の名前でも呼べる（args は scriptPath で渡すときと同じ。起こしてよいのも同じく、合図の語で許されたときだけ）。
 - このファイルの中のパス（`assets/…` など）は、このスキルのフォルダからの道。
 
 ## この型は何か
@@ -44,7 +44,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
    - `assets/CLAUDE.template.md` → `CLAUDE.md`。既にあるなら丸ごと置き換えない。元の題と中身はそのまま残し、元の最初の段落の後ろに型の冒頭の二段落を入れ、元の中身の後ろに型の節（段階・段階①-1 の決まり・役割・関わり方・合図の語・相談の手続き・サブエージェントへの約束・作業の始め方）を足す。元の決まりが見出しの無い箇条なら、その上に「## このリポジトリの決まり（前からあったもの）」の見出しだけを足し、〈決まりの文書〉 をその節にする。〈決まりの文書〉 が CLAUDE.md の中にあるときは、冒頭の「食い違うときの順」を「CLAUDE.md → docs/main-agent.md」の二つにする。〈大きな決めごとの一覧〉 と 〈計画書の形〉 が無いときは、`references/placeholders.md` の既定を CLAUDE.md の節として足す。食い違う所は、3 で決めた形にする。
    - `assets/main-agent.template.md` → `docs/main-agent.md`（既にあれば、同じく節を足す）。
    - `assets/HANDOFF.template.md` → `HANDOFF.md`。冒頭と §0 を埋め、§1〜§4・§4.1・§4.2・§6 の `< >` の例の行は消す（見出しと、§4.2 の「形」の箇条は残す）。§5 は 〈型検査〉 などの分かるコマンドで埋める。既に HANDOFF.md があれば、§0 の「今の段階」・返事待ちの置き場・§4（利用者の答え）・§4.1（答える前の問い）・§4.2（相談の記録）を足し、CLAUDE.md と docs/main-agent.md の中の HANDOFF.md の節の参照（「§0 の 4」「§3」「§4」「§4.1」「§4.2」）を、実際の節に合わせる。
-   - `assets/kit-README.template.md` → `docs/operating-kit/README.md`。`assets/spec.template.md`・`assets/wip-index.template.md`・`assets/map-index.template.md`・`assets/ideas-index.template.md`・`assets/CLAUDE.template.md`・`assets/main-agent.template.md`・`assets/HANDOFF.template.md` と `references/prompts.md` → `docs/operating-kit/`。`scripts/*.js` → `docs/operating-kit/workflows/`。このフォルダの中の 〈〉 は、ひな形なのでそのまま残す。
+   - `assets/kit-README.template.md` → `docs/operating-kit/README.md`。`assets/spec.template.md`・`assets/wip-index.template.md`・`assets/map-index.template.md`・`assets/ideas-index.template.md`・`assets/CLAUDE.template.md`・`assets/main-agent.template.md`・`assets/HANDOFF.template.md` と `references/prompts.md` → `docs/operating-kit/`。`scripts/*.js` → `docs/operating-kit/workflows/`。`tools/ideas-table.mjs` → `docs/operating-kit/tools/`。このフォルダの中の 〈〉 は、ひな形なのでそのまま残す。
    - 〈思いつきの置き場〉 が無ければ、頭に書き方を三行だけ書いた空の一覧を作る。〈見送りの台帳〉 は作らない（段階②-2 で初めて要るときに作る）。
    - 写したひな形の頭のコメント（「使い方」）は、CLAUDE.md・docs/main-agent.md・HANDOFF.md では消す。
 5. **確かめる**：
@@ -58,7 +58,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 1. HANDOFF.md の §0 の「今の段階」と「次の段階」を読む。CLAUDE.md の段階の表で、次の段階のセッションの設定（モデル・effort・合図の語）を読む。
 2. 一言は `docs/operating-kit/prompts.md`（無ければ `references/prompts.md`）から選び、`< >` を埋める。分からない所（下調べの範囲、計画書の名前など）は聞く（三つまで）。
-3. 次の段階が段階①-2・②-1・②-2 で、関わり方が §0 に無ければ、一つの問いで聞く（おすすめは CLAUDE.md の「関わり方」の既定）。§0 の段階が「段階②（②-1・②-2 をまとめる）」なら §1.9 の一言を使う。前の版（段階が四つ）の §0 の「段階②」は段階②-2 と読み、段階②-1 を挟むかを利用者に聞く。挟むなら、そのリポジトリの決まりと docs/operating-kit/ に段階②-1 が無いので、型を上げる仕事が先に要る：そのことを伝え、段階の外の仕事として §1 の 2〜5 の流れ（2 は、そのリポジトリの CLAUDE.md に値の無い 〈〉 だけを聞く。〈中〉 もおすすめ付きで聞く。型の節は今のひな形の形に直す。書く前に止まって見せる）で入れるかを聞く。前の版かどうかは、版の行ではなく、CLAUDE.md の段階の表に段階②-1 があるかで見る。
+3. 次の段階が段階①-2・②-1・②-2 で、関わり方が §0 に無ければ、一つの問いで聞く（おすすめは CLAUDE.md の「関わり方」の既定。標準は (A)）。関わり方は各段階の一言の中に入っている。(A) が利用枠で止まって 〈主〉 で続けるときは §1.5 の一言を使う。§0 の段階が「段階②（②-1・②-2 をまとめる）」なら §1.9 の一言を使う。前の版（段階が四つ）の §0 の「段階②」は段階②-2 と読み、段階②-1 を挟むかを利用者に聞く。挟むなら、そのリポジトリの決まりと docs/operating-kit/ に段階②-1 が無いので、型を上げる仕事が先に要る：そのことを伝え、段階の外の仕事として §1 の 2〜5 の流れ（2 は、そのリポジトリの CLAUDE.md に値の無い 〈〉 だけを聞く。〈中〉 もおすすめ付きで聞く。型の節は今のひな形の形に直す。書く前に止まって見せる）で入れるかを聞く。前の版かどうかは、版の行ではなく、CLAUDE.md の段階の表に段階②-1 があるかで見る。
 4. 返す形：
    1. そのセッションの設定（一行。切り替えるのは利用者）
    2. 同じフォルダか作業枝で始めること（別の枝だと HANDOFF.md が見えない）
@@ -75,8 +75,10 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 - 記録の置き場（今の段階・返事待ち・利用者の答え・相談の記録・案の一覧と判定の表・生の案を写す決まり・見送りの台帳と置き場への書き戻し）と、記録してから止まること
 - モデルと effort を主担当が切り替えない決まり
 - ワークフローの約束（全部の agent() に model、10 体以内（ideate.js だけ 18 体以内）、中で編集しない、票で決めない、journal.jsonl を読む、広げる相に主担当の見立てを見せない）
-- 広げる行程（段階②-1）で絞っていないか、判定の前に案の一覧がコミットされているか（芯の 9）
-- `docs/operating-kit/` の版と、このスキルの版。前の版（段階が四つ）なら、段階②-1・②-2 と芯の 9 は「版の違い」として分けて返す（ずれには数えない）。役割の表に照らす相と段階①-1 の 〈中〉 が無い（調査担当が 〈小〉 だけ）のも「版の違い」として返し、足すかを聞く。〈試しの枝〉 が無い、map/ の地図と一覧を作っていない、段階②-1 の既定が なし のままなのも、同じく「版の違い」として返す。ideate.js の上限が 10 体のまま（ふつうの計画が一周 4 観点）なのも「版の違い」として返す
+- 広げる行程（段階②-1）で絞っていないか、判定の前に案の一覧がコミットされているか（芯の 9）。考察と判定の境が書かれているか
+- 目隠しの事後の照らし：案の一覧の raw-R\*.json の `asked`（`background` が広げる相の指示文に入っていないか、`topic` に案・おすすめが無いか、観点の ask に答えの例が無いか、`mainIdeas` の id と数）
+- 先出しの案が見立てより前の別コミットか（`git log` で確かめる）。考察ノートに判定（箱・採否・順位を決める文）が混じっていないか（読んで確かめる。語の grep はしない：自由に書くノートで、語を避ける動きが起きるため）
+- `docs/operating-kit/` の版と、このスキルの版。前の版で関わり方 (A) が標準でない（段階①-2 の行に (A) が無い、既定が (B)(C)）のも、考察ノートや `mainIdeas` が無いのも、「版の違い」として返す。前の版（段階が四つ）なら、段階②-1・②-2 と芯の 9 は「版の違い」として分けて返す（ずれには数えない）。役割の表に照らす相と段階①-1 の 〈中〉 が無い（調査担当が 〈小〉 だけ）のも「版の違い」として返し、足すかを聞く。〈試しの枝〉 が無い、map/ の地図と一覧を作っていない、段階②-1 の既定が なし のままなのも、同じく「版の違い」として返す。ideate.js の上限が 10 体のまま（ふつうの計画が一周 4 観点）なのも「版の違い」として返す
 
 返す形：問題点（重要度つき）・直し案・おすすめ一つ・直すかどうかの問い一つ。ここでは直さない。
 
@@ -98,4 +100,4 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 - **型そのもの**（ほかのリポジトリにも効く直し）：元（頭の「型の版」の行）を直してコミットし、`docs/operating-kit/build.py` でスキル・プラグイン・zip を組み立て直す。このスキルを直接直さない（組み立て直すと消える）。ただし、頭の「型の版」の注にあるこのブランチの直しは、まだ正本に無い。正本へ写すまで build.py で組み立て直さない（写すかどうかと、その時期は利用者が決める）。
 - **受け取った人が、自分のリポジトリだけを直したいとき**：入れた先の `docs/operating-kit/` と CLAUDE.md を直す。そこがそのリポジトリでの正本になる。型そのものに効く直しなら、元に知らせる。
-- 中身の元：`assets/` のひな形と `references/prompts.md`・`scripts/` は、元の `docs/operating-kit/` の同じ名前のファイル。`SKILL.md`・`references/principles.md`・`references/placeholders.md`・`assets/kit-README.template.md` は、元の `docs/operating-kit/skill/`。
+- 中身の元：`assets/` のひな形と `references/prompts.md`・`scripts/` は、元の `docs/operating-kit/` の同じ名前のファイル。`SKILL.md`・`references/principles.md`・`references/placeholders.md`・`assets/kit-README.template.md` は、元の `docs/operating-kit/skill/`。`tools/` は、元の `docs/operating-kit/tools/`（正本へ写すときに足す）。
