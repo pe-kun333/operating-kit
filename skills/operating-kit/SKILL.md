@@ -5,7 +5,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 # 運用の型（operating-kit）
 
-- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
+- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し、案の一覧と見送りの台帳）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
 - 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談・発想・下調べのワークフローは `scripts/`（consult.js・ideate.js・survey.js）。
 - このファイルの中のパス（`assets/…` など）は、このスキルのフォルダからの道。
 
@@ -32,7 +32,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 ## 1. 入れる
 
-1. **状態を見る**：`git branch --show-current`・`git status`（未コミットの変更があれば先に伝える）。既にある CLAUDE.md・HANDOFF.md・docs/main-agent.md・docs/operating-kit/ と、思いつきの置き場の有無。改行の形（`.gitattributes`、既にあるファイルが CRLF か LF か）。
+1. **状態を見る**：`git branch --show-current`・`git status`（未コミットの変更があれば先に伝える）。既にある CLAUDE.md・HANDOFF.md・docs/main-agent.md・docs/operating-kit/ と、思いつきの置き場と見送りの台帳の有無。改行の形（`.gitattributes`、既にあるファイルが CRLF か LF か）。
 2. **〈〉を埋める**：`references/placeholders.md` の順に。調べて分かるものは調べる。聞くのは三つまで（おすすめ付き）。ふつうは「モデル三つ（〈小〉〈主〉〈上〉）」「作業枝とコミットの決まり」「戻すのが重い所」の三つで足りる。モデルの 〈〉 は二通りに入れる：`model: "〈…〉"` の形の所は Agent ツールの指定（例 `haiku`）、それ以外（段階の表のセッションの欄、関わり方の合図の言葉）は呼び名（例 `Haiku 5.5`・`Fable`）。
 3. **書く前に止まる**：次を一つの発言で見せ、許しを待つ。止まるのは、既にある決まりに触れるため。
    - 作るファイルと、足すファイル（新しく作る／既にあるので節を足す）
@@ -44,8 +44,8 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
    - `assets/CLAUDE.template.md` → `CLAUDE.md`。既にあるなら丸ごと置き換えない。元の題と中身はそのまま残し、元の最初の段落の後ろに型の冒頭の二段落を入れ、元の中身の後ろに型の節（段階・段階①-1 の決まり・役割・関わり方・合図の語・相談の手続き・サブエージェントへの約束・作業の始め方）を足す。元の決まりが見出しの無い箇条なら、その上に「## このリポジトリの決まり（前からあったもの）」の見出しだけを足し、〈決まりの文書〉 をその節にする。〈決まりの文書〉 が CLAUDE.md の中にあるときは、冒頭の「食い違うときの順」を「CLAUDE.md → docs/main-agent.md」の二つにする。〈大きな決めごとの一覧〉 と 〈計画書の形〉 が無いときは、`references/placeholders.md` の既定を CLAUDE.md の節として足す。食い違う所は、3 で決めた形にする。
    - `assets/main-agent.template.md` → `docs/main-agent.md`（既にあれば、同じく節を足す）。
    - `assets/HANDOFF.template.md` → `HANDOFF.md`。冒頭と §0 を埋め、§1〜§4・§4.2・§6 の `< >` の例の行は消す（見出しと、§4.2 の「形」の箇条は残す）。§5 は 〈型検査〉 などの分かるコマンドで埋める。既に HANDOFF.md があれば、§0 の「今の段階」・返事待ちの置き場・§4（利用者の答え）・§4.2（相談の記録）を足し、CLAUDE.md の中の参照（「§0 の 4」「§4」「§4.2」）を、実際の節に合わせる。
-   - `assets/kit-README.template.md` → `docs/operating-kit/README.md`。`assets/spec.template.md`・`assets/wip-index.template.md`・`assets/CLAUDE.template.md`・`assets/main-agent.template.md`・`assets/HANDOFF.template.md` と `references/prompts.md` → `docs/operating-kit/`。`scripts/*.js` → `docs/operating-kit/workflows/`。このフォルダの中の 〈〉 は、ひな形なのでそのまま残す。
-   - 〈思いつきの置き場〉 が無ければ、頭に書き方を三行だけ書いた空の一覧を作る。
+   - `assets/kit-README.template.md` → `docs/operating-kit/README.md`。`assets/spec.template.md`・`assets/wip-index.template.md`・`assets/ideas-index.template.md`・`assets/CLAUDE.template.md`・`assets/main-agent.template.md`・`assets/HANDOFF.template.md` と `references/prompts.md` → `docs/operating-kit/`。`scripts/*.js` → `docs/operating-kit/workflows/`。このフォルダの中の 〈〉 は、ひな形なのでそのまま残す。
+   - 〈思いつきの置き場〉 が無ければ、頭に書き方を三行だけ書いた空の一覧を作る。〈見送りの台帳〉 は作らない（段階②-2 で初めて要るときに作る）。
    - 写したひな形の頭のコメント（「使い方」）は、CLAUDE.md・docs/main-agent.md・HANDOFF.md では消す。
 5. **確かめる**：
    - CLAUDE.md・docs/main-agent.md・HANDOFF.md に 〈 と 〉 が残っていないこと（grep）。HANDOFF.md に `< >` の例が残っていないこと。
@@ -72,7 +72,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 - 役割と、モデル名の置き場（CLAUDE.md だけか。grep）
 - 相談の承諾の決まり（説明・引用・否定の中の語では動かない）
 - 止まる目安の掛け算（決めきれない × 戻すのが重い）
-- 記録の置き場（今の段階・返事待ち・利用者の答え・相談の記録）と、記録してから止まること
+- 記録の置き場（今の段階・返事待ち・利用者の答え・相談の記録・案の一覧と判定の表・見送りの台帳）と、記録してから止まること
 - モデルと effort を主担当が切り替えない決まり
 - ワークフローの約束（全部の agent() に model、10 体以内、中で編集しない、票で決めない、journal.jsonl を読む、広げる相に主担当の見立てを見せない）
 - 広げる行程（段階②-1）で絞っていないか、判定の前に案の一覧がコミットされているか（芯の 9）
