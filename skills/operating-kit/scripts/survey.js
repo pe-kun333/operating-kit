@@ -11,7 +11,7 @@ export const meta = {
 // args（渡す人：段階①-1 のセッション、または主担当）：
 //   topics  話題の一覧 [{ key, ask, read? }]（必須。10 まで）
 //           key は話題の短い名前（索引のファイル名にも使う）、ask は集めること、read は読む場所の手がかり
-//   model   CLAUDE.md の役割の表の調査担当の指定（必須。段階①-1 では CLAUDE.md の「段階①-1 の決まり」の 6）
+//   model   CLAUDE.md の役割の表の調査担当の指定（必須。段階①-1 では CLAUDE.md の「段階①-1 の決まり」の 6 の指定。ほかの段階で読み足すときは役割の表の調査担当の指定）
 //   scope   範囲の説明（HANDOFF.md の §0 の「次の段階」に書いた範囲）
 //
 // 返すもの：{ model, collected, empty, topics: [{ key, result }] }
