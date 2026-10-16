@@ -14,7 +14,7 @@
   - ふつうの計画は、どの周も 6 観点。既定の観点に「極端にする」「ほかの立場」を足した。
   - プラグインの版は 0.3.0。
 - 次は、別のアカウントで claude.ai に marketplace を足し、0.3.0 が届くかを確かめること（§3 の 1）。
-- リポジトリ：`pe-kun333/operating-kit`。作業枝：`claude/amazing-goldberg-34ipb3`。PR：https://github.com/pe-kun333/operating-kit/pull/1（2026-10-16 に main へマージ。merge コミットで入れたので、このメモにあるコミットの番号は main でも引ける）。
+- リポジトリ：`pe-kun333/operating-kit`。作業枝：`claude/free-ideation-a-standard`（前の作業枝は `claude/amazing-goldberg-34ipb3`）。PR：https://github.com/pe-kun333/operating-kit/pull/1（2026-10-16 に main へマージ。merge コミットで入れたので、このメモにあるコミットの番号は main でも引ける）。
 - これからの直しは、main から作業枝を作り直して進める。main に入れるのは、利用者の許しのあとだけ。main に入れるときは、plugin.json と README の版を上げる。
 - このメモを最後に書いたセッション：https://claude.ai/code/session_01BigekiHYHBzGoW22RnwsDh。その前：https://claude.ai/code/session_01RPcGoX7kR34K2kB8TDGSKX、さらに前の引き継ぎ：https://claude.ai/code/session_01PQRoCf3cD7JN35oxnMjeqS
 - このファイルと `dev/` は、引き継ぎのための作業用。プラグインの中身ではない（main にも残すと、2026-10-16 に利用者が決めた）。
@@ -111,7 +111,7 @@
 bash dev/check.sh
 ```
 
-中身：(1) 構文（`dev/syntax-check.mjs`。Node 22 以降では `node --check` が `.js` の top-level return で落ちるため、harness と同じ作りで実行せずに構文だけ見る）、(2) ひな形の 〈〉 が `references/placeholders.md` の表にあるか、(3) 型の文書とスクリプトにモデル名が無いか、(4) 模擬の agent()（`dev/workflow-harness.mjs`）で ideate.js・survey.js・consult.js を 12 通り動かす（通るはずのものと、止まるはずのもの。ideate.js は体数も見る。case.json の `ideasPerLens` で、広げる一体が返す案の数を変えられる）、(5) プラグインの形（plugin.json の版と README の版が同じ、`workflows` 欄のフォルダがある、scripts の meta.name がファイル名と同じ。`claude` があれば `claude plugin validate` を plugin.json と marketplace に）。
+中身：(1) 構文（`dev/syntax-check.mjs`。Node 22 以降では `node --check` が `.js` の top-level return で落ちるため、harness と同じ作りで実行せずに構文だけ見る）、(2) ひな形の 〈〉 が `references/placeholders.md` の表にあるか、(3) 型の文書とスクリプトにモデル名が無いか、(4) 模擬の agent()（`dev/workflow-harness.mjs`）で ideate.js・survey.js・consult.js と `tools/ideas-table.mjs` を 120 通りほど動かす（通るはずのものと、止まるはずのもの。ideate.js は体数も見る。case.json の `ideasPerLens` で、広げる一体が返す案の数を変えられる。`spreadExtra`・`spreadNullIdea`・`showPrompts`・`showSchemas`・`throwFor` もある）、(5) プラグインの形（plugin.json の版と README の版が同じ、`workflows` 欄のフォルダがある、scripts の meta.name がファイル名と同じ。`claude` があれば `claude plugin validate` を plugin.json と marketplace に）。
 
 模擬の仕組みを一つだけ使うとき：`node dev/workflow-harness.mjs skills/operating-kit/scripts/ideate.js <case.json>`（case.json は `{"args": {...}, "fail": ["ラベルの一部"], "showPrompts": true}`）。
 

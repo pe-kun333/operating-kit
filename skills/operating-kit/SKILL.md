@@ -5,7 +5,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 # 運用の型（operating-kit）
 
-- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し、案の一覧と見送りの台帳、照らす相と段階①-1 のモデル 〈中〉、段階①-1 の材料の種類（事例・場面・類推・引っかかり・周辺、外の資料の許し）、段階①-2 の地図と一覧（map/）、必ず入れる案の種類、捨てる前提の試し（〈試しの枝〉）、段階③ の前提の誤り、掘る方向の問い、段階②-1 の関わり方の既定 (B)、プラグインの版 0.2.0 と、scripts をプラグインのワークフローとして呼べるようにしたこと（plugin.json の `workflows` 欄、meta.name を consult・ideate・survey に）、ideate.js の上限 18 体と一周 6 観点（既定に 極端にする・ほかの立場 を足す。プラグインの版 0.3.0）。2026-10-17：関わり方 (A) を段階①-2・②-1・②-2 の標準に、考察と判定の境（芯の 9）、考察ノート（notes.md）、主担当の先出し（ideate.js の `mainIdeas`）、規則を「必ず」から「照らして書く」に、ideate.js の追加（why・aside・more・synth・lensModels・readOnly・deepen・chain、read の白名簿）、consult.js の `form: 'analysis'`、`tools/ideas-table.mjs`、push の間合い、dev/check.sh の持ち運び。プラグインの版は 0.3.0 のまま。main に入れるときに上げる）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
+- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し、案の一覧と見送りの台帳、照らす相と段階①-1 のモデル 〈中〉、段階①-1 の材料の種類（事例・場面・類推・引っかかり・周辺、外の資料の許し）、段階①-2 の地図と一覧（map/）、必ず入れる案の種類（10-17 で「照らす種類」に替えた）、捨てる前提の試し（〈試しの枝〉）、段階③ の前提の誤り、掘る方向の問い、段階②-1 の関わり方の既定 (B)（10-17 で (A) に替えた）、プラグインの版 0.2.0 と、scripts をプラグインのワークフローとして呼べるようにしたこと（plugin.json の `workflows` 欄、meta.name を consult・ideate・survey に）、ideate.js の上限 18 体と一周 6 観点（既定に 極端にする・ほかの立場 を足す。プラグインの版 0.3.0）。2026-10-17：関わり方 (A) を段階①-2・②-1・②-2 の標準に、考察と判定の境（芯の 9）、考察ノート（notes.md）、主担当の先出し（ideate.js の `mainIdeas`）、規則を「必ず」から「照らして書く」に、ideate.js の追加（why・aside・more・synth・lensModels・readOnly・deepen・chain、read の白名簿）、consult.js の `form: 'analysis'`、`tools/ideas-table.mjs`、push の間合い、dev/check.sh の持ち運び。プラグインの版は 0.3.0 のまま。main に入れるときに上げる）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
 - 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談・発想・下調べのワークフローは `scripts/`（consult.js・ideate.js・survey.js）、ワークフローの出力を案の一覧に写す道具は `tools/`（ideas-table.mjs）。プラグインとして入っていれば、この三つは `/operating-kit:consult`・`/operating-kit:ideate`・`/operating-kit:survey` の名前でも呼べる（args は scriptPath で渡すときと同じ。起こしてよいのも同じく、合図の語で許されたときだけ）。
 - このファイルの中のパス（`assets/…` など）は、このスキルのフォルダからの道。
 
@@ -77,7 +77,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 - ワークフローの約束（全部の agent() に model、10 体以内（ideate.js だけ 18 体以内）、中で編集しない、票で決めない、journal.jsonl を読む、広げる相に主担当の見立てを見せない）
 - 広げる行程（段階②-1）で絞っていないか、判定の前に案の一覧がコミットされているか（芯の 9）。考察と判定の境が書かれているか
 - 目隠しの事後の照らし：案の一覧の raw-R\*.json の `asked`（`background` が広げる相の指示文に入っていないか、`topic` に案・おすすめが無いか、観点の ask に答えの例が無いか、`mainIdeas` の id と数）
-- 先出しの案が見立てより前の別コミットか（`git log` で確かめる）。考察ノートに判定の語（箱・採否・順位・おすすめ）が混じっていないか（grep）
+- 先出しの案が見立てより前の別コミットか（`git log` で確かめる）。考察ノートに判定（箱・採否・順位を決める文）が混じっていないか（読んで確かめる。語の grep はしない：自由に書くノートで、語を避ける動きが起きるため）
 - `docs/operating-kit/` の版と、このスキルの版。前の版で関わり方 (A) が標準でない（段階①-2 の行に (A) が無い、既定が (B)(C)）のも、考察ノートや `mainIdeas` が無いのも、「版の違い」として返す。前の版（段階が四つ）なら、段階②-1・②-2 と芯の 9 は「版の違い」として分けて返す（ずれには数えない）。役割の表に照らす相と段階①-1 の 〈中〉 が無い（調査担当が 〈小〉 だけ）のも「版の違い」として返し、足すかを聞く。〈試しの枝〉 が無い、map/ の地図と一覧を作っていない、段階②-1 の既定が なし のままなのも、同じく「版の違い」として返す。ideate.js の上限が 10 体のまま（ふつうの計画が一周 4 観点）なのも「版の違い」として返す
 
 返す形：問題点（重要度つき）・直し案・おすすめ一つ・直すかどうかの問い一つ。ここでは直さない。
@@ -100,4 +100,4 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 - **型そのもの**（ほかのリポジトリにも効く直し）：元（頭の「型の版」の行）を直してコミットし、`docs/operating-kit/build.py` でスキル・プラグイン・zip を組み立て直す。このスキルを直接直さない（組み立て直すと消える）。ただし、頭の「型の版」の注にあるこのブランチの直しは、まだ正本に無い。正本へ写すまで build.py で組み立て直さない（写すかどうかと、その時期は利用者が決める）。
 - **受け取った人が、自分のリポジトリだけを直したいとき**：入れた先の `docs/operating-kit/` と CLAUDE.md を直す。そこがそのリポジトリでの正本になる。型そのものに効く直しなら、元に知らせる。
-- 中身の元：`assets/` のひな形と `references/prompts.md`・`scripts/` は、元の `docs/operating-kit/` の同じ名前のファイル。`SKILL.md`・`references/principles.md`・`references/placeholders.md`・`assets/kit-README.template.md` は、元の `docs/operating-kit/skill/`。
+- 中身の元：`assets/` のひな形と `references/prompts.md`・`scripts/` は、元の `docs/operating-kit/` の同じ名前のファイル。`SKILL.md`・`references/principles.md`・`references/placeholders.md`・`assets/kit-README.template.md` は、元の `docs/operating-kit/skill/`。`tools/` は、元の `docs/operating-kit/tools/`（正本へ写すときに足す）。
