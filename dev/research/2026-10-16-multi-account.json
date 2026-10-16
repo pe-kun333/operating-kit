@@ -1,0 +1,1324 @@
+{
+ "run_id": "wf_7722305f-e79",
+ "task_id": "w19huics6",
+ "status": "調べる四体は答えあり。確かめ役（claims の確かめ直し）は利用制限で失敗（resets 19:30 UTC）。主張はまだ確かめ直していない。",
+ "lenses": [
+  {
+   "lens": "プラグインと marketplace",
+   "result": {
+    "summary": "結論: Claude Code のプラグインは、入れた場所（マシン、リポジトリ、claude.ai アカウント）ごとに効く範囲が分かれ、別のアカウントや別のマシンへ自動では届かない。クラウドセッションは、利用者のマシンに入れたプラグインも、リポジトリの .claude/settings.json で有効にしたプラグインも読まない。クラウドに届くのは、リポジトリにコミットされたファイル（CLAUDE.md や .claude/skills/ など）、claude.ai アカウントで有効にしたスキル、組織（Team/Enterprise）の管理設定だけである。そこで配り方は層に分けるのが現実的と考える（推し量り）。(1) 型の本体は既存の §1 どおりリポジトリにコミットし、クラウドとチームに届ける。(2) 公開 GitHub のマーケットプレイスを各 claude.ai アカウントに一度追加し、チャット、Cowork、同期された Claude Code に届ける。(3) クラウドでもスキルを確実に効かせたいなら、アカウントでスキルを有効化するか、リポジトリの .claude/skills/ に複製する。プラグインがクラウドで読まれるかは資料で確定できないため、実機で確かめる項目を unverified に挙げた。配布と並行して、型の側では版上げのルールを決めること、リポジトリが無い §4 の「型だけ」の経路をチャットと Cowork で動くように保つこと、複製のずれを点検の機能で見つけることが要る（推し量り）。",
+    "facts": [
+     {
+      "fact": "プラグインのインストール範囲は三つ。user は ~/.claude/settings.json の enabledPlugins に書かれ、どのプロジェクトでも有効になる。project はリポジトリの .claude/settings.json に書かれ、commit すると共同作業者に有効化されるが、外部ソースのプラグインは各自が claude plugin install <name>@<marketplace> --scope project を一度実行する必要がある。local は .claude/settings.local.json に書かれ、そのリポジトリだけで有効になる。",
+      "source": "https://code.claude.com/docs/en/plugins/install （Choose an install scope）",
+      "relevance": "別のマシンや別の人に入れる単位はこの三つのどれかになる。project は『リポジトリを開いた人に入れさせる』層だが、クラウドには効かない（後述）。"
+     },
+     {
+      "fact": "CLI の導入は /plugin marketplace add owner/repo（#ref でブランチやタグを固定可能）のあと、/plugin install <plugin>@<marketplace>。シェルからは claude plugin install。claude plugin marketplace add は ~/.claude/settings.json の extraKnownMarketplaces にも書き込む。ターミナル、デスクトップのローカルセッション、VS Code は同じマシンなら同じ設定ファイルを読む。",
+      "source": "https://code.claude.com/docs/en/plugins/install （Add a marketplace; Install from your shell）／ https://code.claude.com/docs/en/plugins/loading （Check which stage a plugin reached）",
+      "relevance": "公開 GitHub の operating-kit なら一行で追加できる。デスクトップの Code タブと VS Code も、同じマシンなら CLI の導入を共有する。"
+     },
+     {
+      "fact": "リポジトリの .claude/settings.json に extraKnownMarketplaces と enabledPlugins を書くと、対話セッションでは信頼ダイアログを承認したフォルダでのみマーケットプレイスが登録される。-p 実行も、信頼済みフォルダでのみ適用される。",
+      "source": "https://code.claude.com/docs/en/plugins/org （Require plugins per repository）",
+      "relevance": "型を入れたリポジトリを開いた人へ自動で案内する仕組みになるが、信頼の承認が前提になる。"
+     },
+     {
+      "fact": "マーケットプレイスと plugin が同じリポジトリにあり、plugin の source が相対パスなら、マーケットプレイスの登録後はその複製からそのまま読まれる。相対パスの『.』はマーケットプレイスのルート自身を指す。外部ソースの plugin だけ、各自の個別インストールが要る。",
+      "source": "https://code.claude.com/docs/en/plugins/org （Require plugins per repository）／ https://code.claude.com/docs/en/plugins/marketplace-reference （Relative path plugin source）",
+      "relevance": "operating-kit はマーケットプレイスと plugin が同じリポジトリと見られる（plugin.json から推し量り）。リポジトリ側の設定だけでチームに入れられる見込みがある。"
+     },
+     {
+      "fact": "クラウドセッション（claude.ai/code、Claude Code on the web）は、利用者のマシンに入れたプラグインも、リポジトリの .claude/settings.json で有効にしたプラグインも読まない。読まれるのは、リポジトリの CLAUDE.md、単一リポジトリなら .claude/settings.json の hooks と権限、.claude/rules/、.claude/skills/、.claude/agents/、.claude/commands/ で、~/.claude/CLAUDE.md と ~/.claude/skills/ は読まれない。",
+      "source": "https://code.claude.com/docs/en/plugins/install （Cloud session tab）／ https://code.claude.com/docs/en/cloud-environments （What carries over from your setup）",
+      "relevance": "クラウドで型を効かせる既知の確実な経路は『型の本体をリポジトリにコミットする』こと。§1 の方式がそのまま当てはまる。"
+     },
+     {
+      "fact": "クラウドセッションと Cowork は、claude.ai アカウントで有効にしたスキルを読む。クラウドセッションはリポジトリに commit された .claude/skills/ も読む。プラグインとしての同期がクラウドに届くことは、この資料では明記されていない。",
+      "source": "https://code.claude.com/docs/en/skills （Skills in Cowork and cloud sessions）／ https://code.claude.com/docs/en/cloud-environments （What carries over from your setup）",
+      "relevance": "アカウントから届くクラウドの経路として文書化されているのは、プラグインではなくスキル単位の有効化である。"
+     },
+     {
+      "fact": "claude.ai へのスキル追加は、スキルのディレクトリを先頭にした ZIP（<skill-name>/SKILL.md の形）をアップロードし、Customize > Skills で有効化する。個人のスキルの共有や組織への公開は Team と Enterprise だけで使える。",
+      "source": "https://claude.com/docs/skills/how-to （Package your skill; After uploading; Share or package your skill）",
+      "relevance": "プラグインを入れないアカウントにも、スキル部分だけなら手作業の一回で届けられる。"
+     },
+     {
+      "fact": "スキル内の参照は ${CLAUDE_SKILL_DIR} と書くと、Claude Code と Cowork では読み込み時にスキルのフォルダへ置き換えられる。チャット（claude.ai）ではスキルのフォルダ全体がサンドボックスにコピーされるので、SKILL.md からの相対パスも読めるように書く。",
+      "source": "https://claude.com/docs/skills/how-to （Add scripts）",
+      "relevance": "references、assets、scripts を含む型を、チャット、Cowork、Claude Code で同じ文面のまま動かすための前提になる。"
+     },
+     {
+      "fact": "claude.ai の Customize > Plugins では、Add > Add marketplace で GitHub の owner/repo や URL を追加でき、そのあと Discover から plugin を追加する。公開 GitHub のリポジトリはそのまま追加できる。非公開の GitHub は、GitHub アカウントの連携と Claude GitHub App へのアクセス許可が要る。マーケットプレイスは、アカウントごとに自分で追加したもので最大 25 まで。",
+      "source": "https://claude.com/docs/plugins/overview （Find and add a plugin）／ https://claude.com/docs/plugins/platform-support （Compare installation, sync, and admin controls）",
+      "relevance": "別の claude.ai アカウントでは、各自がこの一手を行う必要がある。公開リポジトリなら認証の手間は要らない。"
+     },
+     {
+      "fact": "claude.ai のアカウントに入れたプラグインは、Cowork と Claude Code で再インストールなしに使える。Claude Code では、同じアカウントでサインインしたときに限り、次回起動時に『synced』として同期される（Claude Code v2.1.273 以降）。API キー（ANTHROPIC_AUTH_TOKEN、CLAUDE_CODE_OAUTH_TOKEN、apiKeyHelper）で動く場合や、非必須トラフィックを止めている場合、bare モードでは同期されない。CLI で入れたプラグインはアカウントには戻らない。",
+      "source": "https://claude.com/docs/plugins/overview （Find the plugin in each app）／ https://code.claude.com/docs/en/plugins/install （Plugins from your claude.ai account）／ https://code.claude.com/docs/en/plugins/loading （Sign-in requirements for terminal sync）",
+      "relevance": "アカウントを正本にすると Claude Code 側は自動で揃うが、逆方向には運ばれない。API キーで回している環境には、アカウント経由の型は届かない。"
+     },
+     {
+      "fact": "同名のプラグインが別の経路で有効なとき、claude.ai から同期されたプラグインは最も優先度が低く、読み込まれず『not loaded』と報告される。",
+      "source": "https://code.claude.com/docs/en/plugins/loading （Name conflicts）",
+      "relevance": "CLI で marketplace 版を入れた上で同期版もあっても、二重には動かない。"
+     },
+     {
+      "fact": "チャットでは、スキルとコマンドが読まれる（コマンドはスキルとして扱われる）。エージェントと hooks は Cowork と Claude Code でだけ読まれる。",
+      "source": "https://claude.com/docs/plugins/platform-support （Compare component support by app）",
+      "relevance": "型のうちスキルで書ける部分はチャットでも効く。hooks に頼る部分は CLI と Cowork に限られる。"
+     },
+     {
+      "fact": "自動更新は、公式マーケットプレイスでは既定で有効で、サードパーティとコミュニティを含むそれ以外では既定で無効。有効化は /plugin の Marketplaces タブから行う。組織は managed settings の autoUpdate で固定でき、DISABLE_AUTOUPDATER などの環境変数で止められる。",
+      "source": "https://code.claude.com/docs/en/plugins/install （Keep plugins updated）／ https://code.claude.com/docs/en/plugins/loading （When auto-update runs）",
+      "relevance": "pe-kun333/operating-kit は既定では自動更新されない。各マシンで一度オンにする手順を案内に入れる必要がある。"
+     },
+     {
+      "fact": "版の判定は、plugin.json に version を書いた場合はその文字列が変わらない限り利用者に新しいコミットが届かない。version を省くと、GitHub や url のソースでは commit SHA（12 文字）で判定される。マーケットプレイス内の相対パスのプラグインは、導入されたディレクトリの commit SHA で判定される。",
+      "source": "https://code.claude.com/docs/en/plugins/host-marketplace （Release a new version）／ https://code.claude.com/docs/en/plugins/loading （How Claude Code computes the version）",
+      "relevance": "operating-kit の plugin.json は version 0.1.0 で、版を上げないとどのアカウントやマシンにも更新が届かない。版上げのルールを決めておく必要がある。"
+     },
+     {
+      "fact": "非公開の GitHub マーケットプレイスでは、HTTPS は git の資格情報ヘルパー（gh auth login の後に gh auth setup-git）で認証し、対話のプロンプトは出ない。SSH は ssh-agent に鍵が要る。バックグラウンドの自動更新は、プロンプトなしで資格情報を取れるときだけ成功する。GITHUB_TOKEN を環境変数に置くだけでは認証されない。",
+      "source": "https://code.claude.com/docs/en/plugins/host-marketplace （Grant access to a private marketplace; What background auto-update does with credentials）",
+      "relevance": "リポジトリを非公開にした場合、別のマシンや別のアカウントの利用者は、この資格情報の準備が要る。"
+     },
+     {
+      "fact": "公開リポジトリ pe-kun333/operating-kit は、.claude-plugin/plugin.json で name が operating-kit、version が 0.1.0、license が MIT。.claude-plugin/marketplace.json は WebFetch の要約で読んだところ、マーケットプレイス名が operating-kit、plugin の source がリポジトリ直下（./）だった。原文は未確認。認証なしで raw を取得できたので、公開と推し量る。",
+      "source": "https://raw.githubusercontent.com/pe-kun333/operating-kit/main/.claude-plugin/plugin.json ／ https://raw.githubusercontent.com/pe-kun333/operating-kit/main/.claude-plugin/marketplace.json",
+      "relevance": "導入は /plugin marketplace add pe-kun333/operating-kit と /plugin install operating-kit@operating-kit になる見込み。"
+     },
+     {
+      "fact": "プラグインのスキルは /<plugin名>:<スキル名> で呼ばれる。チャットの / メニューでは plugin-name:skill-name と入力して絞り込める。",
+      "source": "https://code.claude.com/docs/en/skills （Discovery and naming）／ https://claude.com/docs/plugins/overview （Use a plugin）",
+      "relevance": "operating-kit の呼び名は /operating-kit:<スキル名> になる。スキル名が operating-kit なら /operating-kit:operating-kit と推し量る（SKILL.md の name は未確認）。"
+     },
+     {
+      "fact": "Team と Enterprise では、Owner が Organization settings > Plugins & skills で各プラグインを Not available、Available to install、Installed by default、Required のどれかに設定できる。メンバーは、同じ組織の特定の人への Share と、組織のライブラリへの Publish to org（Requires review、Open、Off の設定に従う）を使える。個人プラン（Pro、Max）では特定の人への Share はできない。",
+      "source": "https://claude.com/docs/plugins/platform-support （Organization controls）／ https://claude.com/docs/plugins/share （Share a plugin with specific people; If you can't share a plugin）／ https://claude.com/docs/plugins/overview （Plugins your organization installs or requires）",
+      "relevance": "同じ組織の別アカウントには届く。個人プラン同士では届かない。"
+     },
+     {
+      "fact": "個人プラン同士で手渡すなら、.plugin ファイルか zip を Add > Upload plugin で受け取る。受け取った側では別のプラグインとして入り、共有の更新は届かない。",
+      "source": "https://claude.com/docs/plugins/share （The plugin file）",
+      "relevance": "別の個人アカウントへは手渡しになる。更新は自動で届かないと推し量る（資料は別物として入るとだけ書いている）。"
+     },
+     {
+      "fact": "Team と Enterprise では、Owner が claude.ai の管理設定（Organization settings > Claude Code > Managed settings）に extraKnownMarketplaces と enabledPlugins を書ける。Anthropic が管理するクラウド環境では、クラウドセッションはサーバー管理設定を受け取ってからプラグインを入れる。",
+      "source": "https://code.claude.com/docs/en/plugins/org （Choose a delivery mechanism; When each surface applies the plugin keys）",
+      "relevance": "組織内の全員の Claude Code とクラウドセッションに届く、文書化された唯一の自動配布の経路。Owner 権限と組織が要る。"
+     },
+     {
+      "fact": "組織の Plugins & skills で GitHub や GitLab のリポジトリを同期する場合、リポジトリは github.com と gitlab.com では非公開か内部である必要がある。",
+      "source": "https://code.claude.com/docs/en/plugins/host-marketplace （Distribute through organization settings）",
+      "relevance": "公開の operating-kit を、そのまま組織同期の対象にはできない。組織配布には非公開の複製が要ると推し量る。"
+     },
+     {
+      "fact": "クラウド環境の setup script は、起動時に root で走る。ゼロで終了する必要があり、終了しないとセッションは起動しない。公式の例では、スクリプトで ~/.claude/CLAUDE.md を書く形が示されている。環境はキャッシュされ、約 5 分以内に終わると再利用される。",
+      "source": "https://code.claude.com/docs/en/cloud-environments （What carries over from your setup; Setup scripts; Script requirements）",
+      "relevance": "リポジトリにコミットしたくない個人の運用規則だけを、クラウド環境に届ける経路になる。ただし環境単位の設定になる。"
+     },
+     {
+      "fact": "claude plugin validate <path> は、manifest と各スキルの frontmatter を検査する。--strict を付けると警告も失敗扱いになる。claude plugin eval は、プラグインあり・なしのケースを走らせて差を採点する。",
+      "source": "https://code.claude.com/docs/en/plugins/create （Test and debug; Check that the plugin changes Claude's behavior）",
+      "relevance": "版を上げる前や配布の前に構成を確かめる手段。別のアカウントや別の面で型が効いているかを比べる材料になる。"
+     }
+    ],
+    "options": [
+     {
+      "name": "A. リポジトリにコミットする（型の本体）",
+      "how": "既存の §1 どおり、CLAUDE.md、docs/main-agent.md、HANDOFF.md、docs/operating-kit/ を各リポジトリに commit する。版が上がったら kit 側から再コピーする。",
+      "scope": "そのリポジトリを開く Claude Code 全般（CLI、デスクトップ、VS Code、単一リポジトリのクラウドセッション）と、clone した共同作業者。",
+      "weak": "リポジトリごとの作業で、版の追随は手動になる。チャットや、リポジトリが無い会話には届かない。",
+      "cost": "低い。既に §1 で行っている。"
+     },
+     {
+      "name": "B. 各マシンに Claude Code 用のマーケットプレイスを追加する（user scope）",
+      "how": "/plugin marketplace add pe-kun333/operating-kit、続けて /plugin install operating-kit@operating-kit --scope user。/plugin の Marketplaces タブで Enable auto-update を有効にする。",
+      "scope": "そのマシン上の CLI、デスクトップの Code タブ、VS Code。",
+      "weak": "マシンごとの導入になる。クラウドには届かない。サードパーティの自動更新は既定で無効。",
+      "cost": "マシンごとに一回。自動更新を有効にする手間が加わる。"
+     },
+     {
+      "name": "C. リポジトリの .claude/settings.json で配る（project scope）",
+      "how": "extraKnownMarketplaces（source は github、repo は pe-kun333/operating-kit）と enabledPlugins（operating-kit@operating-kit: true）を commit する。",
+      "scope": "信頼済みフォルダを開く対話の CLI、デスクトップ、VS Code。-p 実行も信頼済みフォルダだけ。",
+      "weak": "信頼ダイアログの承認が要る。クラウドセッションは読まない。型を使うリポジトリごとに設定が要る。",
+      "cost": "低い。ただし設定を置くリポジトリの数だけ増える。"
+     },
+     {
+      "name": "D. 各 claude.ai アカウントにマーケットプレイスを追加する（プラグイン）",
+      "how": "Customize > Plugins > Add > Add marketplace で pe-kun333/operating-kit を追加し、Discover から operating-kit を追加する。",
+      "scope": "claude.ai のチャット、Cowork、同じアカウントでサインインした Claude Code（次回起動時の同期、v2.1.273 以降）。",
+      "weak": "アカウントごとに一回ずつ行う必要がある。エージェントと hooks はチャットでは読まれない。クラウドセッションでプラグインが読まれるかは資料で確認できない。組織配布にはならない。",
+      "cost": "一アカウントにつき数分。更新は Check for updates、または GitHub 由来のマーケットプレイスの Sync automatically で受け取る。"
+     },
+     {
+      "name": "E. スキルだけを ZIP にして各アカウントで有効化する（Customize > Skills）",
+      "how": "skills/operating-kit/ を operating-kit/ という名前のフォルダとして ZIP にし、Customize > Skills にアップロードして有効化する。",
+      "scope": "チャット、Cowork、クラウドセッション。アカウントで有効なスキルはクラウドセッションにも読まれると資料に明記されている。",
+      "weak": "版上げのたびに手動で再アップロードが要る。D と併用したときの重複の挙動は資料で確認できない。hooks や agents は含められない。",
+      "cost": "版上げのたびに ZIP を作り直す手間。"
+     },
+     {
+      "name": "F. リポジトリの .claude/skills/ に複製する（クラウドで確実に効かせる）",
+      "how": "skills/operating-kit/ を <repo>/.claude/skills/operating-kit/ にコピーして commit する。",
+      "scope": "そのリポジトリの全セッション（クラウドを含む）と、clone した共同作業者。",
+      "weak": "プラグインの版管理が効かない。複製と本体のずれが生じる。kit の『決まりのずれを点検する』機能で検出できるように設計する必要がある。",
+      "cost": "同期の手間が要る。"
+     },
+     {
+      "name": "G. クラウド環境の setup script か SessionStart hook で入れる（要検証）",
+      "how": "setup script、またはリポジトリの .claude/settings.json の SessionStart hook で、claude plugin marketplace add pe-kun333/operating-kit と claude plugin install operating-kit@operating-kit --scope user を実行する。",
+      "scope": "クラウドセッション。SessionStart hook は単一リポジトリのセッションで読まれる。",
+      "weak": "資料では、この方法で同じセッションにプラグインが載るかは確認できない。起動時間が増える。setup script が失敗するとセッションが起動しない。",
+      "cost": "検証に手間がかかる。成功すれば、クラウドでの自動化は最も軽い。"
+     },
+     {
+      "name": "H. 組織の管理設定や Share、Publish で配る（Team、Enterprise のみ）",
+      "how": "Owner が Organization settings > Claude Code > Managed settings に extraKnownMarketplaces と enabledPlugins を書く。または Plugins & skills で Installed by default か Required に設定する。個人の共有は Share、組織への公開は Publish to org。",
+      "scope": "組織内の全メンバーの Claude Code（クラウドセッションを含む）と claude.ai。",
+      "weak": "Team か Enterprise で、Owner 権限が要る。組織の外には届かない。組織同期は非公開リポジトリだけが対象。個人プランでは使えない。",
+      "cost": "組織の運用に乗る。Owner の審査が入る場合がある。"
+     }
+    ],
+    "unverified": [
+     "claude.ai で同期されたプラグインのうち、スキル以外の部分（hooks、agents、MCP など）が Claude Code のクラウドセッションに読まれるか。資料で明記されているのは、アカウントで有効にしたスキルがクラウドに読まれることだけ。",
+     "クラウド環境の setup script や SessionStart hook で claude plugin install を実行した結果が、同じセッションのプラグイン読み込みに反映されるか。また、非公開のマーケットプレイスを、クラウドセッションの GitHub 連携経由で取得できるか。",
+     "公開リポジトリの marketplace.json の原文は、WebFetch の要約で読んだだけ。name、各 entry の source（./ と . の違いを含む）、version の欄は、ファイルを直接読んで確かめる必要がある。資料は『.』をリポジトリ直下と定義している。",
+     "claude.ai 側のプラグイン更新が、plugin.json の version 文字列による判定（変わらなければ届かない）と同じ規則で動くか。資料は『新しい版が同期されたら』としか書いていない。",
+     "プラグインの中のスキルと、同じ内容を単体で有効化したスキルを同時に有効にしたときの重複の挙動。",
+     "個人プランで Upload plugin した ZIP や .plugin が、元のリポジトリの更新に追随するか。資料は『別のプラグインとして入る』と書いているので、自動更新は無いと推し量る。",
+     "スキルの呼び名（/operating-kit:operating-kit）は、SKILL.md の name が未確認のため推定。skills/operating-kit/ の name が一致するかで変わる。",
+     "組織への配布で、公開リポジトリを使う経路。組織同期には非公開リポジトリが要ると資料にあるが、Share と Publish to org がどのリポジトリ形態から作られたプラグインでも使えるかは確認していない。"
+    ]
+   }
+  },
+  {
+   "lens": "クラウドのセッション",
+   "result": {
+    "summary": "観点はクラウドのセッション（claude.ai/code・モバイル・Desktop の Cloud・claude --cloud・Routines・Projects の thread）。\n\n結論。クラウドで多くのセッションに効かせる道は次の四系統になる。(1) 型の本体を git リポジトリに置く（CLAUDE.md・docs・.claude/skills・.claude/rules・.mcp.json。単一リポのときは .claude/settings.json の hooks と permissions も）。(2) 環境（environment）の setup script で ~/.claude を整える（個人の CLAUDE.md や plugin）。(3) claude.ai の Customize で skills と connectors を有効化する。(4) Projects の指示文と Routines のプロンプトに「初めに読むもの」を書く。ユーザーの ~/.claude 配下（CLAUDE.md・skills・settings・個人の plugin・claude mcp add の user scope）はクラウドに載らないので、この四系統で載せ直す必要がある。\n\nアカウントをまたぐ点。git リポジトリだけが自然に別アカウントへ運ばれる。環境・Routine・Project・claude.ai の Customize・GitHub 接続はアカウントごとに作り直す。環境や Routine の複製・書き出し機能は docs に見当たらなかった（unverified）。共有環境と server-managed settings は Team と Enterprise の Owner 向けで、個人アカウントには効かない。\n\n毎回入れる必要の有無。各セッションは新しい VM で、リポジトリは毎回 clone される。だからリポジトリの中身は毎回届く。setup script の結果は、約5分以内に終われば環境キャッシュになり、スクリプトや許可ホストを変えたとき、または約7日で期限切れになったときに再構築される。一時停止から VM が戻るときには setup script は再実行されない。SessionStart hook は起動と再開のたびに走る。セッション中に入れたものは次のセッションに残らない。自動メモリはクラウド環境間で共有されない。したがって HANDOFF.md のような引き継ぎは、コミットして push したブランチ経由でしか次のセッションに届かない。\n\n推奨の形。operating-kit の本体を一つのリポジトリ（正本）に置く。各アカウントの環境は「そのリポジトリを使う」と「setup script で ~/.claude/CLAUDE.md を書き、必要なら plugin を入れる」の二点だけにする。Routine と Project の指示文には「まず CLAUDE.md と docs/main-agent.md を読む」と書く。リポジトリを持たない一回きりの会話には、Projects（リポジトリなしでも使える）か、起動 URL の prompt 事前入力を使う。",
+    "facts": [
+     {
+      "fact": "環境は個人に紐づく。Owner が作る共有環境は Team と Enterprise のみ。個人が作った環境は「personal to your account」。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#configure-your-environment",
+      "relevance": "個人の別アカウントには共有環境の道がない。環境は各アカウントで作り直す。"
+     },
+     {
+      "fact": "環境変数は .env 形式で、値は「その環境を使う人全員が読める」。API キーは network secret として登録し、宛先 host に限って送信時に付与する。保存後に値は見えない。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#set-environment-variables と #add-network-secrets",
+      "relevance": "API キーを型に含めるなら env ではなく secret にする。別アカウントでは secret を再入力する。"
+     },
+     {
+      "fact": "setup script は新規セッション開始時に、Claude Code の起動前に走る。root・Ubuntu 24.04 で動き、終了コード 0 が必要。約5分以内に終わると環境キャッシュになり、次のセッションから再実行されない。キャッシュはファイルシステムのスナップショットで、インストールしたパッケージやファイルは残るが、起動中のプロセスは残らない。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#setup-scripts と #environment-caching",
+      "relevance": "毎回のインストールは不要になる。ただし重い処理は分ける必要がある。"
+     },
+     {
+      "fact": "setup script は、スクリプトまたは許可ホストを変えたときと、約7日のキャッシュ期限切れで再構築される。VM が一時停止から戻るときには再実行されない。変更が既存セッションに届くのは、VM が回収されて作り直されたとき。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#environment-caching",
+      "relevance": "スクリプトを変えても既存セッションには反映されないことがある。変更はセッションの再開か新規セッションで確かめる。"
+     },
+     {
+      "fact": "docs の例：setup script で ~/.claude/CLAUDE.md を書くと、個人の指示としてクラウドセッションに読み込まれる。/context の Memory files に /root/.claude/CLAUDE.md が出ることで確認できる。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#add-personal-preferences-without-committing-to-the-repo",
+      "relevance": "手元の ~/.claude/CLAUDE.md を、アカウントの環境を通してクラウドの全セッションに届ける文書化された道。"
+     },
+     {
+      "fact": "clone に含まれて届くもの：リポの CLAUDE.md、.claude/rules/、.claude/skills/・agents/・commands/、.mcp.json（単一リポの場合）、.claude/settings.json の hooks と permission rules（単一リポの場合）。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup",
+      "relevance": "型の本体をリポジトリにコミットすれば、クラウドでも毎回そのまま届く。どのアカウントでも、そのリポジトリを clone できれば届く。"
+     },
+     {
+      "fact": "clone に含まれず届かないもの：~/.claude/CLAUDE.md、~/.claude/skills/・agents/・commands/、~/.claude/settings.json だけで有効な plugin、claude mcp add の user scope や local scope（~/.claude.json に書かれる）、repo の enabledPlugins や extraKnownMarketplaces で宣言された plugin。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup と https://code.claude.com/docs/en/plugins/install（Cloud session タブ）",
+      "relevance": "個人の ~/.claude にある型は、そのままではクラウドに届かない。repo に移すか、setup script、claude.ai の Customize で載せ直す。"
+     },
+     {
+      "fact": "クラウドのセッションと Routine が読むのは、claude.ai のアカウントで有効化した skills（セッション開始時に同期）と、クローンしたリポの .claude/skills/。~/.claude/skills/ は読まれない。",
+      "source": "https://code.claude.com/docs/en/skills（Use skills in Cowork and cloud sessions）",
+      "relevance": "スキルなら、リポジトリに入れなくてもアカウントの設定として全クラウドセッションに届く道がある。"
+     },
+     {
+      "fact": "設定ファイルの読まれ方。単一リポのクラウドセッションは .claude/settings.json を読む。~/.claude/settings.json と .claude/settings.local.json は読まれない。クラウドの /config は値を変えず、環境変数か repo の settings.json を使うよう案内される。",
+      "source": "https://code.claude.com/docs/en/settings#settings-in-cloud-sessions",
+      "relevance": "個人の設定はリポジトリの settings.json か環境変数に移す必要がある。"
+     },
+     {
+      "fact": "plugin の入れ方。クラウドセッションには plugin ブラウザがなく、ユーザーの plugin も repo 宣言の plugin も入らない。一方で、setup script などからシェルで claude plugin install を呼ぶ例が文書にある。marketplace が未登録の機械では、先に claude plugin marketplace add を実行する。command 型の plugin には --yes が要る。",
+      "source": "https://code.claude.com/docs/en/plugins/install#install-from-your-shell",
+      "relevance": "plugin を cloud に届ける文書化された道は setup script 経由のみ。ただし cloud での end-to-end の動作は未確認。"
+     },
+     {
+      "fact": "claude.ai アカウントで有効化された synced plugin は、Cowork と、claude.ai でサインインした terminal セッションに載ると書かれている。cloud session は挙げられていない。",
+      "source": "https://code.claude.com/docs/en/plugins/loading#synced-plugins",
+      "relevance": "claude.ai 側の plugin 有効化だけで全クラウドに届くとは、文書から言えない。"
+     },
+     {
+      "fact": "各セッションは新しい Anthropic 管理の VM で動き（Ubuntu 24.04、目安 4 vCPU・16GB RAM・30GB ディスク）、リポジトリは毎回 clone される。停止中はファイルが保存され、VM が回収されると新規 VM が立つ。会話履歴は戻るが、バックグラウンドのサブエージェントやシェルの作業は戻らない。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#what-s-available-in-cloud-sessions と https://code.claude.com/docs/en/claude-code-on-the-web#environment-expired",
+      "relevance": "毎回入れる必要があるかの根拠。セッション中の作業を次へ渡すには、コミットと push が要る。"
+     },
+     {
+      "fact": "自動メモリはマシン単位で、同じ git リポジトリの worktree 間では共有されるが、「Files are not shared across machines or cloud environments」。",
+      "source": "https://code.claude.com/docs/en/memory（Auto memory）",
+      "relevance": "メモリに頼った引き継ぎは、クラウドでは効かない。HANDOFF.md のようなコミット型の引き継ぎにする。"
+     },
+     {
+      "fact": "Routines は、プロンプト・リポジトリ・環境・connector・トリガー（schedule・API・GitHub イベント）を束ねた保存設定。個人の claude.ai アカウントに属し、同僚と共有されない。プロンプトは自己完結させる。各 run でリポジトリを clone し、デフォルトブランチから始める（プロンプトで指定すれば変えられる）。research preview。",
+      "source": "https://code.claude.com/docs/en/routines#create-a-routine と #repositories-and-branch-permissions",
+      "relevance": "決まった時に起こすセッションの「初めの指示」は、Routine のプロンプトに書く。アカウントごとに作る。"
+     },
+     {
+      "fact": "Routine の connector は、接続済みのものが既定で全部入る。含まれる connector は、書き込みを含めて承認なしで使える。上限は、schedule が 1 アカウント 100 回/時、Run now と API fire が 1 Routine あたり 30 回/時（その他の API fire はアカウント 100 回/時）。schedule の最短間隔は 1 時間。",
+      "source": "https://code.claude.com/docs/en/routines#connectors と #usage-and-limits",
+      "relevance": "別アカウントに Routine を作るときは connector を棚卸しし、上限を前提にする。"
+     },
+     {
+      "fact": "Projects（claude.ai/code の一つの作業の流れ）は Pro と Max の public beta。Team と Enterprise は未対応。project instructions（16,000 字まで）が新規 thread のたびに届き、project memory（MEMORY.md）、Project settings の Plugins（新規 cloud thread に読み込まれる）、Environment、Repositories を持つ。repo が無くても、research や文書作成の thread は動く。",
+      "source": "https://code.claude.com/docs/en/claude-projects#write-project-instructions と #get-skills-plugins-connectors-and-tools-into-threads と #choose-an-environment-for-threads",
+      "relevance": "『型だけ』の一回きりの会話に近い使い方は、Projects の指示文で入る。ただしベータで、アカウントごとに作る。"
+     },
+     {
+      "fact": "Projects は一人のユーザーに属し、他のユーザーと共有できない。thread の transcript の share もない。組織向けの管理機能はベータ中にはない。",
+      "source": "https://code.claude.com/docs/en/claude-projects（Limitations の節）",
+      "relevance": "Project を別アカウントに持つことや、組織として同じ Project を配ることはできない。"
+     },
+     {
+      "fact": "cloud の各 thread は Project の全リポジトリを clone し、各リポの CLAUDE.md と skills を読む。permission・hooks・env は作業ディレクトリの .claude/settings.json からだけ読まれる。Anthropic 管理の環境で複数リポのとき、リポの permission と hooks は効かない。",
+      "source": "https://code.claude.com/docs/en/claude-projects#what-threads-pick-up-from-your-repositories",
+      "relevance": "複数リポにまたがる型は、CLAUDE.md とスキルに寄せると届きやすい。hooks と permission を頼るなら単一リポにする。"
+     },
+     {
+      "fact": "/web-setup は gh のトークンを Claude のアカウントに暗号化して保存し、クラウドセッションの GitHub アクセスに使う。Quick setup（Owner が有効化）は Team と Enterprise のみ。新しいアカウントでは GitHub の接続をそのアカウントで済ませる必要がある。",
+      "source": "https://code.claude.com/docs/en/web-quickstart#connect-from-your-terminal",
+      "relevance": "別アカウントに型のリポを届けるには、そのアカウントで GitHub 接続を済ませる必要がある。"
+     },
+     {
+      "fact": "claude.ai/code の URL で新規セッションを事前入力できる。パラメータは prompt（別名 q）、prompt_url（長い指示文を URL から取得。cross-origin 許可が必要）、repositories（別名 repo）、environment。",
+      "source": "https://code.claude.com/docs/en/web-quickstart#pre-fill-sessions",
+      "relevance": "『初めの指示』と repo と環境を、ブックマーク一つで毎回同じにできる。"
+     },
+     {
+      "fact": "claude --cloud の「タスク文」は、現在のディレクトリの GitHub remote の現在ブランチを clone する（未 push のローカルコミットは入らない）。GitHub remote が無いか、Claude GitHub App が入っていない repo では、ローカルの repo を bundle でアップロードする。claude -p の「メッセージ」--cloud <session-id> で既存セッションに追記できる。どちらも claude auth login のアカウントに紐づき、Bedrock など第三者プロバイダでは使えない。",
+      "source": "https://code.claude.com/docs/en/claude-code-on-the-web#from-terminal-to-cloud と #send-follow-ups-from-the-cli",
+      "relevance": "CLI から、同じ型を持つセッションを複数同時に起動できる。アカウントごとにログインが要る。"
+     },
+     {
+      "fact": "server-managed settings（Owner が claude.ai の管理画面から配信。hooks・env・permissions・claudeMd などを含む）は、クラウドセッションにも届く。ただし Team と Enterprise のみ。MDM など endpoint-managed の設定は、Anthropic 管理の VM には届かない。managed の claudeMd は承認なしで届く。",
+      "source": "https://code.claude.com/docs/en/server-managed-settings#platform-availability と #choose-between-server-managed-and-endpoint-managed-settings",
+      "relevance": "組織内で型を全員に配るなら唯一の全自動経路。個人の別アカウントには効かない。"
+     },
+     {
+      "fact": "SessionStart hook は、repo の .claude/settings.json に置くと、クラウドとローカルの両方で、起動と再開のたびに走る。CLAUDE_CODE_REMOTE が true かどうかで、クラウドだけ動かす判定ができる。単一リポのセッションでのみ読まれ、複数リポのクラウドセッションでは読まれない。ユーザーの ~/.claude/settings.json の hook は届かない。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#setup-scripts-vs-sessionstart-hooks と #limitations-in-cloud-sessions",
+      "relevance": "依存の準備を毎回・冪等に行う場所として使える。ただし起動時間が増え、単一リポに限られる。"
+     },
+     {
+      "fact": "Routine は既定でデフォルトブランチから始まる。claude.ai/code でセッションを作るときは、リポジトリの横のブランチ選択で別ブランチから始められる。",
+      "source": "https://code.claude.com/docs/en/routines#repositories-and-branch-permissions と https://code.claude.com/docs/en/web-quickstart#start-a-task",
+      "relevance": "引き継ぎのコミットを載せたブランチを、次のセッションが読むように指定する必要がある。"
+     },
+     {
+      "fact": "Projects の thread は、Remote Control で手元のマシン上で走らせると、project instructions は受け取るが、project memory は読み込まれない。",
+      "source": "https://code.claude.com/docs/en/claude-projects（Run a thread on your own computer の節）",
+      "relevance": "手元で走る thread に memory を頼る設計は避ける。instructions に必要な規則を書く。"
+     }
+    ],
+    "options": [
+     {
+      "name": "A. 型の本体をリポジトリに置く（正本化）",
+      "how": "CLAUDE.md・docs/main-agent.md・HANDOFF.md・docs/operating-kit/・.claude/skills/・.claude/rules/ を commit する。MCP は mcp add --scope project で .mcp.json に書いてコミットする。単一リポなら .claude/settings.json に hooks と permissions を置く。各アカウントの環境・Routine・Project にそのリポを指定する。",
+      "scope": "クラウドの全入口（claude.ai/code・モバイル・Desktop の Cloud・claude --cloud・Routine・Project の thread）。同じリポを clone したローカルの CLI も同じファイルを読む。",
+      "cost": "低。一度コミットすれば、以後は push で更新。",
+      "weak": "そのリポを使うセッションにしか効かない。複数リポの session では hooks と permission が効かない。HANDOFF.md などは push したブランチ経由でのみ次のセッションに届く。各アカウントで、そのリポへの GitHub アクセスが要る。"
+     },
+     {
+      "name": "B. 環境の setup script で ~/.claude を整える",
+      "how": "環境の Setup script に、mkdir -p ~/.claude と cat で ~/.claude/CLAUDE.md を書く（docs の例）。plugin は claude plugin marketplace add <owner>/<repo> の後に claude plugin install <plugin>@<marketplace> --scope user（command 型は --yes）。スクリプトは約5分以内に終える。",
+      "scope": "その環境を使うすべてのクラウドセッションと、その環境を指定した Routine（アカウント単位）。",
+      "cost": "中。アカウントごとに環境を作る。スクリプトを変えるとキャッシュが再構築され、約7日で期限切れ。",
+      "weak": "約5分を超えるとキャッシュされない。plugin 経由の cloud での読み込みは文書の部品から推定するだけで、end-to-end は未確認。~/.claude/skills に書いたものが読まれるかは未確認。env の値は使う人全員に見える。"
+     },
+     {
+      "name": "C. 環境の env と network secrets で接続情報を渡す",
+      "how": "環境の Environment variables に KEY=value を書く（# を含む値は引用符で囲む）。API キーは Network secrets に、種類（Bearer など）と宛先 host を指定して登録する。",
+      "scope": "その環境で動くすべてのセッションと Routine。secret は宛先 host にだけ付与され、エージェント proxy が送信時に付ける。",
+      "cost": "低〜中。secret は各アカウントで再入力が要る。",
+      "weak": "env は使う人全員が読める。secret は保存後に値が見えず、変更は削除と再登録になる。環境が既定の Trusted のときは、型が叩くホストを Custom で許可する必要がある。"
+     },
+     {
+      "name": "D. claude.ai の Customize で skills と connectors を有効化する",
+      "how": "claude.ai の設定でスキルを作成・有効化する（Customize）。connector は claude.ai/customize/connectors で接続する。",
+      "scope": "アカウントの Cloud セッション・Routine・Cowork（スキル）。connector は Routine と cloud セッションに既定で入る。",
+      "cost": "低。アカウントごとに一度。",
+      "weak": "アカウント単位で、repo には残らない。claude.ai で同期された plugin が cloud に届くかは文書に無い（未確認）。Routine は接続済み connector を既定で全部入れる。"
+     },
+     {
+      "name": "E. Projects（Pro/Max ベータ）の指示・メモリ・plugins・環境",
+      "how": "Project settings で Memory > Project instructions（16,000 字まで）、Plugins、Environment、Repositories を設定する。リポが無くても、research や文書作成の thread は動く。",
+      "scope": "その Project の新規 cloud thread すべて（既存 thread には変更が届かない）。",
+      "cost": "中。ベータで、ロールアウトが段階的。アカウントごとに作る。",
+      "weak": "共有できない。組織の管理もない。Team と Enterprise は未対応。手元で走る thread は memory を読み込まない。"
+     },
+     {
+      "name": "F. Routines の保存プロンプトを『初めの指示』にする",
+      "how": "claude.ai/code/routines か /schedule で作成する。プロンプトの冒頭に「CLAUDE.md と docs/main-agent.md を読んでから作業する」と書く。API trigger は /fire に Bearer トークン付きで POST し、text で run ごとの文脈を渡す。",
+      "scope": "その Routine の各 run（schedule・API・GitHub イベント）。",
+      "cost": "中。アカウントごとに作る。research preview。",
+      "weak": "上限がある（schedule はアカウント共通 100 回/時、Run now と API は Routine 共通 30 回/時）。プロンプトは自己完結が必要。複製やエクスポートは docs に無い。GitHub 接続が切れると、72 時間後に Routine が止まる。"
+     },
+     {
+      "name": "G. 起動文を定型化する（prefill URL と claude --cloud）",
+      "how": "https://claude.ai/code?prompt=...&repositories=owner/repo&environment=... をブックマークにする。長い型は prompt_url に置く（cross-origin 許可が要る）。CLI では claude --cloud の後にタスク文、既存セッションへの追記は claude -p の後にメッセージを書き --cloud <session-id> を付ける。",
+      "scope": "起動した 1 回のセッション（claude.ai/code・CLI）。",
+      "cost": "低。URL 一つ、コマンド一つ。",
+      "weak": "毎回の起動が要る。claude --cloud は未 push のローカル変更を載せない（bundle か push が要る）。型の中身はリポか環境に置いておかないと、長い文字列を毎回貼ることになる。"
+     },
+     {
+      "name": "H. リポジトリの SessionStart hook で冪等な準備を行う",
+      "how": "repo の .claude/settings.json に hooks.SessionStart（matcher: startup|resume）を置く。スクリプトは CLAUDE_CODE_REMOTE が true のときだけ動き、依存ファイルのハッシュが変わったときだけ npm install などを実行する（docs の例）。",
+      "scope": "そのリポのクラウドセッションと、同じリポのローカルセッション（起動と再開のたび）。",
+      "cost": "低〜中。",
+      "weak": "起動のたびに走るので遅くなる。単一リポでのみ読まれる。ユーザーの ~/.claude/settings.json の hook は届かない。"
+     },
+     {
+      "name": "I. 組織向けの経路（Team と Enterprise の Owner のみ。個人アカウントには効かない）",
+      "how": "管理画面（claude.ai/admin-settings/claude-code）の Managed settings に hooks・env・permissions・claudeMd などを書く。Quick setup を有効にし、共有環境（Cloud environments）を作って全メンバーに見せる。",
+      "scope": "組織のメンバーのクラウドセッション（server-managed settings と共有環境）。endpoint-managed（MDM など）は届かない。",
+      "cost": "低（一度の設定）。Owner の権限が要る。",
+      "weak": "Team と Enterprise だけ。個人の別アカウントには効かない。変更はメンバーの次の起動か毎時のポーリングで届く。"
+     }
+    ],
+    "unverified": [
+     "claude.ai で有効化した plugin（synced）が cloud session に届くか。docs は Cowork と terminal のみを挙げている。",
+     "setup script の中で環境変数が見えるか。GitHub の issue（https://github.com/anthropics/claude-code/issues/63541）に、見えないという利用者の報告があるとのことだが、開いて確かめてはいない。",
+     "setup script を実行するときの作業ディレクトリと、リポジトリのパス（$CLAUDE_PROJECT_DIR に相当するもの）が使えるか。手順の順序から clone の後に走るとは読めるが、明記は無い。",
+     "setup script の claude plugin install で入れた plugin が、cloud セッションで読み込まれるか。部品（setup script から plugin install できること、キャッシュの対象であること）は文書化されているが、end-to-end は未検証。",
+     "setup script で ~/.claude/skills に書いたスキルが読まれるか。docs は ~/.claude/skills を読まないと書いている。",
+     "環境、Routine、Project を別アカウントへ複製・エクスポートする機能があるか。docs には見当たらなかった。",
+     "Routine を API で作る方法があるか。docs にあるのは /fire の呼び出しと、CLI の /schedule のみ。",
+     "Team と Enterprise 以外の複数リポのセッションで、CLAUDE.md が全リポから読まれるか。Projects の thread についてのみ明記されている。",
+     "別の claude.ai アカウントで、同じ private repo を clone できる GitHub 接続の条件。Claude GitHub App の導入先は GitHub 側のオーナーに依存すると推定するが、確認していない。",
+     "workflows/*.js（Workflow ツールの script）が cloud セッションで動くか。今回読んだ docs の範囲外。",
+     "Projects の提供状況。public beta でロールアウトは段階的で、自分のアカウントに出ているかは確認していない。",
+     "Routine は research preview で、上限や API の仕様が変わる可能性がある。"
+    ]
+   }
+  },
+  {
+   "lens": "claude.ai 側",
+   "result": {
+    "summary": "結論: 「一度入れたら全サーフェスに効く」一本道はありません。claude.ai チャット、Cowork、クラウドセッション、端末の Claude Code は読み込むものが違うため、土台を一つ決め、サーフェスごとに薄い層を重ねる設計になります。\n\n土台はアカウントのスキル（operating-kit.skill を各アカウントに入れる）です。同じアカウントなら、claude.ai チャット、Cowork、クラウドセッション（開始時に同期）、同アカウントでサインインした Claude Code（v2.1.273 以降）に届きます。ただしスキルはアカウントごとの持ち物で、別アカウントへ自動では移りません。共有できるのは Team/Enterprise だけです。\n\nClaude Code のプラグインと claude.ai のスキルの違い:\n- プラグインは skills・commands・agents・hooks・MCP を束ねる容器で、surface ごとに読み込む部品が違います。チャットは agents と hooks を無視します。\n- Workflow（kit の scripts/*.js が前提とするもの）は、公式には Claude Code の機能（CLI、Desktop、IDE、claude -p、Agent SDK。クラウドセッションでの結果保存にも言及あり）として書かれています。claude.ai チャットと Cowork で動くという記載は見当たりません。git についても、チャットでの記載はありません。\n- よって claude.ai 側で効くのは実質 §4（型だけ使う）です。kit の SKILL.md も「リポジトリも git も無い環境では §4 だけ」と定めており、この能力差と噛み合っています。\n\nサーフェス別の届き方（公式記載の範囲。記載がないものは「記載なし」）:\n| 置き場所 | claude.ai チャット | Cowork | Claude Code（端末） | クラウドセッション |\n| アカウントのスキル（ZIP を Customize > Skills） | 届く | 届く（開始時に同期） | 届く（同アカウントでサインイン時） | 届く（開始時に同期） |\n| 同じ kit の Claude Code プラグイン | スキルは届く。agents と hooks は無視 | スキル・hooks・agents が届く | 全部届く（workflows/ を含む） | リポジトリ設定やユーザー設定のプラグインは届かない |\n| プロフィール指示（Instructions for Claude） | 全会話に届く | Global instructions が一部になると記載 | 記載なし | 記載なし |\n| Project の指示と知識 | そのプロジェクトのチャットのみ | 記載なし | 記載なし | 記載なし |\n| メモリ | 届く（自動保存の topic） | クラウド実行時のみチャットと共有。ローカル実行は使わない | 記載なし | 記載なし |\n| リポジトリの .claude/skills/ と §1 の配置 | 届かない | 記載なし（フォルダ接続次第） | 届く | 届く（.claude/skills/ のみ。settings.json の宣言は不可） |\n\n推奨の組み合わせ:\n1. 土台: アカウントのスキル。各アカウントに ZIP を投入する。\n2. チャットで名指しなしにも効かせたいなら、プロフィール指示に呼び出し条件つきの一言を入れる（型の本文は入れない）。\n3. Claude Code の端末: marketplace で入れると、Workflow を含めて全部届く。\n4. リポジトリ作業: §1 の配置に加え、クラウドでも使うなら同じ skill を .claude/skills/ に commit する。\n5. 組織（Team/Enterprise）を持つ場合のみ、Owner が Installed by default か Required に設定できる。\n\n別アカウントへの最小投入手順（推定を含む）:\n(1) kit の build で operating-kit.skill（ZIP）を作る。(2) Settings > Capabilities で「Code execution and file creation」を有効にする（これがないとスキルは動かない）。(3) Customize > Skills > + > Create skill > Upload a skill。(4)「運用の型で…」と名指しして発動を確かめる。(5) 同じアカウントで Claude Code にサインインし、/skills で同期を確認する。更新は ZIP を作り直して各アカウントに再投入する（自動更新の有無は未確認）。\n\nkit 側でできる工夫:\n- 上の投入手順を一枚にして kit に入れる。\n- Workflow の script は plugin の workflows/ に移し、Claude Code 側の consult と、チャットで使う §4 を明確に分けて書く。合図の語 ultracode は公式には対話入力でのみ効くため、チャットで言っても Workflow は起きない。\n- 型の「守ること」（モデルや effort を変えない、上書きしない 等）の要点は、プロフィール指示にも入れる価値がある。ただし全会話に効くので、要点だけに絞る。\n- claude.ai 向けに §4 と核だけの軽量版を別ビルドで出す案もあるが、本体とのズレが起きやすい。",
+    "facts": [
+     {
+      "fact": "スキルは Customize > Skills の「+」→「+ Create skill」→「Upload a skill」で、フォルダを ZIP にしてアップロードする。SKILL.md が必須で、フォルダ名と skill 名は一致させる。",
+      "source": "https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+      "relevance": "operating-kit.skill（ZIP）を各アカウントに入れる直接の経路。アカウント間の自動移行はないので、アカウントごとに一回ずつ行う必要がある。"
+     },
+     {
+      "fact": "スキルを使うには「Code execution and file creation」が必要。Free/Pro/Max は Settings > Capabilities で有効化し、Team/Enterprise は Organization settings > Plugins & skills の Policy タブで設定する。",
+      "source": "https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+      "relevance": "入れても動かない典型の落とし穴。新しいアカウントで最初に確認すべき項目。"
+     },
+     {
+      "fact": "カスタムスキルは本人だけに見え、共有できるのは Team/Enterprise のみ。Free/Pro/Max では各自のアカウントに個別にアップロードする。",
+      "source": "https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+      "relevance": "Pro/Max の複数アカウントでは共有で配れない。各アカウントへの個別投入が前提になる。"
+     },
+     {
+      "fact": "アカウントで有効化したスキルは、Cowork とクラウドセッションがセッション開始時に同期して読み込む。サインインした同アカウントの Claude Code（v2.1.273 以降）も一方向に約10分おきに同期し、API キー認証やクラウドプロバイダでは同期しない。/skills で確認できる。",
+      "source": "https://code.claude.com/docs/en/skills.md および https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+      "relevance": "一つのアカウントスキルで claude.ai・Cowork・クラウド・端末の四経路に届く。型の土台としては最も広い。"
+     },
+     {
+      "fact": "個人の ~/.claude/skills/ はクラウドセッションに届かない。リポジトリの .claude/skills/ に commit したプロジェクトスキルはクラウドセッションに届く。",
+      "source": "https://code.claude.com/docs/en/skills.md",
+      "relevance": "クラウドで型を使わせるなら、repo の .claude/skills/ に置くのが公式に書かれた方法。"
+     },
+     {
+      "fact": "クラウドセッションは、マシンに入れたプラグインや、リポジトリの .claude/settings.json で有効にしたプラグインを読み込まない。",
+      "source": "https://code.claude.com/docs/en/plugins/install.md（Cloud session タブ）",
+      "relevance": "marketplace 経由のプラグインを repo 設定で配る方法はクラウドに効かない。クラウド向けは skill ファイルを commit するか、アカウントのスキルを使う。"
+     },
+     {
+      "fact": "claude.ai 側で追加したプラグインはアカウントに保存され、Cowork と Claude Code にも同期プラグインとして届く。一方、Claude Code のコマンドラインで入れたプラグインはそのマシンに残り、claude.ai アカウントには上がらない。",
+      "source": "https://claude.com/docs/plugins/overview および https://claude.com/docs/plugins/platform-support",
+      "relevance": "同期は一方向。claude.ai から入れたものは端末の Claude Code にも届くが、端末で入れたものは claude.ai に出ない。"
+     },
+     {
+      "fact": "claude.ai の Customize > Plugins > Add で、GitHub などの Git リポジトリを marketplace として追加できる。または .claude-plugin/plugin.json を含む zip をアップロードできる。自分で追加する marketplace は 1 アカウントあたり 25 まで、プラグインは 5,000 ファイル・200MB まで。",
+      "source": "https://claude.com/docs/plugins/overview および https://claude.com/docs/plugins/platform-support",
+      "relevance": "operating-kit は marketplace を兼ねるプラグインの形なので、claude.ai の Add marketplace で入る可能性がある（未検証）。"
+     },
+     {
+      "fact": "プラグインの部品対応表では、チャットは agents と hooks を無視し、ローカル MCP も無視する。Cowork と Claude Code は hooks と agents を読み込む。workflows/ ディレクトリは表に載っていない。",
+      "source": "https://claude.com/docs/plugins/platform-support",
+      "relevance": "同じプラグインでも、チャットでは一部しか効かない。kit の scripts/ がチャットで動く保証はない。"
+     },
+     {
+      "fact": "Dynamic workflows（Workflow）は有料プランで使え、Claude Code の CLI・Desktop アプリ・IDE 拡張・claude -p・Agent SDK で動くと書かれている。クラウドセッションでも実行結果が残ると書かれている。claude.ai チャットと Cowork での利用は記載がない。Pro では /config の Dynamic workflows で有効化する。",
+      "source": "https://code.claude.com/docs/en/workflows.md",
+      "relevance": "kit の consult.js などの Workflow script は、チャットでは前提が満たされないと読める。§2 と consult は Claude Code 側の機能として分けて扱うべき。"
+     },
+     {
+      "fact": "プラグインで配る workflow は、プラグインルートの workflows/ ディレクトリに置く。名前はプラグイン名で名前空間が付く（例：/acme-tools:release-audit）。",
+      "source": "https://code.claude.com/docs/en/workflows.md",
+      "relevance": "kit の scripts/ を plugin の workflows/ に移せば、Claude Code 端末では plugin 経由で配れる。チャット向けの配布とは別経路になる。"
+     },
+     {
+      "fact": "ultracode キーワードで workflow が起動するのは、対話プロンプト・IDE 拡張パネル・Remote Control・人の入力を明示した SDK からの入力に限られる。-p、スケジュールタスク、Webhook やコメントの中継では起動しない。",
+      "source": "https://code.claude.com/docs/en/workflows.md",
+      "relevance": "claude.ai チャットで合図の語を言っても Workflow は起きない。合図の約束はチャット用と Claude Code 用で分けて書く必要がある。"
+     },
+     {
+      "fact": "プロフィールの「Instructions for Claude」（Settings 内）に書いた指示は、Claude との全会話に適用される。プロジェクトの指示はそのプロジェクトのチャットにのみ適用される。",
+      "source": "https://support.claude.com/en/articles/10185728-understanding-claude-s-personalization-features",
+      "relevance": "「型だけ使う」の一言を全会話に効かせるならプロフィール、単発の作業を束ねるなら Project。全会話に効く分、呼び出し条件を書いて無関係な会話を乱さない配慮が要る。"
+     },
+     {
+      "fact": "組織の指示（Organization instructions）は Owner だけが設定でき、上限は 3,000 字。個人の指示と矛盾する場合は組織側が優先され、反映には最大1時間かかる。",
+      "source": "https://support.claude.com/en/articles/14546867-set-organization-preferences",
+      "relevance": "組織を持つ場合に限り、全会話の土台として使える。個人の別アカウント群には適用されない。"
+     },
+     {
+      "fact": "メモリは会話の中で topic 単位に自動保存される（現行の仕組み）。プロジェクトごとに独自のメモリを持ち、Cowork はクラウド実行時のみチャットと共有し、ローカル実行では使わない。機微な話題は既定では保存されない。メモリのインポートは実験的で、手順は別記事に送られている。",
+      "source": "https://support.claude.com/en/articles/11817273-how-does-claude-s-memory-work",
+      "relevance": "手続きの保存先としては不向き（保存内容を制御しにくい）。別アカウントへの移送手段としても、このページでは手順を確認できない。"
+     },
+     {
+      "fact": "組織が skill や plugin を配る経路は、claude.ai の Organization settings > Plugins & skills で各プラグインに Not available・Available to install・Installed by default・Required のいずれかを設定する方法。Claude Code の端末には managed settings の extraKnownMarketplaces と enabledPlugins で配る。",
+      "source": "https://claude.com/docs/plugins/org-rollout および https://code.claude.com/docs/en/plugins/org.md",
+      "relevance": "Team/Enterprise を持つ場合のみ、型を全員に強く効かせられる。個人の複数アカウント構成では使えない。"
+     },
+     {
+      "fact": "Claude Code の marketplace は、公式 marketplace 以外は既定で自動更新がオフ。インストールスコープは user・project・local の三つで、project スコープは .claude/settings.json に書かれ、ほかの人は別途 install が必要。",
+      "source": "https://code.claude.com/docs/en/plugins/install.md",
+      "relevance": "kit の更新を各端末で受けるには、手動更新か auto-update の設定が要る。"
+     },
+     {
+      "fact": "operating-kit は v0.1.0 で MIT ライセンスのプラグイン。marketplace を兼ねる。README は、Claude Code では marketplace add と install を、claude.ai と Cowork では operating-kit.skill をアカウントのスキルとして入れるよう案内している。Claude Code の起動は /operating-kit:operating-kit。",
+      "source": "https://github.com/pe-kun333/operating-kit",
+      "relevance": "kit 自身が「アカウントのスキル」と「Claude Code プラグイン」の二経路を想定している。今回の提案はその延長にある。"
+     },
+     {
+      "fact": "SKILL.md の description は「リポジトリの無い一回きりの会話で使う」場合を発動条件に含む。§4 は、リポジトリや git の無い環境で使う。§1〜§3 は Claude Code 向けの手順。守ること（モデル・effort を変えない、上書きしない 等）はどの使い方にも効く。",
+      "source": "https://raw.githubusercontent.com/pe-kun333/operating-kit/main/skills/operating-kit/SKILL.md（取得ツールによる要約）",
+      "relevance": "claude.ai で効かせる本線は §4。kit の設計と各サーフェスの能力差が噛み合っている。"
+     }
+    ],
+    "options": [
+     {
+      "name": "アカウントのスキル（ZIP を Customize > Skills にアップロード）",
+      "how": "skill フォルダ（SKILL.md 必須、フォルダ名は skill 名と一致）を ZIP にする。Settings > Capabilities で「Code execution and file creation」を有効化してから、Customize > Skills > + > Create skill > Upload a skill。kit の README どおり operating-kit.skill を使う。",
+      "scope": "claude.ai チャット、Cowork（開始時に同期）、クラウドセッション（開始時に同期）、同じアカウントでサインインした Claude Code（v2.1.273 以降、一方向同期、/skills で確認）。",
+      "weak": "アカウントごとに一回ずつ入れる（自動移行なし）。Workflow が chat と Cowork で動くとは書かれていないので、土台は実質 §4 になる。発動は説明文と名指しに依存する。Pro/Max は他人と共有できない。",
+      "cost": "低。初回の ZIP 作成と各アカウントへの投入。更新は作り直して再アップロード（推定）。"
+     },
+     {
+      "name": "Claude Code プラグイン（marketplace）と claude.ai の marketplace 追加",
+      "how": "端末では claude plugin marketplace add pe-kun333/operating-kit の後に claude plugin install operating-kit@operating-kit。claude.ai では Customize > Plugins > Add > Add marketplace に https://github.com/pe-kun333/operating-kit を入れる（未検証）。",
+      "scope": "Claude Code（CLI と Desktop の Code タブ）では部品すべて（workflows/ を含む）。claude.ai から入れた分は同アカウントの Claude Code にも同期して届く。",
+      "weak": "チャットは agents と hooks を無視する。端末で入れた分は claude.ai に上がらない。サードパーティ marketplace は自動更新が既定でオフ。",
+      "cost": "中。各端末での登録と、更新の手動化か auto-update の設定。"
+     },
+     {
+      "name": "プロフィールの指示（Instructions for Claude）に呼び出し条件つきの一言",
+      "how": "Settings の Instructions for Claude に、呼び出し条件と §4 の要点だけを書く。例：「運用の型と言われたら operating-kit スキルの §4 に従い、その一言を一行で受け入れてから進める」。型の本文は入れない。",
+      "scope": "claude.ai の全会話（公式記載）。Cowork は Global instructions が Instructions for Claude の一部になると記載。Claude Code とクラウドセッションは記載なし。",
+      "weak": "全会話に効くので、無関係な会話にも影響しうる。文字数上限は公式に明記なし。書く量を増やすと矛盾のリスクが上がる。",
+      "cost": "低。一度書けば全会話に残る。"
+     },
+     {
+      "name": "Claude Projects の「運用の型」プロジェクト",
+      "how": "Projects で新規作成し、Instructions に §4 の一言と呼び出し条件を書く。Knowledge に SKILL.md と references/principles.md を入れる。",
+      "scope": "そのプロジェクト内のチャットのみ（公式）。プロジェクトごとに独自のメモリを持つ。",
+      "weak": "ほかの場所には届かない。使うプロジェクトを毎回選ぶ必要がある。Project 指示が有料限定かどうかは公式記載が食い違う。",
+      "cost": "低から中。知識ファイルは型を変えるたびに差し替える。"
+     },
+     {
+      "name": "メモリ（Settings > Memory）",
+      "how": "「運用の型を使うときは…」と頼むか、Topics を直接編集する。",
+      "scope": "プロジェクト外の一般チャット。Cowork はクラウド実行時のみチャットと共有し、ローカル実行は使わない。",
+      "weak": "会話から自動で topic 化される仕組みなので、手続きを正確に保存できる保証がない。機微な話題は保存されないことがある。型の保存先としては不向き。",
+      "cost": "低だが信頼性は低い。個人の前提（どのモデルで回すか等）に限るのが妥当。"
+     },
+     {
+      "name": "組織（Team/Enterprise）で配る",
+      "how": "Owner が Organization settings > Plugins & skills で kit を追加し、Installed by default か Required に設定する。全会話向けの一文は Organization instructions（3,000 字、Owner 専用）に入れる。Claude Code の端末には managed settings（extraKnownMarketplaces と enabledPlugins）で配る。",
+      "scope": "組織の全メンバーの claude.ai、Cowork、同期された Claude Code。managed settings を読む端末。",
+      "weak": "個人の複数アカウントを束ねる用途には使えない。Team 以上の契約と Owner 権限が要る。",
+      "cost": "高。配布と再同期の運用が要る。"
+     },
+     {
+      "name": "リポジトリ内に置く（§1 の配置と .claude/skills/ の commit）",
+      "how": "§1 で CLAUDE.md と docs/operating-kit/ を commit する。クラウドでも使うなら、同じ skill を .claude/skills/operating-kit/ にも commit する。",
+      "scope": "そのリポジトリの Claude Code（端末、Desktop、クラウド）。claude.ai チャットには届かない。",
+      "weak": "リポジトリごとに配置が要る。repo の .claude/settings.json でプラグインを有効化する方法はクラウドに効かないため、skill ファイルを置く形になる。",
+      "cost": "中。リポジトリが増えるほど手間が増える。"
+     },
+     {
+      "name": "「型だけ」の軽量版スキルを別に作る（claude.ai 向け）",
+      "how": "§4 と「この型は何か」だけを切り出した別スキルを kit の build で出し、アカウントのスキルとして入れる。",
+      "scope": "アカウントのスキルと同じ（claude.ai、Cowork、クラウド、端末）。",
+      "weak": "二本管理になり、本体との内容がずれやすい。説明文による発動が二重になる可能性がある（未確認）。",
+      "cost": "中。build 工程が一つ増える。"
+     },
+     {
+      "name": "一回きりの会話に一言を貼る（手動）",
+      "how": "会話の最初に、§4 の一言（SKILL.md の §4 が指す prompts.md §1.7）を貼る。",
+      "scope": "どの会話でも。ツールに依存しない。",
+      "weak": "毎回の手間がかかり、貼り忘れが起きる。",
+      "cost": "最小。"
+     }
+    ],
+    "unverified": [
+     "claude.ai のアップロードが .skill の拡張子をそのまま受け付けるか、ZIP に改名が必要か。ヘルプは ZIP と記載し、kit の README は operating-kit.skill を入れるとしている。",
+     "アカウントのスキルを更新したとき、ほかの端末や Claude Code に新版がいつ届くか。個人アカウントでの更新手順は公式に記載がない。",
+     "claude.ai チャットや Cowork で、スキルに同梱した scripts/*.js が実行されるか。Workflow ツールが chat と Cowork で使えるかは記載がない。",
+     "Cowork のローカル実行で git やシェルが使えるか（記載なし）。",
+     "claude.ai の Add marketplace に operating-kit の GitHub リポジトリを追加できるか、また kit の plugin.json が取り込み条件を満たすか（今回は未実施）。",
+     "プロフィール指示とプロジェクト指示の文字数上限は公式に明記がない。サードパーティの数字は確認していない。Project 指示が有料限定かどうかも、公式記載（個人化ページ）が食い違っている。",
+     "プロフィール指示とプロジェクト指示が Claude Code やクラウドセッションに届くか（記載なし）。",
+     "アカウント間でスキルや設定を直接移すエクスポート・インポート機能の有無。確認できなかった。",
+     "同じ名前の skill が、アカウント同期とプラグインの両方で入った場合の扱い（重複するか、どちらが優先か）。未確認。",
+     "説明文による自動発動の確実性。公式に数値や保証の記載はない。",
+     "クラウドセッションで CLAUDE.md が読み込まれるか。今回の確認では CLAUDE.md の扱いを公式ページで直接確認していない。",
+     "kit の SKILL.md と README の文言は、取得ツールによる要約で確認した。原文との照合は行っていない。"
+    ]
+   }
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "result": {
+    "summary": "観点：型の今の入れ方の手間（/home/user/operating-kit を読み、公式の資料で 2026-10 時点の仕様を照らした）。\n\n結論：手間は三か所にたまる。\n(1) リポジトリごとに要る作業：〈〉を 20 ほど埋める（モデル四つのように、アカウントで決まる値までリポジトリごとに聞く）、CLAUDE.md・HANDOFF.md・main-agent.md に節を足して食い違いを直す、ひな形 8・prompts・scripts 3 を docs/operating-kit/ に写す、許しを待つために一度止まる。\n(2) セッションごとに要る作業：段階ごとにモデル・effort・ultracode を手で切り替え、一言を選んで < > を埋めて貼り、作業枝で始める。クラウドのセッションはタスクごとに自分の枝を持つので、ここがずれやすい。\n(3) 直しを届ける道が切れている。plugin.json が \"version\": \"0.1.0\" のまま。main はまだ最初のコミット ba8f04d で、直し 15 コミットは別の枝と PR #1 にある。正本とされる honeycomb-browser-grok の docs/operating-kit/ と build.py は非公開のリポジトリにあり、確かめた三つの枝のどれにも無い。README に書いてある zip と .skill は、リポジトリにもリリースにも無い。そのため別のアカウントからは、最初の版しか受け取れない。\n\n別のアカウントで変わりうるもの：\n- 〈上〉（fable）は、プランと席によって使用クレジットが要る。\n- Pro では dynamic workflows を /config で入れる必要があり、規模の既定も small（5 体未満）。\n- GitHub の接続先（GitHub App か /web-setup か）。\n- claude.ai のスキルとプラグインはアカウントごと（組織ごと）。CLI のプラグインは機械ごと。\n\n公式の仕様で効くこと：\n- クラウドのセッションには、リポジトリの .claude/settings.json で宣言したプラグインも、~/.claude/skills も入らない。/plugin コマンドも使えない。\n- 入るのは、リポジトリに置いたもの（CLAUDE.md・.claude/skills など）と、claude.ai のアカウントで有効にしたスキル。\n- claude.ai の Customize > Plugins で GitHub の marketplace をアカウントに足すと、チャット・Cowork・CLI（同じアカウントでログインした端末、v2.1.273 以降）に同期で届く。\n\nいちばん効く道は次の二つの組み合わせ。\n- プラグインの版の扱いを直し、main に入れ、workflows/ を足す。\n- そのうえで、別のアカウントで一度だけ Add marketplace pe-kun333/operating-kit をし、Sync automatically を入れる。\n\nクラウドで確実に効かせるには、加えて次のどれかが要る。\n- リポジトリに .claude/skills/operating-kit を写す。\n- 環境の setup script で ~/.claude/skills を入れる。\n- アカウントのスキルとして上げる。\n\nセッションごとの手間は、SessionStart フックで HANDOFF の §0 から「今の段階・設定・一言」を出すことと、claude.ai/code の prompt_url を使った段階ごとの開始リンクで減らせる。",
+    "facts": [
+     {
+      "fact": "〈〉を埋めるとき、聞くのは三つまで。ふつうは「モデル四つ（〈小〉〈中〉〈主〉〈上〉）」「作業枝とコミットの決まり」「戻すのが重い所」。モデルの 〈〉 は、Agent ツールの指定（haiku など）と呼び名（Haiku 5.5 など）の二通りで入れる。",
+      "source": "/home/user/operating-kit/skills/operating-kit/SKILL.md:36、references/placeholders.md:5-7・12-33",
+      "relevance": "モデル四つと合図の語は、アカウントで決まる値なのに、リポジトリごとに聞いて CLAUDE.md に書いている。リポジトリが N 個あれば N 回聞くことになり、モデルの並びが替われば N か所を直すことになる（芯の 8「一か所」は、リポジトリの中だけの一か所）。"
+     },
+     {
+      "fact": "おすすめの例は 2026-10-15 時点のもので、「そのときのモデルの並びに合わせて読み替える」とある。〈上〉 が使えないなら 〈主〉 と同じにし、関わり方の (A)(B) を外す。",
+      "source": "skills/operating-kit/references/placeholders.md:6・17",
+      "relevance": "〈上〉 が使えるかはアカウント（プラン）で変わる。外すと CLAUDE.md の段階の表・関わり方の表の形まで変わるので、リポジトリごとに手直しが増える。"
+     },
+     {
+      "fact": "書く前に止まり、作るファイル・埋めた値・変える所・食い違い・コミットするかを見せて許しを待つ。そのあと、既にある CLAUDE.md には節を足す（細かな決まりつき）、HANDOFF.md の §0・§4・§4.1・§4.2 を足して参照を合わせる、ひな形 8 と prompts.md を docs/operating-kit/ に、scripts/*.js を docs/operating-kit/workflows/ に写す。",
+      "source": "skills/operating-kit/SKILL.md:37-48",
+      "relevance": "一つのリポジトリにつき、少なくとも二往復と多くのファイルの写しが要る。写しは版が固まったままの写しになる。"
+     },
+     {
+      "fact": "入れた先に docs/operating-kit/ があれば、そちらのひな形と一言を先に使う。スキルの方が古いときだけ、そう伝える。§3 の点検は、版の違いを報告するだけで直さない。",
+      "source": "skills/operating-kit/SKILL.md:28・68-81",
+      "relevance": "型を直しても、入れた先の写しは自動では上がらない。上げる手順として書いてあるのは、前の版（段階が四つ）から上げる場合（SKILL.md:61）だけで、ふつうの「上げる」の使い方が無い。"
+     },
+     {
+      "fact": "セッションごとに、段階の表のとおり利用者がモデル・effort・合図の語を設定する（①-1 は 〈中〉 で ultracode をセッション全体に、①-2〜②-2 は 〈主〉 か 〈上〉 で ultracode をセッション全体に、③ は 〈主〉 で 〈主の effort〉、ultracode は入れない）。そのうえで一言の < > を埋めて貼る。",
+      "source": "skills/operating-kit/assets/CLAUDE.template.md:16-22、references/prompts.md:5・12-44、assets/kit-README.template.md:40-45",
+      "relevance": "段階ごとに設定が違うので、リポジトリの settings.json に一つ書いて済ませることができない。セッションを始めるたびに手で切り替えて貼る手間が残る。"
+     },
+     {
+      "fact": "新しいセッションは、同じフォルダか作業枝で始める（別の枝だと HANDOFF.md が見えない）。",
+      "source": "skills/operating-kit/SKILL.md:64、assets/HANDOFF.template.md:10・18",
+      "relevance": "クラウドのセッションはタスクごとに自分の枝を持つ（このセッションも claude/amazing-goldberg-34ipb3）。始めるとき、枝の選び具を毎回作業枝に合わせる必要がある。"
+     },
+     {
+      "fact": "claude.ai/code では、リポジトリの選び具の後ろの枝の選び具で feature branch から始められる。一方で「Each task gets its own session and its own branch」とある。",
+      "source": "https://code.claude.com/docs/en/web-quickstart",
+      "relevance": "作業枝を一つにして HANDOFF でつなぐ型と、クラウドの「セッションごとに枝」の作りがぶつかる。始める枝は選べるが、押し込む先は確かめられていない（unverified）。"
+     },
+     {
+      "fact": "plugin.json の \"version\" は \"0.1.0\" で、最初のコミットから変わっていない。main は ba8f04d（最初の版）で、直し 15 コミットは claude/amazing-goldberg-34ipb3（PR #1）にある。",
+      "source": "/home/user/operating-kit/.claude-plugin/plugin.json:5、git log・git ls-remote origin（main=ba8f04d、branch=646efe6）",
+      "relevance": "marketplace add は既定の枝（main）を読むので、別のアカウントには最初の版しか入らない。merge しても version が同じなら、更新は届かない（次の fact）。"
+     },
+     {
+      "fact": "plugin.json で version を固定したままコミットを足すと、claude plugin update は「already at the latest version」と出して古い写しのまま。版を上げるか、version を書かずに commit SHA で追わせる。自前の marketplace の自動更新は既定で off。",
+      "source": "https://code.claude.com/docs/en/plugins/host-marketplace#keep-users-up-to-date、https://code.claude.com/docs/en/plugins/loading#versions-and-updates、https://code.claude.com/docs/en/plugins/publish",
+      "relevance": "README:17 の「新しい版は claude plugin update で受け取る」は、今の 0.1.0 固定では効かない。多くの端末で受け取るには、この版の扱いを直すことが先に要る。"
+     },
+     {
+      "fact": "SKILL.md の版の行には「直しは正本へまだ入れていないので、版の行が同じでも中身が違う」と注がある。正本は honeycomb-browser-grok の docs/operating-kit/ で、スキルは build.py で組み立てた写し。直しが正本に写るまでは build.py で組み立て直さない。",
+      "source": "skills/operating-kit/SKILL.md:8・97-101、references/placeholders.md:3、references/principles.md:3、assets/kit-README.template.md:3・66-67、README.md:5",
+      "relevance": "版の名前で中身を見分けられない。正本・写し・ブランチの直しが三重になり、どれが最新かは注を読まないと分からない。"
+     },
+     {
+      "fact": "pe-kun333/honeycomb-browser-grok は非公開。docs/operating-kit/ は、リモートの main・claude/cool-cori-oz0hdp・claude/ecstatic-davinci-m7gkn5 のどれにも無かった。手元の zip（2026-10-14）にも無い。pe-kun333/operating-kit は公開で、GitHub のリリースは 0 件。",
+      "source": "gh api repos/pe-kun333/*（private=true／false）、mcp github get_file_contents（三つの枝で not found）、list_releases=[]、/home/user/honeycomb-browser-grok の zip の一覧",
+      "relevance": "別のアカウントからは、正本も build.py も見えない。README:19・21 の operating-kit-plugin.zip と operating-kit.skill も、配っている場所が無い。届けられる道は、今は公開の operating-kit リポジトリだけ。"
+     },
+     {
+      "fact": "クラウドのセッションで読まれるのは、リポジトリの CLAUDE.md、.claude/skills・agents・commands・rules、一つのリポジトリなら .claude/settings.json のフックと許し、claude.ai で有効にしたスキル。読まれないのは、リポジトリの settings.json で宣言したプラグインと marketplace（enabledPlugins・extraKnownMarketplaces）、~/.claude/CLAUDE.md、~/.claude/skills、ユーザーの settings。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup、https://code.claude.com/docs/en/settings#settings-in-cloud-sessions、https://code.claude.com/docs/en/plugins/loading#plugins-shared-through-a-repository",
+      "relevance": "クラウドでは、プラグインで入れても、リポジトリで宣言してもスキルは出てこない。クラウドに効かせる道は、リポジトリに置くか、アカウントのスキルにするかのどちらか。"
+     },
+     {
+      "fact": "クラウドのセッションには plugin browser が無く、/plugin は使えない（コマンドの一覧では、端末だけで動くもの）。",
+      "source": "https://code.claude.com/docs/en/plugins/install（Cloud session タブ）、https://code.claude.com/docs/en/claude-code-on-the-web#manage-context",
+      "relevance": "README:17 の /plugin install … --marketplace は、Claude Code on the web では使えない。"
+     },
+     {
+      "fact": "スキルの置き場：claude.ai のアカウント（Customize > Skills）で有効にしたスキルは、Cowork・クラウドのセッション・同じアカウントでログインした端末（~/.claude/skills/synced/ に降りる。v2.1.273 以降）で読まれる。~/.claude/skills は、その機械だけで、Cowork とクラウドでは読まれない。",
+      "source": "https://code.claude.com/docs/en/skills（Choose where skills load の表）",
+      "relevance": "別のアカウントで多くのセッションに効かせるには、アカウントのスキルにするのがいちばん広く効く。このクラウドのセッションでも ~/.claude/skills/synced/<id>/ にアカウントのスキル（docs・pdf など）が降りていて、operating-kit は無かった（実地で見た）。"
+     },
+     {
+      "fact": "claude.ai の Customize > Plugins では、Add marketplace（GitHub の owner/repo、非公開なら GitHub App）か Upload plugin（.zip か .plugin、中に .claude-plugin/plugin.json が一つ）で、プラグインをアカウントに足せる。足したプラグインはチャット・Cowork・Claude Code（synced plugin、<name>@synced）に届く。github.com から自分で足した marketplace は Sync automatically を入れられる。",
+      "source": "https://claude.com/docs/plugins/overview、https://claude.com/docs/plugins/platform-support、https://code.claude.com/docs/en/plugins/loading#synced-plugins",
+      "relevance": "marketplace.json（source \"./\"）は既にあるので、別のアカウントで一度 Add marketplace pe-kun333/operating-kit をすれば、多くの面に届く。手間は一度きり。"
+     },
+     {
+      "fact": "synced plugin が読まれるのは Cowork と、claude.ai のアカウントでログインした端末。ANTHROPIC_AUTH_TOKEN などで入っている端末、--bare、--setting-sources に user が無い端末では読まれない。CLI で入れたプラグインはその機械に付き、アカウントには上がらない。",
+      "source": "https://code.claude.com/docs/en/plugins/loading#synced-plugins、https://claude.com/docs/plugins/platform-support",
+      "relevance": "同じ機械で二つのアカウントを使うなら、CLI のユーザー範囲のプラグインは両方に効く（機械に付くため）。逆に、別の機械や別のアカウントには届かない。"
+     },
+     {
+      "fact": "チャットでは、プラグインのスキルとコマンドは読まれるが、agents と hooks は読まれない。dynamic workflows が使える面は、CLI・Desktop・IDE・-p・Agent SDK（とクラウドのセッション）と書かれている。",
+      "source": "https://claude.com/docs/plugins/platform-support、https://code.claude.com/docs/en/workflows#turn-workflows-off・#resume-after-you-leave-the-session",
+      "relevance": "§4（型だけ）の「〈合図の語〉で上位のモデルに読み取り専用で相談」（prompts.md:40）は、claude.ai のチャットではそのとおりには動かない。SKILL.md:31 の「claude.ai・Cowork では §4 だけ」も、Cowork では agents と hooks が動くので、言い過ぎかもしれない。"
+     },
+     {
+      "fact": "プラグインの workflows/ に置いたスクリプト（または manifest の workflows 欄）は、/<plugin>:<meta.name> で走る。リポジトリの .claude/workflows/ に置けば、その repo を clone したみんなが /<name> で走らせられ、args も渡せる。今の consult.js・ideate.js・survey.js には、もう export const meta（name: operating-kit-consult など）がある。",
+      "source": "https://code.claude.com/docs/en/workflows#distribute-a-workflow-in-a-plugin・#save-the-workflow-for-reuse、skills/operating-kit/scripts/consult.js:1-3・ideate.js:1-3・survey.js:1-3",
+      "relevance": "今は docs/operating-kit/workflows/ に写して scriptPath（絶対パス）で渡している（prompts.md:70-75）。プラグインの workflows/ に置けば、写さずに名前で呼べ、版はプラグインと一緒に上がる。"
+     },
+     {
+      "fact": "ultracode のキーワードは、利用者が自分で打った発言でだけ効く（-p・スケジュール・webhook・PR のコメントでは効かない）。Pro では Dynamic workflows を /config で入れる必要があり、規模の目安の既定も small（5 体未満）。workflows を切ると ultracode も使えない。xhigh を持たないモデルでも ultracode は使えない。",
+      "source": "https://code.claude.com/docs/en/workflows#where-the-keyword-works・#set-a-size-guideline・#turn-workflows-off、https://code.claude.com/docs/en/model-config（When ultracode is available）",
+      "relevance": "型の合図の語の作り（芯の 3）とは合っている。ただ、別のアカウントが Pro なら、最初の設定と、型の 5〜10 体の相談・発想（consult 5 体前後、ideate 10 体まで）が規模の目安とずれることを伝える必要がある。"
+     },
+     {
+      "fact": "fable は Fable 5.1、opus は Opus 5.5、sonnet は Sonnet 5.5、haiku は Haiku 5.5 に当たる（CLI の版で上がっていく）。Fable は、プランと席によっては使用クレジットに付き、/model に「Requires usage credits」と出る。",
+      "source": "https://code.claude.com/docs/en/model-config（aliases・Version history）",
+      "relevance": "〈上〉 が使えるか、その費用はアカウントで変わる。CLAUDE.md に「Haiku 5.5」のような版付きの呼び名を書くと、別名より早く古くなる。"
+     },
+     {
+      "fact": "クラウドの環境の setup script は、セッションの前に root で走り、ファイルの写しとして約 7 日キャッシュされる。~/.claude/CLAUDE.md を書いて、ユーザーの指示として読ませる例が公式にある。環境はアカウントごとで、どのリポジトリのセッションにも効く。",
+      "source": "https://code.claude.com/docs/en/cloud-environments#add-personal-preferences-without-committing-to-the-repo・#environment-caching",
+      "relevance": "アカウントで決まる値（モデルの当てはめ、§1.8 の型の芯）を、環境ごとに一度だけ書いて、多くのクラウドのセッションに当てられる。ただし更新はキャッシュの作り直し（script を変えるか、約 7 日）まで届かない。"
+     },
+     {
+      "fact": "SessionStart フックの標準出力と additionalContext は、会話の始めに文脈として入る（10,000 字まで）。リポジトリの .claude/settings.json のフックは、一つのリポジトリのクラウドのセッションでも走る（リポジトリが複数だと走らない）。",
+      "source": "https://code.claude.com/docs/en/hooks（SessionStart）、https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup",
+      "relevance": "HANDOFF.md の §0 から今の段階を読み、その段階の設定（モデル・effort・ultracode）と一言を出すフックを型のひな形に入れれば、貼る手間と、設定の照らし（CLAUDE.template.md:28）を半分は仕組みにできる。"
+     },
+     {
+      "fact": "claude.ai/code の URL に prompt・prompt_url・repositories・environment を付けると、新しいセッションに前もって入れておける。モデルと枝は入れられない。",
+      "source": "https://code.claude.com/docs/en/web-quickstart#pre-fill-sessions",
+      "relevance": "§2 の返す形（SKILL.md:62-65）に、段階ごとの開始リンク（prompt_url を raw の prompts に向ける）を足せば、一言を貼る手間がクリック一つになる。"
+     },
+     {
+      "fact": "Claude Code の Projects（Pro・Max の公開ベータ）では、project instructions（16,000 字まで）・project memory・Project settings > Plugins・Thread model と effort が、新しいクラウドの thread すべてに効く。リポジトリの settings.json のプラグインは thread でも読まれない。thread には GitHub App が要る。",
+      "source": "https://code.claude.com/docs/en/claude-projects",
+      "relevance": "一つの仕事の多くのクラウドのセッションに、型を一度で当てる道になる。ただし thread のモデルは project で一つなので、段階ごとのモデル分けとは合わない。"
+     },
+     {
+      "fact": "claude.ai にスキルを上げるときは、<skill-name>/SKILL.md が先頭に来る ZIP にする。frontmatter は name・description・license・compatibility・metadata・allowed-tools の六つだけ（ほかがあると止まる）。description は 1,024 字まで。今の SKILL.md は name と description だけで、description は 474 字（UTF-8 で 1,074 バイト）。",
+      "source": "https://claude.com/docs/skills/how-to#package-your-skill、https://code.claude.com/docs/en/skills（frontmatter の注）、skills/operating-kit/SKILL.md:1-4",
+      "relevance": "skills/ の下から operating-kit/ を zip にすれば、そのまま上げられる形。手で作る手間はあるが、作る道は単純。"
+     },
+     {
+      "fact": "リポジトリの範囲でプラグインを有効にしても、collaborator の機械に落とすには、それぞれが --scope project で一度入れる必要がある。marketplace を --scope project で足して .claude/settings.json をコミットすると、フォルダを信頼した人に登録される（クラウドでは信頼のダイアログが出ないので登録されない）。",
+      "source": "https://code.claude.com/docs/en/plugins/install#choose-an-install-scope、https://code.claude.com/docs/en/plugins/host-marketplace#register-the-marketplace-for-everyone-in-a-repository、https://code.claude.com/docs/en/plugins/loading",
+      "relevance": "CLI・Desktop の端末なら、型を入れるとき（§1）に extraKnownMarketplaces を足せば、別のアカウントでも、そのリポジトリを開けば足すよう促される。クラウドには効かない。"
+     }
+    ],
+    "options": [
+     {
+      "name": "A. プラグインの配り方を直す（版・枝・workflows・成果物）",
+      "how": "(1) plugin.json の version を、直すたびに上げる（0.2.0 など）。または plugin.json と marketplace の両方から version を消して commit SHA で追わせる。(2) PR #1 を main に入れる（または README で #ref 付きの add を案内する）。(3) プラグインの根に workflows/ を作り、consult.js・ideate.js・survey.js を置く（meta は既にある）。(4) 正本を公開の operating-kit リポジトリに移す（build.py もそこに置くか、プラグインそのものを正本にして組み立てをやめる）。SKILL.md:8・97-101、placeholders.md:3、kit-README:3・66-67 の「正本は honeycomb-browser-grok」を書き換える。(5) GitHub Actions で、タグごとにスキルの zip とプラグインの zip をリリースに付ける（README:19・21 の成果物を実在させる）。claude plugin validate --strict と claude plugin tag も回す。",
+      "scope": "ほかのすべての道の土台（CLI・Desktop・claude.ai のプラグイン・アップロード）",
+      "cost": "一度だけリポジトリを直す。以後は直すたびに版を上げる（または上げない）だけ",
+      "weak": "workflows/ をプラグインに入れても、クラウドではプラグインが読まれないので、クラウドでは別の道が要る。正本を移すと、honeycomb-browser-grok 側の手直しの歴史と分かれる。"
+     },
+     {
+      "name": "B. 別のアカウントの claude.ai に marketplace を一度足す",
+      "how": "別のアカウントで claude.ai の Customize > Plugins > Add > Add marketplace に pe-kun333/operating-kit を入れ、operating-kit を Add する。Sync automatically を入れる。CLI 側は、そのアカウントで claude auth login した端末（v2.1.273 以降）なら、operating-kit@synced として自動で降りる。",
+      "scope": "claude.ai のチャット（スキルとして）、Cowork、そのアカウントでログインした CLI・Desktop のローカルのセッション。クラウドのセッションに plugin のスキルが降りるかは unverified",
+      "cost": "アカウントごとに一度。セッションごとの手間は無い",
+      "weak": "A の版の扱いを直さないと、更新が届かないおそれがある。チャットでは workflows・agents が動かない。Team・Enterprise では Owner が marketplace を足すことを止められる。CLI で別に入れた operating-kit@operating-kit と名前がぶつかると、synced の方が読まれない。"
+     },
+     {
+      "name": "C. 別のアカウントのスキルとして上げる",
+      "how": "skills/ の下から zip -r operating-kit.zip operating-kit/ を作り（A の (5) で自動にできる）、別のアカウントの Customize > Skills で上げて有効にする。",
+      "scope": "チャット、Cowork、クラウドのセッション（公式に書かれている）、そのアカウントの端末（synced スキル）",
+      "cost": "アカウントごとに一度。ただし直すたびに上げ直す",
+      "weak": "自動更新が無い（上げ直しを忘れると古いまま）。プラグインでないので workflows/ は付かない（スクリプトはスキルの scripts/ の中のまま）。B と両方入れると、型の二つの版が並ぶ。"
+     },
+     {
+      "name": "D. 入れる先のリポジトリに、クラウドでも読まれる形で置く（§1 を手直し）",
+      "how": "§1 の写し先を変える。docs/operating-kit/workflows/ をやめて .claude/workflows/ に置き（/operating-kit-consult などで呼べ、args で渡せる）、スキルの写しを .claude/skills/operating-kit/ に置く。prompts.md §4 の scriptPath の渡し方を、名前での呼び方に書き換える。あわせて、SKILL.md に §5「上げる」を足す：入れた先の版の行とプラグインの版を比べ、ひな形の差分を見せ、許しのあとで写しを上げる。",
+      "scope": "そのリポジトリのすべてのセッション（クラウド・Projects の thread・Claude Tag・どのアカウントでも、repo に入れる人なら）",
+      "cost": "リポジトリごとに入れる手間は今と同じほど。上げる手間は §5 で一回の依頼にまとまる",
+      "weak": "写しが N 個あることは変わらない（ずれは §3・§5 で拾うだけ）。.claude/workflows/ がクラウドで読まれるかは、公式の表に載っていない（unverified）。プラグインのスキルと並ぶと二つ読まれる（プラグインのスキルは名前の前に plugin 名が付くので、両方とも読まれる）。"
+     },
+     {
+      "name": "E. アカウントで決まる値を「アカウントの型の設定」として一度だけ置く",
+      "how": "モデル四つ（別名 haiku・sonnet・opus・fable）、合図の語、〈上〉 が使えるか（Fable のクレジット）、Pro の workflows の規模を、一か所に置く。置き場の案：(a) クラウドの環境の setup script で書く ~/.claude/CLAUDE.md、(b) claude.ai の personal preferences、(c) 自分の非公開のリポジトリの一ファイル。§1 の 2 で、まずそれを読み、聞くのを作業枝と重い層の二つにする。CLAUDE.md の段階の表のセッションの欄も、版付きの呼び名ではなく別名で書く。",
+      "scope": "そのアカウントの §1 すべて。(a) はクラウドだけ、(b) はチャット・Cowork",
+      "cost": "アカウントごとに一度。モデルの並びが替わったら一か所を直す（入れ済みのリポジトリの CLAUDE.md は §5 で上げる）",
+      "weak": "芯の 8（モデル名は CLAUDE.md の一か所）と二重になる。読み込み元を CLAUDE.md の外に作るなら、principles.md の「変えてよい所」に書き足す必要がある。(a) はキャッシュで、反映が遅れる。"
+     },
+     {
+      "name": "F. 段階の照らしと一言を SessionStart フックで出す",
+      "how": "型のひな形に .claude/settings.json の SessionStart フック（startup と resume）を足す。フックは小さなスクリプト（docs/operating-kit/ か .claude/ の下）で、HANDOFF.md の §0 の「今の段階・関わり方・作業枝」と、CLAUDE.md の段階の表のその行（モデル・effort・合図の語）と、prompts.md のその段階の一言（< > の残りの印つき）を出す。主担当はそれを見て、設定のずれを利用者に伝える（モデルを変えるのは利用者のまま。芯の 7 は保つ）。",
+      "scope": "そのリポジトリの CLI・Desktop・一つのリポジトリのクラウドのセッション",
+      "cost": "リポジトリごとに一度（§1 で一緒に入れる）。セッションごとの貼る手間がほぼ消える",
+      "weak": "モデルや effort そのものは変えられない（知らせるだけ）。複数のリポジトリのクラウドのセッションではフックが走らない。ローカルではフォルダを信頼するまで走らない。§0 の書き方がずれると読み違える。"
+     },
+     {
+      "name": "G. 段階ごとの開始リンク（claude.ai/code の prefill）",
+      "how": "§2 の返す形に、https://claude.ai/code?prompt_url=<その段階の一言の raw の URL>&repositories=<owner/repo>&environment=<環境名> を足す。repo の docs/operating-kit/ に段階ごとの一言を一ファイルずつ置けば、prompt_url で指せる（CORS を許す所に置く必要がある）。",
+      "scope": "Claude Code on the web とモバイルのクラウドのセッション",
+      "cost": "§2 を一度直すだけ。セッションごとはクリック一つと、モデル・枝の選択",
+      "weak": "モデル・effort・枝は前もって入れられない。< > の中身（範囲・依頼）は、その場で書く必要がある。raw.githubusercontent.com が CORS を許すかは確かめていない。"
+     },
+     {
+      "name": "H. クラウドの環境の setup script で型を入れる",
+      "how": "別のアカウントの環境（Default など）の setup script に、git clone --depth 1 https://github.com/pe-kun333/operating-kit /opt/operating-kit と、ln -s か cp で ~/.claude/skills/operating-kit を作る処理を書く。あわせて E の ~/.claude/CLAUDE.md も書く。",
+      "scope": "その環境を使う、そのアカウントのすべてのクラウドのセッション（どのリポジトリでも）",
+      "cost": "環境ごとに一度",
+      "weak": "VM の ~/.claude/skills が読まれることは、公式には書かれていない（このセッションの ~/.claude/skills/session-start-hook が読まれていることからの推し量り）。キャッシュがあると script が走らないので、更新は約 7 日か script の変更まで届かない。CLI・Desktop・チャットには効かない。"
+     },
+     {
+      "name": "I. Claude Code の Projects で、一つの仕事の多くの thread に当てる",
+      "how": "claude.ai/code の Projects に、型を入れたリポジトリを足す。Project settings > Memory > Project instructions に、型の芯（§1.8 と「始めるとき」の照らし）を書く。Project settings > Plugins に operating-kit を足す。Thread model と effort は、その project の主な段階に合わせる。",
+      "scope": "その project の、すべての新しいクラウドの thread",
+      "cost": "project ごとに一度",
+      "weak": "Pro・Max のベータで、Team・Enterprise には未提供。thread のモデルが project で一つなので、段階ごとにモデルを分ける型と合わない（段階ごとに project を分けるか、task の中でモデルを頼む）。thread は auto mode で走る。GitHub App が要る（/web-setup では足りない）。"
+     },
+     {
+      "name": "J. claude.ai のチャットと Cowork の「型だけ」を常に効かせる",
+      "how": "§1.8 の一言（429 字）を、claude.ai の Project の instructions か personal preferences に置く（会話ごとに貼らない）。チャット向けに §1.8 の (2) を書き換える：相談は「利用者がモデルを 〈上〉 に切り替えて、同じ論点を聞く」形にする（チャットでは workflows と agents が動かないため）。Cowork 向けには agents が動くので、別の一言を用意するかを決める。SKILL.md:31 も、それに合わせて直す。",
+      "scope": "claude.ai のチャット（web・desktop・mobile）、Cowork",
+      "cost": "アカウントごと（または Project ごと）に一度",
+      "weak": "chat の Project の instructions は、Claude Code の Projects とは別のもの。personal preferences は、型が要らない会話にも効いてしまう。"
+     }
+    ],
+    "unverified": [
+     "claude.ai の Customize > Plugins で足したプラグイン（synced plugin）のスキルが、クラウドのセッションでも読まれるか。公式は「synced plugins は Cowork と端末」と書き、「claude.ai で有効にしたスキルはクラウドでも読まれる」とも書く。このセッションには ~/.claude/plugins/synced/<id>/ が空の形であり、仕組みはありそうだが、確かめていない。",
+     "claude.ai の Sync automatically や Check for updates が、plugin.json の version が同じ（0.1.0）ままのコミットを拾うか（claude.ai 側の版の見方は資料で確かめられなかった）。",
+     "クラウドの VM で setup script が ~/.claude/skills/ に置いたスキルが読まれるか。公式の資料には無い。このセッションの ~/.claude/skills/session-start-hook が読まれていることからの推し量り。",
+     "リポジトリの .claude/workflows/ が、クラウドのセッションで saved workflow として読まれるか（carry-over の表に載っていない）。",
+     "claude.ai のスキルのアップロードが .skill の拡張子を受けるか（資料は ZIP、プラグインは .zip か .plugin）。README:21 の operating-kit.skill はそのままでは上がらないかもしれない。",
+     "SKILL.md の description（474 字、1,074 バイト）が、claude.ai の 1,024 の上限を字で数えるか、バイトで数えるか。",
+     "クラウドのセッションに、自分の枝ではなく既にある 〈作業枝〉 に push させる決まった手順があるか（始める枝は選べるが、押し込む先は資料で確かめられなかった）。",
+     "〈中〉（sonnet = Sonnet 5.5）が xhigh を持ち、段階①-1 のセッション全体で ultracode が使えるか。",
+     "Fable が使用クレジットに付くプランと席の具体（資料は「プランと席による」とだけ書く）。",
+     "build.py が、手元の機械など、ほかの場所にあるか。GitHub の honeycomb-browser-grok の三つの枝と、2026-10-14 の zip には無かった。",
+     "Cowork で Workflow ツールと ultracode が使えるか（workflows の資料の面の一覧に Cowork が無い）。",
+     "SessionStart フックの入力に今のモデル名が入り、段階の表と照らせるか。",
+     "raw.githubusercontent.com の URL が、claude.ai/code の prompt_url の CORS の条件を満たすか。"
+    ]
+   }
+  }
+ ],
+ "claims": [
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "プラグインのインストール範囲は三つ。user は ~/.claude/settings.json の enabledPlugins に書かれ、どのプロジェクトでも有効になる。project はリポジトリの .claude/settings.json に書かれ、commit すると共同作業者に有効化されるが、外部ソースのプラグインは各自が claude plugin install <name>@<marketplace> --scope project を一度実行する必要がある。local は .claude/settings.local.json に書かれ、そのリポジトリだけで有効になる。",
+   "source": "https://code.claude.com/docs/en/plugins/install （Choose an install scope）",
+   "relevance": "別のマシンや別の人に入れる単位はこの三つのどれかになる。project は『リポジトリを開いた人に入れさせる』層だが、クラウドには効かない（後述）。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "CLI の導入は /plugin marketplace add owner/repo（#ref でブランチやタグを固定可能）のあと、/plugin install <plugin>@<marketplace>。シェルからは claude plugin install。claude plugin marketplace add は ~/.claude/settings.json の extraKnownMarketplaces にも書き込む。ターミナル、デスクトップのローカルセッション、VS Code は同じマシンなら同じ設定ファイルを読む。",
+   "source": "https://code.claude.com/docs/en/plugins/install （Add a marketplace; Install from your shell）／ https://code.claude.com/docs/en/plugins/loading （Check which stage a plugin reached）",
+   "relevance": "公開 GitHub の operating-kit なら一行で追加できる。デスクトップの Code タブと VS Code も、同じマシンなら CLI の導入を共有する。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "リポジトリの .claude/settings.json に extraKnownMarketplaces と enabledPlugins を書くと、対話セッションでは信頼ダイアログを承認したフォルダでのみマーケットプレイスが登録される。-p 実行も、信頼済みフォルダでのみ適用される。",
+   "source": "https://code.claude.com/docs/en/plugins/org （Require plugins per repository）",
+   "relevance": "型を入れたリポジトリを開いた人へ自動で案内する仕組みになるが、信頼の承認が前提になる。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "マーケットプレイスと plugin が同じリポジトリにあり、plugin の source が相対パスなら、マーケットプレイスの登録後はその複製からそのまま読まれる。相対パスの『.』はマーケットプレイスのルート自身を指す。外部ソースの plugin だけ、各自の個別インストールが要る。",
+   "source": "https://code.claude.com/docs/en/plugins/org （Require plugins per repository）／ https://code.claude.com/docs/en/plugins/marketplace-reference （Relative path plugin source）",
+   "relevance": "operating-kit はマーケットプレイスと plugin が同じリポジトリと見られる（plugin.json から推し量り）。リポジトリ側の設定だけでチームに入れられる見込みがある。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "クラウドセッション（claude.ai/code、Claude Code on the web）は、利用者のマシンに入れたプラグインも、リポジトリの .claude/settings.json で有効にしたプラグインも読まない。読まれるのは、リポジトリの CLAUDE.md、単一リポジトリなら .claude/settings.json の hooks と権限、.claude/rules/、.claude/skills/、.claude/agents/、.claude/commands/ で、~/.claude/CLAUDE.md と ~/.claude/skills/ は読まれない。",
+   "source": "https://code.claude.com/docs/en/plugins/install （Cloud session tab）／ https://code.claude.com/docs/en/cloud-environments （What carries over from your setup）",
+   "relevance": "クラウドで型を効かせる既知の確実な経路は『型の本体をリポジトリにコミットする』こと。§1 の方式がそのまま当てはまる。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "クラウドセッションと Cowork は、claude.ai アカウントで有効にしたスキルを読む。クラウドセッションはリポジトリに commit された .claude/skills/ も読む。プラグインとしての同期がクラウドに届くことは、この資料では明記されていない。",
+   "source": "https://code.claude.com/docs/en/skills （Skills in Cowork and cloud sessions）／ https://code.claude.com/docs/en/cloud-environments （What carries over from your setup）",
+   "relevance": "アカウントから届くクラウドの経路として文書化されているのは、プラグインではなくスキル単位の有効化である。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "claude.ai へのスキル追加は、スキルのディレクトリを先頭にした ZIP（<skill-name>/SKILL.md の形）をアップロードし、Customize > Skills で有効化する。個人のスキルの共有や組織への公開は Team と Enterprise だけで使える。",
+   "source": "https://claude.com/docs/skills/how-to （Package your skill; After uploading; Share or package your skill）",
+   "relevance": "プラグインを入れないアカウントにも、スキル部分だけなら手作業の一回で届けられる。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "スキル内の参照は ${CLAUDE_SKILL_DIR} と書くと、Claude Code と Cowork では読み込み時にスキルのフォルダへ置き換えられる。チャット（claude.ai）ではスキルのフォルダ全体がサンドボックスにコピーされるので、SKILL.md からの相対パスも読めるように書く。",
+   "source": "https://claude.com/docs/skills/how-to （Add scripts）",
+   "relevance": "references、assets、scripts を含む型を、チャット、Cowork、Claude Code で同じ文面のまま動かすための前提になる。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "claude.ai の Customize > Plugins では、Add > Add marketplace で GitHub の owner/repo や URL を追加でき、そのあと Discover から plugin を追加する。公開 GitHub のリポジトリはそのまま追加できる。非公開の GitHub は、GitHub アカウントの連携と Claude GitHub App へのアクセス許可が要る。マーケットプレイスは、アカウントごとに自分で追加したもので最大 25 まで。",
+   "source": "https://claude.com/docs/plugins/overview （Find and add a plugin）／ https://claude.com/docs/plugins/platform-support （Compare installation, sync, and admin controls）",
+   "relevance": "別の claude.ai アカウントでは、各自がこの一手を行う必要がある。公開リポジトリなら認証の手間は要らない。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "claude.ai のアカウントに入れたプラグインは、Cowork と Claude Code で再インストールなしに使える。Claude Code では、同じアカウントでサインインしたときに限り、次回起動時に『synced』として同期される（Claude Code v2.1.273 以降）。API キー（ANTHROPIC_AUTH_TOKEN、CLAUDE_CODE_OAUTH_TOKEN、apiKeyHelper）で動く場合や、非必須トラフィックを止めている場合、bare モードでは同期されない。CLI で入れたプラグインはアカウントには戻らない。",
+   "source": "https://claude.com/docs/plugins/overview （Find the plugin in each app）／ https://code.claude.com/docs/en/plugins/install （Plugins from your claude.ai account）／ https://code.claude.com/docs/en/plugins/loading （Sign-in requirements for terminal sync）",
+   "relevance": "アカウントを正本にすると Claude Code 側は自動で揃うが、逆方向には運ばれない。API キーで回している環境には、アカウント経由の型は届かない。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "同名のプラグインが別の経路で有効なとき、claude.ai から同期されたプラグインは最も優先度が低く、読み込まれず『not loaded』と報告される。",
+   "source": "https://code.claude.com/docs/en/plugins/loading （Name conflicts）",
+   "relevance": "CLI で marketplace 版を入れた上で同期版もあっても、二重には動かない。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "チャットでは、スキルとコマンドが読まれる（コマンドはスキルとして扱われる）。エージェントと hooks は Cowork と Claude Code でだけ読まれる。",
+   "source": "https://claude.com/docs/plugins/platform-support （Compare component support by app）",
+   "relevance": "型のうちスキルで書ける部分はチャットでも効く。hooks に頼る部分は CLI と Cowork に限られる。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "自動更新は、公式マーケットプレイスでは既定で有効で、サードパーティとコミュニティを含むそれ以外では既定で無効。有効化は /plugin の Marketplaces タブから行う。組織は managed settings の autoUpdate で固定でき、DISABLE_AUTOUPDATER などの環境変数で止められる。",
+   "source": "https://code.claude.com/docs/en/plugins/install （Keep plugins updated）／ https://code.claude.com/docs/en/plugins/loading （When auto-update runs）",
+   "relevance": "pe-kun333/operating-kit は既定では自動更新されない。各マシンで一度オンにする手順を案内に入れる必要がある。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "版の判定は、plugin.json に version を書いた場合はその文字列が変わらない限り利用者に新しいコミットが届かない。version を省くと、GitHub や url のソースでは commit SHA（12 文字）で判定される。マーケットプレイス内の相対パスのプラグインは、導入されたディレクトリの commit SHA で判定される。",
+   "source": "https://code.claude.com/docs/en/plugins/host-marketplace （Release a new version）／ https://code.claude.com/docs/en/plugins/loading （How Claude Code computes the version）",
+   "relevance": "operating-kit の plugin.json は version 0.1.0 で、版を上げないとどのアカウントやマシンにも更新が届かない。版上げのルールを決めておく必要がある。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "非公開の GitHub マーケットプレイスでは、HTTPS は git の資格情報ヘルパー（gh auth login の後に gh auth setup-git）で認証し、対話のプロンプトは出ない。SSH は ssh-agent に鍵が要る。バックグラウンドの自動更新は、プロンプトなしで資格情報を取れるときだけ成功する。GITHUB_TOKEN を環境変数に置くだけでは認証されない。",
+   "source": "https://code.claude.com/docs/en/plugins/host-marketplace （Grant access to a private marketplace; What background auto-update does with credentials）",
+   "relevance": "リポジトリを非公開にした場合、別のマシンや別のアカウントの利用者は、この資格情報の準備が要る。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "公開リポジトリ pe-kun333/operating-kit は、.claude-plugin/plugin.json で name が operating-kit、version が 0.1.0、license が MIT。.claude-plugin/marketplace.json は WebFetch の要約で読んだところ、マーケットプレイス名が operating-kit、plugin の source がリポジトリ直下（./）だった。原文は未確認。認証なしで raw を取得できたので、公開と推し量る。",
+   "source": "https://raw.githubusercontent.com/pe-kun333/operating-kit/main/.claude-plugin/plugin.json ／ https://raw.githubusercontent.com/pe-kun333/operating-kit/main/.claude-plugin/marketplace.json",
+   "relevance": "導入は /plugin marketplace add pe-kun333/operating-kit と /plugin install operating-kit@operating-kit になる見込み。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "プラグインのスキルは /<plugin名>:<スキル名> で呼ばれる。チャットの / メニューでは plugin-name:skill-name と入力して絞り込める。",
+   "source": "https://code.claude.com/docs/en/skills （Discovery and naming）／ https://claude.com/docs/plugins/overview （Use a plugin）",
+   "relevance": "operating-kit の呼び名は /operating-kit:<スキル名> になる。スキル名が operating-kit なら /operating-kit:operating-kit と推し量る（SKILL.md の name は未確認）。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "Team と Enterprise では、Owner が Organization settings > Plugins & skills で各プラグインを Not available、Available to install、Installed by default、Required のどれかに設定できる。メンバーは、同じ組織の特定の人への Share と、組織のライブラリへの Publish to org（Requires review、Open、Off の設定に従う）を使える。個人プラン（Pro、Max）では特定の人への Share はできない。",
+   "source": "https://claude.com/docs/plugins/platform-support （Organization controls）／ https://claude.com/docs/plugins/share （Share a plugin with specific people; If you can't share a plugin）／ https://claude.com/docs/plugins/overview （Plugins your organization installs or requires）",
+   "relevance": "同じ組織の別アカウントには届く。個人プラン同士では届かない。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "個人プラン同士で手渡すなら、.plugin ファイルか zip を Add > Upload plugin で受け取る。受け取った側では別のプラグインとして入り、共有の更新は届かない。",
+   "source": "https://claude.com/docs/plugins/share （The plugin file）",
+   "relevance": "別の個人アカウントへは手渡しになる。更新は自動で届かないと推し量る（資料は別物として入るとだけ書いている）。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "Team と Enterprise では、Owner が claude.ai の管理設定（Organization settings > Claude Code > Managed settings）に extraKnownMarketplaces と enabledPlugins を書ける。Anthropic が管理するクラウド環境では、クラウドセッションはサーバー管理設定を受け取ってからプラグインを入れる。",
+   "source": "https://code.claude.com/docs/en/plugins/org （Choose a delivery mechanism; When each surface applies the plugin keys）",
+   "relevance": "組織内の全員の Claude Code とクラウドセッションに届く、文書化された唯一の自動配布の経路。Owner 権限と組織が要る。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "組織の Plugins & skills で GitHub や GitLab のリポジトリを同期する場合、リポジトリは github.com と gitlab.com では非公開か内部である必要がある。",
+   "source": "https://code.claude.com/docs/en/plugins/host-marketplace （Distribute through organization settings）",
+   "relevance": "公開の operating-kit を、そのまま組織同期の対象にはできない。組織配布には非公開の複製が要ると推し量る。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "クラウド環境の setup script は、起動時に root で走る。ゼロで終了する必要があり、終了しないとセッションは起動しない。公式の例では、スクリプトで ~/.claude/CLAUDE.md を書く形が示されている。環境はキャッシュされ、約 5 分以内に終わると再利用される。",
+   "source": "https://code.claude.com/docs/en/cloud-environments （What carries over from your setup; Setup scripts; Script requirements）",
+   "relevance": "リポジトリにコミットしたくない個人の運用規則だけを、クラウド環境に届ける経路になる。ただし環境単位の設定になる。"
+  },
+  {
+   "lens": "プラグインと marketplace",
+   "fact": "claude plugin validate <path> は、manifest と各スキルの frontmatter を検査する。--strict を付けると警告も失敗扱いになる。claude plugin eval は、プラグインあり・なしのケースを走らせて差を採点する。",
+   "source": "https://code.claude.com/docs/en/plugins/create （Test and debug; Check that the plugin changes Claude's behavior）",
+   "relevance": "版を上げる前や配布の前に構成を確かめる手段。別のアカウントや別の面で型が効いているかを比べる材料になる。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "環境は個人に紐づく。Owner が作る共有環境は Team と Enterprise のみ。個人が作った環境は「personal to your account」。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#configure-your-environment",
+   "relevance": "個人の別アカウントには共有環境の道がない。環境は各アカウントで作り直す。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "環境変数は .env 形式で、値は「その環境を使う人全員が読める」。API キーは network secret として登録し、宛先 host に限って送信時に付与する。保存後に値は見えない。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#set-environment-variables と #add-network-secrets",
+   "relevance": "API キーを型に含めるなら env ではなく secret にする。別アカウントでは secret を再入力する。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "setup script は新規セッション開始時に、Claude Code の起動前に走る。root・Ubuntu 24.04 で動き、終了コード 0 が必要。約5分以内に終わると環境キャッシュになり、次のセッションから再実行されない。キャッシュはファイルシステムのスナップショットで、インストールしたパッケージやファイルは残るが、起動中のプロセスは残らない。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#setup-scripts と #environment-caching",
+   "relevance": "毎回のインストールは不要になる。ただし重い処理は分ける必要がある。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "setup script は、スクリプトまたは許可ホストを変えたときと、約7日のキャッシュ期限切れで再構築される。VM が一時停止から戻るときには再実行されない。変更が既存セッションに届くのは、VM が回収されて作り直されたとき。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#environment-caching",
+   "relevance": "スクリプトを変えても既存セッションには反映されないことがある。変更はセッションの再開か新規セッションで確かめる。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "docs の例：setup script で ~/.claude/CLAUDE.md を書くと、個人の指示としてクラウドセッションに読み込まれる。/context の Memory files に /root/.claude/CLAUDE.md が出ることで確認できる。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#add-personal-preferences-without-committing-to-the-repo",
+   "relevance": "手元の ~/.claude/CLAUDE.md を、アカウントの環境を通してクラウドの全セッションに届ける文書化された道。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "clone に含まれて届くもの：リポの CLAUDE.md、.claude/rules/、.claude/skills/・agents/・commands/、.mcp.json（単一リポの場合）、.claude/settings.json の hooks と permission rules（単一リポの場合）。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup",
+   "relevance": "型の本体をリポジトリにコミットすれば、クラウドでも毎回そのまま届く。どのアカウントでも、そのリポジトリを clone できれば届く。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "clone に含まれず届かないもの：~/.claude/CLAUDE.md、~/.claude/skills/・agents/・commands/、~/.claude/settings.json だけで有効な plugin、claude mcp add の user scope や local scope（~/.claude.json に書かれる）、repo の enabledPlugins や extraKnownMarketplaces で宣言された plugin。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup と https://code.claude.com/docs/en/plugins/install（Cloud session タブ）",
+   "relevance": "個人の ~/.claude にある型は、そのままではクラウドに届かない。repo に移すか、setup script、claude.ai の Customize で載せ直す。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "クラウドのセッションと Routine が読むのは、claude.ai のアカウントで有効化した skills（セッション開始時に同期）と、クローンしたリポの .claude/skills/。~/.claude/skills/ は読まれない。",
+   "source": "https://code.claude.com/docs/en/skills（Use skills in Cowork and cloud sessions）",
+   "relevance": "スキルなら、リポジトリに入れなくてもアカウントの設定として全クラウドセッションに届く道がある。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "設定ファイルの読まれ方。単一リポのクラウドセッションは .claude/settings.json を読む。~/.claude/settings.json と .claude/settings.local.json は読まれない。クラウドの /config は値を変えず、環境変数か repo の settings.json を使うよう案内される。",
+   "source": "https://code.claude.com/docs/en/settings#settings-in-cloud-sessions",
+   "relevance": "個人の設定はリポジトリの settings.json か環境変数に移す必要がある。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "plugin の入れ方。クラウドセッションには plugin ブラウザがなく、ユーザーの plugin も repo 宣言の plugin も入らない。一方で、setup script などからシェルで claude plugin install を呼ぶ例が文書にある。marketplace が未登録の機械では、先に claude plugin marketplace add を実行する。command 型の plugin には --yes が要る。",
+   "source": "https://code.claude.com/docs/en/plugins/install#install-from-your-shell",
+   "relevance": "plugin を cloud に届ける文書化された道は setup script 経由のみ。ただし cloud での end-to-end の動作は未確認。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "claude.ai アカウントで有効化された synced plugin は、Cowork と、claude.ai でサインインした terminal セッションに載ると書かれている。cloud session は挙げられていない。",
+   "source": "https://code.claude.com/docs/en/plugins/loading#synced-plugins",
+   "relevance": "claude.ai 側の plugin 有効化だけで全クラウドに届くとは、文書から言えない。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "各セッションは新しい Anthropic 管理の VM で動き（Ubuntu 24.04、目安 4 vCPU・16GB RAM・30GB ディスク）、リポジトリは毎回 clone される。停止中はファイルが保存され、VM が回収されると新規 VM が立つ。会話履歴は戻るが、バックグラウンドのサブエージェントやシェルの作業は戻らない。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#what-s-available-in-cloud-sessions と https://code.claude.com/docs/en/claude-code-on-the-web#environment-expired",
+   "relevance": "毎回入れる必要があるかの根拠。セッション中の作業を次へ渡すには、コミットと push が要る。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "自動メモリはマシン単位で、同じ git リポジトリの worktree 間では共有されるが、「Files are not shared across machines or cloud environments」。",
+   "source": "https://code.claude.com/docs/en/memory（Auto memory）",
+   "relevance": "メモリに頼った引き継ぎは、クラウドでは効かない。HANDOFF.md のようなコミット型の引き継ぎにする。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "Routines は、プロンプト・リポジトリ・環境・connector・トリガー（schedule・API・GitHub イベント）を束ねた保存設定。個人の claude.ai アカウントに属し、同僚と共有されない。プロンプトは自己完結させる。各 run でリポジトリを clone し、デフォルトブランチから始める（プロンプトで指定すれば変えられる）。research preview。",
+   "source": "https://code.claude.com/docs/en/routines#create-a-routine と #repositories-and-branch-permissions",
+   "relevance": "決まった時に起こすセッションの「初めの指示」は、Routine のプロンプトに書く。アカウントごとに作る。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "Routine の connector は、接続済みのものが既定で全部入る。含まれる connector は、書き込みを含めて承認なしで使える。上限は、schedule が 1 アカウント 100 回/時、Run now と API fire が 1 Routine あたり 30 回/時（その他の API fire はアカウント 100 回/時）。schedule の最短間隔は 1 時間。",
+   "source": "https://code.claude.com/docs/en/routines#connectors と #usage-and-limits",
+   "relevance": "別アカウントに Routine を作るときは connector を棚卸しし、上限を前提にする。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "Projects（claude.ai/code の一つの作業の流れ）は Pro と Max の public beta。Team と Enterprise は未対応。project instructions（16,000 字まで）が新規 thread のたびに届き、project memory（MEMORY.md）、Project settings の Plugins（新規 cloud thread に読み込まれる）、Environment、Repositories を持つ。repo が無くても、research や文書作成の thread は動く。",
+   "source": "https://code.claude.com/docs/en/claude-projects#write-project-instructions と #get-skills-plugins-connectors-and-tools-into-threads と #choose-an-environment-for-threads",
+   "relevance": "『型だけ』の一回きりの会話に近い使い方は、Projects の指示文で入る。ただしベータで、アカウントごとに作る。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "Projects は一人のユーザーに属し、他のユーザーと共有できない。thread の transcript の share もない。組織向けの管理機能はベータ中にはない。",
+   "source": "https://code.claude.com/docs/en/claude-projects（Limitations の節）",
+   "relevance": "Project を別アカウントに持つことや、組織として同じ Project を配ることはできない。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "cloud の各 thread は Project の全リポジトリを clone し、各リポの CLAUDE.md と skills を読む。permission・hooks・env は作業ディレクトリの .claude/settings.json からだけ読まれる。Anthropic 管理の環境で複数リポのとき、リポの permission と hooks は効かない。",
+   "source": "https://code.claude.com/docs/en/claude-projects#what-threads-pick-up-from-your-repositories",
+   "relevance": "複数リポにまたがる型は、CLAUDE.md とスキルに寄せると届きやすい。hooks と permission を頼るなら単一リポにする。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "/web-setup は gh のトークンを Claude のアカウントに暗号化して保存し、クラウドセッションの GitHub アクセスに使う。Quick setup（Owner が有効化）は Team と Enterprise のみ。新しいアカウントでは GitHub の接続をそのアカウントで済ませる必要がある。",
+   "source": "https://code.claude.com/docs/en/web-quickstart#connect-from-your-terminal",
+   "relevance": "別アカウントに型のリポを届けるには、そのアカウントで GitHub 接続を済ませる必要がある。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "claude.ai/code の URL で新規セッションを事前入力できる。パラメータは prompt（別名 q）、prompt_url（長い指示文を URL から取得。cross-origin 許可が必要）、repositories（別名 repo）、environment。",
+   "source": "https://code.claude.com/docs/en/web-quickstart#pre-fill-sessions",
+   "relevance": "『初めの指示』と repo と環境を、ブックマーク一つで毎回同じにできる。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "claude --cloud の「タスク文」は、現在のディレクトリの GitHub remote の現在ブランチを clone する（未 push のローカルコミットは入らない）。GitHub remote が無いか、Claude GitHub App が入っていない repo では、ローカルの repo を bundle でアップロードする。claude -p の「メッセージ」--cloud <session-id> で既存セッションに追記できる。どちらも claude auth login のアカウントに紐づき、Bedrock など第三者プロバイダでは使えない。",
+   "source": "https://code.claude.com/docs/en/claude-code-on-the-web#from-terminal-to-cloud と #send-follow-ups-from-the-cli",
+   "relevance": "CLI から、同じ型を持つセッションを複数同時に起動できる。アカウントごとにログインが要る。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "server-managed settings（Owner が claude.ai の管理画面から配信。hooks・env・permissions・claudeMd などを含む）は、クラウドセッションにも届く。ただし Team と Enterprise のみ。MDM など endpoint-managed の設定は、Anthropic 管理の VM には届かない。managed の claudeMd は承認なしで届く。",
+   "source": "https://code.claude.com/docs/en/server-managed-settings#platform-availability と #choose-between-server-managed-and-endpoint-managed-settings",
+   "relevance": "組織内で型を全員に配るなら唯一の全自動経路。個人の別アカウントには効かない。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "SessionStart hook は、repo の .claude/settings.json に置くと、クラウドとローカルの両方で、起動と再開のたびに走る。CLAUDE_CODE_REMOTE が true かどうかで、クラウドだけ動かす判定ができる。単一リポのセッションでのみ読まれ、複数リポのクラウドセッションでは読まれない。ユーザーの ~/.claude/settings.json の hook は届かない。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#setup-scripts-vs-sessionstart-hooks と #limitations-in-cloud-sessions",
+   "relevance": "依存の準備を毎回・冪等に行う場所として使える。ただし起動時間が増え、単一リポに限られる。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "Routine は既定でデフォルトブランチから始まる。claude.ai/code でセッションを作るときは、リポジトリの横のブランチ選択で別ブランチから始められる。",
+   "source": "https://code.claude.com/docs/en/routines#repositories-and-branch-permissions と https://code.claude.com/docs/en/web-quickstart#start-a-task",
+   "relevance": "引き継ぎのコミットを載せたブランチを、次のセッションが読むように指定する必要がある。"
+  },
+  {
+   "lens": "クラウドのセッション",
+   "fact": "Projects の thread は、Remote Control で手元のマシン上で走らせると、project instructions は受け取るが、project memory は読み込まれない。",
+   "source": "https://code.claude.com/docs/en/claude-projects（Run a thread on your own computer の節）",
+   "relevance": "手元で走る thread に memory を頼る設計は避ける。instructions に必要な規則を書く。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "スキルは Customize > Skills の「+」→「+ Create skill」→「Upload a skill」で、フォルダを ZIP にしてアップロードする。SKILL.md が必須で、フォルダ名と skill 名は一致させる。",
+   "source": "https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+   "relevance": "operating-kit.skill（ZIP）を各アカウントに入れる直接の経路。アカウント間の自動移行はないので、アカウントごとに一回ずつ行う必要がある。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "スキルを使うには「Code execution and file creation」が必要。Free/Pro/Max は Settings > Capabilities で有効化し、Team/Enterprise は Organization settings > Plugins & skills の Policy タブで設定する。",
+   "source": "https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+   "relevance": "入れても動かない典型の落とし穴。新しいアカウントで最初に確認すべき項目。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "カスタムスキルは本人だけに見え、共有できるのは Team/Enterprise のみ。Free/Pro/Max では各自のアカウントに個別にアップロードする。",
+   "source": "https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+   "relevance": "Pro/Max の複数アカウントでは共有で配れない。各アカウントへの個別投入が前提になる。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "アカウントで有効化したスキルは、Cowork とクラウドセッションがセッション開始時に同期して読み込む。サインインした同アカウントの Claude Code（v2.1.273 以降）も一方向に約10分おきに同期し、API キー認証やクラウドプロバイダでは同期しない。/skills で確認できる。",
+   "source": "https://code.claude.com/docs/en/skills.md および https://support.claude.com/en/articles/12512180-using-skills-in-claude",
+   "relevance": "一つのアカウントスキルで claude.ai・Cowork・クラウド・端末の四経路に届く。型の土台としては最も広い。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "個人の ~/.claude/skills/ はクラウドセッションに届かない。リポジトリの .claude/skills/ に commit したプロジェクトスキルはクラウドセッションに届く。",
+   "source": "https://code.claude.com/docs/en/skills.md",
+   "relevance": "クラウドで型を使わせるなら、repo の .claude/skills/ に置くのが公式に書かれた方法。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "クラウドセッションは、マシンに入れたプラグインや、リポジトリの .claude/settings.json で有効にしたプラグインを読み込まない。",
+   "source": "https://code.claude.com/docs/en/plugins/install.md（Cloud session タブ）",
+   "relevance": "marketplace 経由のプラグインを repo 設定で配る方法はクラウドに効かない。クラウド向けは skill ファイルを commit するか、アカウントのスキルを使う。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "claude.ai 側で追加したプラグインはアカウントに保存され、Cowork と Claude Code にも同期プラグインとして届く。一方、Claude Code のコマンドラインで入れたプラグインはそのマシンに残り、claude.ai アカウントには上がらない。",
+   "source": "https://claude.com/docs/plugins/overview および https://claude.com/docs/plugins/platform-support",
+   "relevance": "同期は一方向。claude.ai から入れたものは端末の Claude Code にも届くが、端末で入れたものは claude.ai に出ない。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "claude.ai の Customize > Plugins > Add で、GitHub などの Git リポジトリを marketplace として追加できる。または .claude-plugin/plugin.json を含む zip をアップロードできる。自分で追加する marketplace は 1 アカウントあたり 25 まで、プラグインは 5,000 ファイル・200MB まで。",
+   "source": "https://claude.com/docs/plugins/overview および https://claude.com/docs/plugins/platform-support",
+   "relevance": "operating-kit は marketplace を兼ねるプラグインの形なので、claude.ai の Add marketplace で入る可能性がある（未検証）。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "プラグインの部品対応表では、チャットは agents と hooks を無視し、ローカル MCP も無視する。Cowork と Claude Code は hooks と agents を読み込む。workflows/ ディレクトリは表に載っていない。",
+   "source": "https://claude.com/docs/plugins/platform-support",
+   "relevance": "同じプラグインでも、チャットでは一部しか効かない。kit の scripts/ がチャットで動く保証はない。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "Dynamic workflows（Workflow）は有料プランで使え、Claude Code の CLI・Desktop アプリ・IDE 拡張・claude -p・Agent SDK で動くと書かれている。クラウドセッションでも実行結果が残ると書かれている。claude.ai チャットと Cowork での利用は記載がない。Pro では /config の Dynamic workflows で有効化する。",
+   "source": "https://code.claude.com/docs/en/workflows.md",
+   "relevance": "kit の consult.js などの Workflow script は、チャットでは前提が満たされないと読める。§2 と consult は Claude Code 側の機能として分けて扱うべき。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "プラグインで配る workflow は、プラグインルートの workflows/ ディレクトリに置く。名前はプラグイン名で名前空間が付く（例：/acme-tools:release-audit）。",
+   "source": "https://code.claude.com/docs/en/workflows.md",
+   "relevance": "kit の scripts/ を plugin の workflows/ に移せば、Claude Code 端末では plugin 経由で配れる。チャット向けの配布とは別経路になる。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "ultracode キーワードで workflow が起動するのは、対話プロンプト・IDE 拡張パネル・Remote Control・人の入力を明示した SDK からの入力に限られる。-p、スケジュールタスク、Webhook やコメントの中継では起動しない。",
+   "source": "https://code.claude.com/docs/en/workflows.md",
+   "relevance": "claude.ai チャットで合図の語を言っても Workflow は起きない。合図の約束はチャット用と Claude Code 用で分けて書く必要がある。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "プロフィールの「Instructions for Claude」（Settings 内）に書いた指示は、Claude との全会話に適用される。プロジェクトの指示はそのプロジェクトのチャットにのみ適用される。",
+   "source": "https://support.claude.com/en/articles/10185728-understanding-claude-s-personalization-features",
+   "relevance": "「型だけ使う」の一言を全会話に効かせるならプロフィール、単発の作業を束ねるなら Project。全会話に効く分、呼び出し条件を書いて無関係な会話を乱さない配慮が要る。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "組織の指示（Organization instructions）は Owner だけが設定でき、上限は 3,000 字。個人の指示と矛盾する場合は組織側が優先され、反映には最大1時間かかる。",
+   "source": "https://support.claude.com/en/articles/14546867-set-organization-preferences",
+   "relevance": "組織を持つ場合に限り、全会話の土台として使える。個人の別アカウント群には適用されない。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "メモリは会話の中で topic 単位に自動保存される（現行の仕組み）。プロジェクトごとに独自のメモリを持ち、Cowork はクラウド実行時のみチャットと共有し、ローカル実行では使わない。機微な話題は既定では保存されない。メモリのインポートは実験的で、手順は別記事に送られている。",
+   "source": "https://support.claude.com/en/articles/11817273-how-does-claude-s-memory-work",
+   "relevance": "手続きの保存先としては不向き（保存内容を制御しにくい）。別アカウントへの移送手段としても、このページでは手順を確認できない。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "組織が skill や plugin を配る経路は、claude.ai の Organization settings > Plugins & skills で各プラグインに Not available・Available to install・Installed by default・Required のいずれかを設定する方法。Claude Code の端末には managed settings の extraKnownMarketplaces と enabledPlugins で配る。",
+   "source": "https://claude.com/docs/plugins/org-rollout および https://code.claude.com/docs/en/plugins/org.md",
+   "relevance": "Team/Enterprise を持つ場合のみ、型を全員に強く効かせられる。個人の複数アカウント構成では使えない。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "Claude Code の marketplace は、公式 marketplace 以外は既定で自動更新がオフ。インストールスコープは user・project・local の三つで、project スコープは .claude/settings.json に書かれ、ほかの人は別途 install が必要。",
+   "source": "https://code.claude.com/docs/en/plugins/install.md",
+   "relevance": "kit の更新を各端末で受けるには、手動更新か auto-update の設定が要る。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "operating-kit は v0.1.0 で MIT ライセンスのプラグイン。marketplace を兼ねる。README は、Claude Code では marketplace add と install を、claude.ai と Cowork では operating-kit.skill をアカウントのスキルとして入れるよう案内している。Claude Code の起動は /operating-kit:operating-kit。",
+   "source": "https://github.com/pe-kun333/operating-kit",
+   "relevance": "kit 自身が「アカウントのスキル」と「Claude Code プラグイン」の二経路を想定している。今回の提案はその延長にある。"
+  },
+  {
+   "lens": "claude.ai 側",
+   "fact": "SKILL.md の description は「リポジトリの無い一回きりの会話で使う」場合を発動条件に含む。§4 は、リポジトリや git の無い環境で使う。§1〜§3 は Claude Code 向けの手順。守ること（モデル・effort を変えない、上書きしない 等）はどの使い方にも効く。",
+   "source": "https://raw.githubusercontent.com/pe-kun333/operating-kit/main/skills/operating-kit/SKILL.md（取得ツールによる要約）",
+   "relevance": "claude.ai で効かせる本線は §4。kit の設計と各サーフェスの能力差が噛み合っている。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "claude.ai/code では、リポジトリの選び具の後ろの枝の選び具で feature branch から始められる。一方で「Each task gets its own session and its own branch」とある。",
+   "source": "https://code.claude.com/docs/en/web-quickstart",
+   "relevance": "作業枝を一つにして HANDOFF でつなぐ型と、クラウドの「セッションごとに枝」の作りがぶつかる。始める枝は選べるが、押し込む先は確かめられていない（unverified）。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "plugin.json で version を固定したままコミットを足すと、claude plugin update は「already at the latest version」と出して古い写しのまま。版を上げるか、version を書かずに commit SHA で追わせる。自前の marketplace の自動更新は既定で off。",
+   "source": "https://code.claude.com/docs/en/plugins/host-marketplace#keep-users-up-to-date、https://code.claude.com/docs/en/plugins/loading#versions-and-updates、https://code.claude.com/docs/en/plugins/publish",
+   "relevance": "README:17 の「新しい版は claude plugin update で受け取る」は、今の 0.1.0 固定では効かない。多くの端末で受け取るには、この版の扱いを直すことが先に要る。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "クラウドのセッションで読まれるのは、リポジトリの CLAUDE.md、.claude/skills・agents・commands・rules、一つのリポジトリなら .claude/settings.json のフックと許し、claude.ai で有効にしたスキル。読まれないのは、リポジトリの settings.json で宣言したプラグインと marketplace（enabledPlugins・extraKnownMarketplaces）、~/.claude/CLAUDE.md、~/.claude/skills、ユーザーの settings。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup、https://code.claude.com/docs/en/settings#settings-in-cloud-sessions、https://code.claude.com/docs/en/plugins/loading#plugins-shared-through-a-repository",
+   "relevance": "クラウドでは、プラグインで入れても、リポジトリで宣言してもスキルは出てこない。クラウドに効かせる道は、リポジトリに置くか、アカウントのスキルにするかのどちらか。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "クラウドのセッションには plugin browser が無く、/plugin は使えない（コマンドの一覧では、端末だけで動くもの）。",
+   "source": "https://code.claude.com/docs/en/plugins/install（Cloud session タブ）、https://code.claude.com/docs/en/claude-code-on-the-web#manage-context",
+   "relevance": "README:17 の /plugin install … --marketplace は、Claude Code on the web では使えない。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "スキルの置き場：claude.ai のアカウント（Customize > Skills）で有効にしたスキルは、Cowork・クラウドのセッション・同じアカウントでログインした端末（~/.claude/skills/synced/ に降りる。v2.1.273 以降）で読まれる。~/.claude/skills は、その機械だけで、Cowork とクラウドでは読まれない。",
+   "source": "https://code.claude.com/docs/en/skills（Choose where skills load の表）",
+   "relevance": "別のアカウントで多くのセッションに効かせるには、アカウントのスキルにするのがいちばん広く効く。このクラウドのセッションでも ~/.claude/skills/synced/<id>/ にアカウントのスキル（docs・pdf など）が降りていて、operating-kit は無かった（実地で見た）。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "claude.ai の Customize > Plugins では、Add marketplace（GitHub の owner/repo、非公開なら GitHub App）か Upload plugin（.zip か .plugin、中に .claude-plugin/plugin.json が一つ）で、プラグインをアカウントに足せる。足したプラグインはチャット・Cowork・Claude Code（synced plugin、<name>@synced）に届く。github.com から自分で足した marketplace は Sync automatically を入れられる。",
+   "source": "https://claude.com/docs/plugins/overview、https://claude.com/docs/plugins/platform-support、https://code.claude.com/docs/en/plugins/loading#synced-plugins",
+   "relevance": "marketplace.json（source \"./\"）は既にあるので、別のアカウントで一度 Add marketplace pe-kun333/operating-kit をすれば、多くの面に届く。手間は一度きり。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "synced plugin が読まれるのは Cowork と、claude.ai のアカウントでログインした端末。ANTHROPIC_AUTH_TOKEN などで入っている端末、--bare、--setting-sources に user が無い端末では読まれない。CLI で入れたプラグインはその機械に付き、アカウントには上がらない。",
+   "source": "https://code.claude.com/docs/en/plugins/loading#synced-plugins、https://claude.com/docs/plugins/platform-support",
+   "relevance": "同じ機械で二つのアカウントを使うなら、CLI のユーザー範囲のプラグインは両方に効く（機械に付くため）。逆に、別の機械や別のアカウントには届かない。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "チャットでは、プラグインのスキルとコマンドは読まれるが、agents と hooks は読まれない。dynamic workflows が使える面は、CLI・Desktop・IDE・-p・Agent SDK（とクラウドのセッション）と書かれている。",
+   "source": "https://claude.com/docs/plugins/platform-support、https://code.claude.com/docs/en/workflows#turn-workflows-off・#resume-after-you-leave-the-session",
+   "relevance": "§4（型だけ）の「〈合図の語〉で上位のモデルに読み取り専用で相談」（prompts.md:40）は、claude.ai のチャットではそのとおりには動かない。SKILL.md:31 の「claude.ai・Cowork では §4 だけ」も、Cowork では agents と hooks が動くので、言い過ぎかもしれない。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "プラグインの workflows/ に置いたスクリプト（または manifest の workflows 欄）は、/<plugin>:<meta.name> で走る。リポジトリの .claude/workflows/ に置けば、その repo を clone したみんなが /<name> で走らせられ、args も渡せる。今の consult.js・ideate.js・survey.js には、もう export const meta（name: operating-kit-consult など）がある。",
+   "source": "https://code.claude.com/docs/en/workflows#distribute-a-workflow-in-a-plugin・#save-the-workflow-for-reuse、skills/operating-kit/scripts/consult.js:1-3・ideate.js:1-3・survey.js:1-3",
+   "relevance": "今は docs/operating-kit/workflows/ に写して scriptPath（絶対パス）で渡している（prompts.md:70-75）。プラグインの workflows/ に置けば、写さずに名前で呼べ、版はプラグインと一緒に上がる。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "ultracode のキーワードは、利用者が自分で打った発言でだけ効く（-p・スケジュール・webhook・PR のコメントでは効かない）。Pro では Dynamic workflows を /config で入れる必要があり、規模の目安の既定も small（5 体未満）。workflows を切ると ultracode も使えない。xhigh を持たないモデルでも ultracode は使えない。",
+   "source": "https://code.claude.com/docs/en/workflows#where-the-keyword-works・#set-a-size-guideline・#turn-workflows-off、https://code.claude.com/docs/en/model-config（When ultracode is available）",
+   "relevance": "型の合図の語の作り（芯の 3）とは合っている。ただ、別のアカウントが Pro なら、最初の設定と、型の 5〜10 体の相談・発想（consult 5 体前後、ideate 10 体まで）が規模の目安とずれることを伝える必要がある。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "fable は Fable 5.1、opus は Opus 5.5、sonnet は Sonnet 5.5、haiku は Haiku 5.5 に当たる（CLI の版で上がっていく）。Fable は、プランと席によっては使用クレジットに付き、/model に「Requires usage credits」と出る。",
+   "source": "https://code.claude.com/docs/en/model-config（aliases・Version history）",
+   "relevance": "〈上〉 が使えるか、その費用はアカウントで変わる。CLAUDE.md に「Haiku 5.5」のような版付きの呼び名を書くと、別名より早く古くなる。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "クラウドの環境の setup script は、セッションの前に root で走り、ファイルの写しとして約 7 日キャッシュされる。~/.claude/CLAUDE.md を書いて、ユーザーの指示として読ませる例が公式にある。環境はアカウントごとで、どのリポジトリのセッションにも効く。",
+   "source": "https://code.claude.com/docs/en/cloud-environments#add-personal-preferences-without-committing-to-the-repo・#environment-caching",
+   "relevance": "アカウントで決まる値（モデルの当てはめ、§1.8 の型の芯）を、環境ごとに一度だけ書いて、多くのクラウドのセッションに当てられる。ただし更新はキャッシュの作り直し（script を変えるか、約 7 日）まで届かない。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "SessionStart フックの標準出力と additionalContext は、会話の始めに文脈として入る（10,000 字まで）。リポジトリの .claude/settings.json のフックは、一つのリポジトリのクラウドのセッションでも走る（リポジトリが複数だと走らない）。",
+   "source": "https://code.claude.com/docs/en/hooks（SessionStart）、https://code.claude.com/docs/en/cloud-environments#what-carries-over-from-your-setup",
+   "relevance": "HANDOFF.md の §0 から今の段階を読み、その段階の設定（モデル・effort・ultracode）と一言を出すフックを型のひな形に入れれば、貼る手間と、設定の照らし（CLAUDE.template.md:28）を半分は仕組みにできる。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "claude.ai/code の URL に prompt・prompt_url・repositories・environment を付けると、新しいセッションに前もって入れておける。モデルと枝は入れられない。",
+   "source": "https://code.claude.com/docs/en/web-quickstart#pre-fill-sessions",
+   "relevance": "§2 の返す形（SKILL.md:62-65）に、段階ごとの開始リンク（prompt_url を raw の prompts に向ける）を足せば、一言を貼る手間がクリック一つになる。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "Claude Code の Projects（Pro・Max の公開ベータ）では、project instructions（16,000 字まで）・project memory・Project settings > Plugins・Thread model と effort が、新しいクラウドの thread すべてに効く。リポジトリの settings.json のプラグインは thread でも読まれない。thread には GitHub App が要る。",
+   "source": "https://code.claude.com/docs/en/claude-projects",
+   "relevance": "一つの仕事の多くのクラウドのセッションに、型を一度で当てる道になる。ただし thread のモデルは project で一つなので、段階ごとのモデル分けとは合わない。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "claude.ai にスキルを上げるときは、<skill-name>/SKILL.md が先頭に来る ZIP にする。frontmatter は name・description・license・compatibility・metadata・allowed-tools の六つだけ（ほかがあると止まる）。description は 1,024 字まで。今の SKILL.md は name と description だけで、description は 474 字（UTF-8 で 1,074 バイト）。",
+   "source": "https://claude.com/docs/skills/how-to#package-your-skill、https://code.claude.com/docs/en/skills（frontmatter の注）、skills/operating-kit/SKILL.md:1-4",
+   "relevance": "skills/ の下から operating-kit/ を zip にすれば、そのまま上げられる形。手で作る手間はあるが、作る道は単純。"
+  },
+  {
+   "lens": "型の今の入れ方の手間",
+   "fact": "リポジトリの範囲でプラグインを有効にしても、collaborator の機械に落とすには、それぞれが --scope project で一度入れる必要がある。marketplace を --scope project で足して .claude/settings.json をコミットすると、フォルダを信頼した人に登録される（クラウドでは信頼のダイアログが出ないので登録されない）。",
+   "source": "https://code.claude.com/docs/en/plugins/install#choose-an-install-scope、https://code.claude.com/docs/en/plugins/host-marketplace#register-the-marketplace-for-everyone-in-a-repository、https://code.claude.com/docs/en/plugins/loading",
+   "relevance": "CLI・Desktop の端末なら、型を入れるとき（§1）に extraKnownMarketplaces を足せば、別のアカウントでも、そのリポジトリを開けば足すよう促される。クラウドには効かない。"
+  }
+ ],
+ "verified": null
+}
