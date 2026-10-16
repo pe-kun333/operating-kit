@@ -1,8 +1,8 @@
 # operating-kit（運用の型）
 
-段階・役割・相談の運用の型を、Claude Code のリポジトリに入れるためのプラグインです（スキル一つ）。判断は主担当一人が行い、下調べ → 整備 → 計画とデザイン → 実装を段階ごとの新しいセッションで進め、上位のモデルへの相談は利用者の合図の語のときだけ行います。
+段階・役割・相談の運用の型を、Claude Code のリポジトリに入れるためのプラグインです（スキル一つ）。判断は主担当一人が行い、下調べ → 整備 → 考察と発想 → 計画とデザイン → 実装を段階ごとの新しいセッションで進め、上位のモデルへの相談は利用者の合図の語のときだけ行います。
 
-- プラグインの版：0.1.0　／　型の版：2026-10-15・コミット `6b9b542`
+- プラグインの版：0.1.0　／　型の版：2026-10-15・コミット `6b9b542`（このブランチでは、段階②の分け方などの直しを足した下書き。正本へは未反映）
 - 作者：hihumi　／　ライセンス：MIT（`LICENSE`）
 
 ## 入れ方
@@ -29,4 +29,4 @@ Claude Code のセッションで `/operating-kit:operating-kit` と送るか、
 
 ## English (short)
 
-A Claude Code plugin (one skill, written in Japanese) that installs and applies a staged operating model: one main agent decides; research, preparation, planning/design, and implementation run in separate sessions per stage; consulting a stronger model happens only when the user sends the agreed keyword. Install with `claude plugin marketplace add pe-kun333/operating-kit` then `claude plugin install operating-kit@operating-kit`, and invoke `/operating-kit:operating-kit`.
+A Claude Code plugin (one skill, written in Japanese) that installs and applies a staged operating model: one main agent decides; research, preparation, ideation, planning/design, and implementation run in separate sessions per stage; consulting a stronger model happens only when the user sends the agreed keyword. Install with `claude plugin marketplace add pe-kun333/operating-kit` then `claude plugin install operating-kit@operating-kit`, and invoke `/operating-kit:operating-kit`.

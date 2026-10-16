@@ -1,7 +1,7 @@
 export const meta = {
   name: 'operating-kit-survey',
   description: '話題ごとに読んで、出どころ付きの事実を集める（調査担当。判定しない）',
-  whenToUse: '段階①-1 の下調べ、段階①-2・② で入口や事実を読み足すとき',
+  whenToUse: '段階①-1 の下調べ、段階①-2・②-1・②-2 で入口や事実を読み足すとき',
   phases: [{ title: '集める', detail: '話題ごとに一体。読み取り専用で、事実と出どころだけを返す' }],
 }
 
