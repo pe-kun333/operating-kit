@@ -19,7 +19,7 @@ export const meta = {
 //               名前だけでは渡せない（名前で渡せるのは ideate.js。ここは { key, ask }）
 //   blind       background を見せない観点（目隠し）。true なら全部、観点の名前の一覧ならその観点だけ（観点に blind: true と書いてもよい）。
 //               案を広げさせる観点には見せない（主担当の見立てに引きずられないように）。疑わせる観点には見せる。省くと全部に見せる。
-//               目隠しの観点には、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、計画書の決めごとも読ませない（read は全部の観点に共通なので、
+//               目隠しの観点には、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、見送りの台帳、計画書の決めごとも読ませない（read は全部の観点に共通なので、
 //               blind を使うときは、そこを read に入れない。topic には論点だけを書き、案・おすすめは background に）
 //
 // 返すもの：{ topic, role, model, answered, empty, blind, answers: [{ lens, answer }] }
@@ -61,25 +61,35 @@ const SCHEMA = {
   required: ['conclusion', 'reasons'],
 }
 
+// ---- args の検査（まちがった値を黙って既定に置き換えない） ----
+if (typeof args === 'string') throw new Error('args は JSON の値で渡す（文字列にしない）')
 if (!args || typeof args !== 'object') throw new Error('args が要る（topic・model など。ファイルの頭の説明を見る）')
+const KEYS = ['topic', 'model', 'effort', 'role', 'background', 'read', 'lenses', 'blind']
+const unknownKeys = Object.keys(args).filter((k) => !KEYS.includes(k))
+if (unknownKeys.length) throw new Error(`args に知らない名前がある：${unknownKeys.join('・')}（使える名前：${KEYS.join('・')}）`)
 if (!args.topic) throw new Error('args.topic（論点）が要る')
 if (!args.model) throw new Error('args.model が要る（CLAUDE.md の役割の表の指定。省かない）')
+if (args.role !== undefined && !['相談役', '検討担当'].includes(args.role)) throw new Error("args.role は '相談役' か '検討担当'")
 
-const lenses = Array.isArray(args.lenses) && args.lenses.length ? args.lenses : DEFAULT_LENSES
+if (args.lenses !== undefined && (!Array.isArray(args.lenses) || !args.lenses.length)) throw new Error('args.lenses は観点 { key, ask } の配列（省くと既定の五つ）')
+const lenses = args.lenses || DEFAULT_LENSES
 if (lenses.length > 10) throw new Error('一つのワークフローは 10 体以内（CLAUDE.md の合図の語（ワークフロー）の節）')
 const nonEmpty = (v) => typeof v === 'string' && v.trim() !== ''
 if (!lenses.every((l) => l && typeof l === 'object' && nonEmpty(l.key) && nonEmpty(l.ask))) throw new Error('観点は { key, ask } で渡す（key と ask は空でない文字列。名前だけで渡せるのは ideate.js）')
+const badLens = lenses.filter((l) => Object.keys(l).some((k) => !['key', 'ask', 'blind'].includes(k)) || (l.blind !== undefined && typeof l.blind !== 'boolean'))
+if (badLens.length) throw new Error(`観点に使えるのは key・ask・blind（true か false）だけ：${badLens.map((l) => l.key).join('・')}（読むものは args.read に。観点ごとの read は ideate.js だけ）`)
 const keys = lenses.map((l) => l.key)
 if (new Set(keys).size !== keys.length) throw new Error(`観点の名前が重なっている：${keys.join('・')}`)
 if (!(args.blind === undefined || typeof args.blind === 'boolean' || (Array.isArray(args.blind) && args.blind.every(nonEmpty)))) throw new Error('args.blind は true か、観点の名前の配列（文字列一つでも配列にする）')
 const unknownBlind = Array.isArray(args.blind) ? args.blind.filter((k) => !keys.includes(k)) : []
 if (unknownBlind.length) throw new Error(`blind に lenses に無い観点がある：${unknownBlind.join('・')}（観点の名前：${keys.join('・')}）`)
 const role = args.role || '相談役'
-const read = Array.isArray(args.read) ? args.read : []
+const read = args.read === undefined ? [] : typeof args.read === 'string' ? [args.read] : args.read
+if (!Array.isArray(read) || !read.every(nonEmpty)) throw new Error('args.read は文字列の配列')
 const isBlind = (lens) => args.blind === true || (Array.isArray(args.blind) && args.blind.includes(lens.key)) || lens.blind === true
 const blind = lenses.filter(isBlind).map((l) => l.key)
 const BLIND_KEEP = [
-  '- 主担当の見立てを見ないため、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、計画書の決めごとは読まない（読むものに挙がっていても）。',
+  '- 主担当の見立てを見ないため、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、見送りの台帳、計画書の決めごとは読まない（読むものに挙がっていても）。',
   '- 別案は alternatives に。案そのものには根拠が無くてよい（入れる所が分かれば、ファイルと行を付ける）。主張には根拠を付ける。',
 ]
 

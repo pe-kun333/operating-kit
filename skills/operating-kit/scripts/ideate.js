@@ -1,7 +1,7 @@
 export const meta = {
   name: 'operating-kit-ideate',
   description: '一つの対象について、観点ごとに案を広げ、照らし、伸ばして疑う（検討担当・調査担当。判定しない）',
-  whenToUse: '段階②-1（考察と発想）と、段階②-1・②-2 をまとめたときの広げる周で、案を観点ごとに広げるとき。二周目は round を上げ、観点を替え、known に前の周の案の短い名前を渡す。検討担当を呼ばない段階①-1・段階③・段階の外では使わない',
+  whenToUse: '段階②-1（考察と発想）と、段階②-1・②-2 をまとめたときの広げる周で、案を観点ごとに広げるとき。二周目は round を上げ、観点を替え、known に前の周までの案と主担当が載せた案を「<id> <短い名前>」の形で渡す。検討担当を呼ばない段階①-1・段階③・段階の外では使わない',
   phases: [
     { title: '広げる', detail: '観点ごとに一体（検討担当）。主担当の見立ても前の周の案も見せない（目隠し）。判定しない' },
     { title: '照らす', detail: '案の塊ごとに一体（調査担当）。入れる場所を探し、今あるもの・前提・重なりを付ける。判定しない' },
@@ -28,7 +28,7 @@ export const meta = {
 //   lenses         観点の一覧（10 まで）。文字列は下の LENSES の名前、{ key, ask, read? } はそのまま使う。省くと一周目の既定の六つ。
 //                  一周目は、対象の部分を観点にしたもの（{ key, ask }）と発想の型を半分ずつほど混ぜるとよい。ask に答えの例を書かない
 //   only           起こす観点の名前の一覧（任意）。空だった観点だけを頼み直すときと、観点を二回に分けるとき。
-//                  lenses は元と同じ並びで、round・parts・known も元と同じに渡す（id が変わらない）。返す値は raw-R<周>-2.json に写す
+//                  lenses は元と同じ並びで、round・parts・known も元と同じに渡す（id が変わらない）。返す値は、同じ周の二回目からは raw-R<周>-2.json・-3.json と番号を上げて写す（二回に分けた一回目は raw-R<周>.json。上書きしない）
 //   background     主担当の見立て。伸ばす・疑う相だけに見せる（広げる・照らす相には見せない＝目隠し）
 //   known          前の周までに出た案と、思いつきの置き場・見送りの台帳から主担当が案の一覧に載せた案を、「<id> <短い名前>」の形で
 //                  （例 R1-L2-3 下書きを残す）。照らす相に渡して重なりを見させ（overlaps_known もこの形で返る）、飽和の物差し（counts.fresh）にする。
@@ -50,8 +50,8 @@ export const meta = {
 //   raw は重なりを除く前の数で、量の照らしにそのまま使わない。byKindSelf は広げた担当の自己申告。
 //   fresh は、調査担当が known との重なりを見つけなかった案の数。known が無いとき、knownToExpand のとき、照らされなかった案（unlit）があるときは null。
 //   終わりの目安（docs/main-agent.md §4.2）を照らすのは主担当。asked は頼んだ中身（あとで、どの known で測ったかなどを確かめるため）。
-// 返す値は、要約する前に、通知が示す出力のファイルの JSON の result だけを、docs/wip/<②-1 を始めた日>/ideas/raw-R<周>.json にコマンドで写してコミットする
-//   （例 jq '.result' <出力のファイル> > raw-R1.json。ファイルを丸ごと写さない：ほかの欄にモデル名が入る。同じ周の二回目は raw-R<周>-2.json。セッションが替わると読めない）。
+// 返す値は、要約する前に、通知が示す出力のファイルの JSON の result だけを、案の一覧のフォルダ（docs/wip/<②-1 を始めた日>/ideas/ か ideas-<短い名前>/）の raw-R<周>.json にコマンドで写してコミットする
+//   （例 jq '.result' <出力のファイル> > <案の一覧のフォルダ>/raw-R1.json。ファイルを丸ごと写さない：ほかの欄にモデル名が入る。同じ周の二回目からは raw-R<周>-2.json・-3.json（上書きしない）。セッションが替わると読めない）。
 // 返す値にモデル名は入れていない。写すときも、集め方は run ID と役割名で書く。
 // 照らす・伸ばす・疑う相が空だった塊は、同じ args や only で頼み直さない（同じ id に別の案が入る）。docs/main-agent.md §4.2 のとおり主担当が補う。
 
@@ -136,7 +136,7 @@ const KEEP = '- あなたが守るのは、読み取り専用・このリポジ�
 const PEEK = 'HANDOFF.md、案の一覧のフォルダ（docs/wip/ の ideas/・ideas-*/）の README.md・cards.md・raw-R*.json、思いつきの置き場、見送りの台帳、段階①-1 の索引（docs/wip/<日付>/README.md）の「思いつき」の節'
 const SOURCES = '案の一覧のフォルダの sources/ の材料は、読むものに挙がっていれば読んでよい。'
 const NO_PEEK = `- これも守る：主担当の見立てと前の周の案を見ないため、${PEEK}は読まない。${SOURCES}`
-const NO_PEEK_LIGHT = `- これも守る：主担当の見立てを見ないため、${PEEK}は読まない（前の周の案との重なりは、上に挙げた名前だけで見る）。${SOURCES}`
+const NO_PEEK_KNOWN = `- これも守る：主担当の見立てを見ないため、${PEEK}は読まない（前の周の案は、上に挙げた名前だけで見る）。${SOURCES}` // 前の周の案の名前を見せる相
 const ideaText = (x) => [
   `[${x.id}] ${x.title}（観点：${x.lens}・種類：${x.kind}${x.parts && x.parts.length ? `・部分：${x.parts.join('・')}` : ''}）`,
   `  何を：${x.what}`,
@@ -167,7 +167,7 @@ const spreadPrompt = (lens) => [
   '- 広げていて浮かんだ問い（そもそも何に困っているか、使う人に聞きたいこと、前提への問い）は questions に（三つまで。答えなくてよい）。',
   KEEP,
   '- CLAUDE.md と決まりの文書の決まりは、この相では案を減らす理由にしない。決まりに反する案も出す（反するかどうかは書かなくてよい。次の段階で当てる）。',
-  NO_PEEK,
+  knownToExpand && known.length ? NO_PEEK_KNOWN : NO_PEEK,
 ].join('\n')
 
 const lightPrompt = (chunk, all) => [
@@ -194,7 +194,7 @@ const lightPrompt = (chunk, all) => [
     + (known.length ? '、overlaps_known（重なる、前の周までの案と主担当が載せた案。上の一覧の書き方のまま。無ければ空）。' : '。'),
   '- 重なりは、どこに何があるかの事実だけを書く。出どころの無いことは書かない。',
   KEEP,
-  NO_PEEK_LIGHT,
+  known.length ? NO_PEEK_KNOWN : NO_PEEK,
 ].join('\n')
 
 const growPrompt = (chunk, light) => [
