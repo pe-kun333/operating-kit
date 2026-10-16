@@ -15,7 +15,9 @@ export const meta = {
 //   scope   範囲の説明（HANDOFF.md の §0 の「次の段階」に書いた範囲）
 //
 // 返すもの：{ model, collected, empty, topics: [{ key, result }] }
-// ワークフローの中では書かない。返ってきたものを、セッションが docs/wip/<始めた日>/ に一話題一ファイルで書く。
+// ワークフローの中では書かない。返ってきたものを、セッションが docs/wip/<始めた日>/ に一話題一ファイルで書く
+// （段階②-1 で読み足すときは、案の一覧のフォルダの sources/<話題>.md に書く。段階①-1 の索引は直さない）。
+// model は記録とファイルに写さない（集め方は run ID と役割名で書く）。
 
 const SCHEMA = {
   type: 'object',

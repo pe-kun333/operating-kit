@@ -16,35 +16,46 @@ export const meta = {
 //   topic          対象と、困っている場面だけ（必須）。案・おすすめ・見立ては書かない（それは background へ）
 //   model          CLAUDE.md の役割の表の検討担当の指定（必須。広げる・伸ばす・疑う相。省くとセッションのモデルになるので、省かない）
 //   lightModel     CLAUDE.md の役割の表の調査担当の指定（必須。照らす相。照らすのは読み取りの下働きなので調査担当）
-//   effort         広げる・伸ばす・疑う相の effort（任意。low・medium・high・xhigh・max）
-//   lightEffort    照らす相の effort（任意）
+//   effort         広げる・伸ばす・疑う相の effort（任意。low・medium・high・xhigh・max。CLAUDE.md の役割の表に指定が無ければ省く）
+//   lightEffort    照らす相の effort（任意。同じく、表に指定が無ければ省く）
 //   round          周の番号（任意。既定 1）。案の id に入る
-//   read           全員が読むもの（省くと、CLAUDE.md と、段階①-2 で整えた索引と地図）。
-//                  主担当の見立てを書いた所（HANDOFF.md の §4・§4.2、案の一覧）と、思いつきの置き場・見送りの台帳は入れない
-//   parts          対象の部分の一覧（任意。段階①-2 の地図の系統・面・使う人の場面から選ぶ）。案ごとにどの部分に効くかを返させ、網羅を部分で測る
+//   read           全員が読むもの（省くと、CLAUDE.md と、段階①-2 で整えた索引と地図。観点の read は、これに足す）。索引と地図はパスを名指しして渡す
+//                  （HANDOFF.md は読ませないので、省くと担当が探すことになる）。
+//                  次は入れない（広げる相・照らす相の指示文でも読ませない）：HANDOFF.md、案の一覧のフォルダの README.md・cards.md・raw-R*.json、
+//                  思いつきの置き場、見送りの台帳、段階①-1 の索引の「思いつき」の節。案の一覧のフォルダの sources/ の材料は入れてよい
+//   parts          対象の部分の一覧（任意。段階①-2 の地図の系統・面と、使う人の場面から選ぶ。地図に無い切り口は主担当が材料から立てる）。
+//                  渡すと、案ごとにどの部分に効くかを必ず返させ、網羅を部分で測る
 //   lenses         観点の一覧（10 まで）。文字列は下の LENSES の名前、{ key, ask, read? } はそのまま使う。省くと一周目の既定の六つ。
 //                  一周目は、対象の部分を観点にしたもの（{ key, ask }）と発想の型を半分ずつほど混ぜるとよい。ask に答えの例を書かない
-//   only           起こす観点の名前の一覧（任意）。空だった観点だけを頼み直すとき、lenses は元と同じ並びで渡す（id が変わらない）
+//   only           起こす観点の名前の一覧（任意）。空だった観点だけを頼み直すときと、観点を二回に分けるとき。
+//                  lenses は元と同じ並びで、round・parts・known も元と同じに渡す（id が変わらない）。返す値は raw-R<周>-2.json に写す
 //   background     主担当の見立て。伸ばす・疑う相だけに見せる（広げる・照らす相には見せない＝目隠し）
-//   known          前の周までに出た案の短い名前（思いつきの置き場・見送りの台帳から主担当が案の一覧に載せた案も入れる）。
-//                  照らす相に渡して重なりを見させ、飽和の物差し（counts.fresh）にする。広げる相には見せない
-//   knownToExpand  true なら known を広げる相にも見せる（任意。別のセッションやコードが変わったあとに出し直すときだけ。そのときは飽和で照らさない）
+//   known          前の周までに出た案と、思いつきの置き場・見送りの台帳から主担当が案の一覧に載せた案を、「<id> <短い名前>」の形で
+//                  （例 R1-L2-3 下書きを残す）。照らす相に渡して重なりを見させ（overlaps_known もこの形で返る）、飽和の物差し（counts.fresh）にする。
+//                  広げる相には見せない
+//   knownToExpand  true なら known を広げる相にも見せる（任意。コードや対象が大きく変わったあとに、前の案と重ならない案だけを出し直すときだけ。
+//                  同じ案の一覧で周を足すふつうの二周目には、セッションが替わっても、段階②-2 から戻っても使わない。
+//                  true にするときは、known から置き場・台帳の案を外す。飽和で照らさないので fresh は null）
 //   doubt          false なら伸ばす・疑う相を起こさない（任意。既定 true。false なら一度に起こせる観点が 8 まで増える）
 //
 // 体数：広げるは観点ごとに一体（一度に 6 観点まで。doubt が false なら 8）。照らす（と伸ばす・疑う）は、案を数で均等に分けた塊ごとに一体ずつ。
 //   塊の数は、上限 10 体から広げるの体数を引いた残りに収まるだけ、かつ一塊 8 案ほど。ふつうは 6 観点で一周 10 体。小さな計画は 3 観点で 5〜9 体。
 // 案の id：R<周>-L<観点の番号>-<案の番号>（観点の番号は lenses の並びの位置。例 R2-L1-3）。
-//   主担当が足す案は R<周>-主-<番号>、段階②-2 で足す案は 足-<番号>（docs/main-agent.md §4.1）。
+//   主担当が足す案は R<周>-主-<番号>、関わり方 (B) の相談役の案は R<周>-B-<番号>、段階②-2 で足す案は 足-<番号>（docs/main-agent.md §4.1）。
 //
 // 返すもの：{ topic, round, lenses, parts, roles, ideas: [{ id, lens, title, what, scene, touches, parts, kind, light, grow }],
-//            questions, roots, on_background, thin, counts: { raw, byLens, byPart, byKindSelf, fresh }, empty: { spread, light, grow }, missing: { light, grow } }
+//            questions, roots, on_background, thin, counts: { raw, byLens, byPart, byKindSelf, fresh, unlit }, empty: { spread, light, grow }, missing: { light, grow },
+//            asked: { lenses: [{ key, ask, read }], read, known, knownToExpand, doubt, only, background } }
 // 判定はしない（箱に分けるのは段階②-2 の主担当）。counts は材料で、票ではない。
 //   raw は重なりを除く前の数で、量の照らしにそのまま使わない。byKindSelf は広げた担当の自己申告。
-//   fresh は、調査担当が known との重なりを見つけなかった案の数。終わりの目安（docs/main-agent.md §4.2）を照らすのは主担当。
-// 返す値は、要約する前に、全部を docs/wip/<②-1 を始めた日>/ideas/raw-R<周>.json にコマンドで写してコミットする（通知が示す出力のファイルの JSON の result。セッションが替わると読めない）。
+//   fresh は、調査担当が known との重なりを見つけなかった案の数。known が無いとき、knownToExpand のとき、照らされなかった案（unlit）があるときは null。
+//   終わりの目安（docs/main-agent.md §4.2）を照らすのは主担当。asked は頼んだ中身（あとで、どの known で測ったかなどを確かめるため）。
+// 返す値は、要約する前に、通知が示す出力のファイルの JSON の result だけを、docs/wip/<②-1 を始めた日>/ideas/raw-R<周>.json にコマンドで写してコミットする
+//   （例 jq '.result' <出力のファイル> > raw-R1.json。ファイルを丸ごと写さない：ほかの欄にモデル名が入る。同じ周の二回目は raw-R<周>-2.json。セッションが替わると読めない）。
 // 返す値にモデル名は入れていない。写すときも、集め方は run ID と役割名で書く。
+// 照らす・伸ばす・疑う相が空だった塊は、同じ args や only で頼み直さない（同じ id に別の案が入る）。docs/main-agent.md §4.2 のとおり主担当が補う。
 
-const MAX_AGENTS = 10 // CLAUDE.md の上限（合図の語（ワークフロー）の節）。変えたら workflows/*.js の上限も直す
+const MAX_AGENTS = 10 // CLAUDE.md の上限（合図の語（ワークフロー）の節）。変えたら workflows/*.js の上限も直す（一度に起こせる観点の数は、ここから決まる）
 const PER_CHUNK = 8 // 照らす・伸ばす・疑う一体あたりの案の数の目安
 const KINDS = ['奇抜', 'やめる・減らす', '組み合わせる', '制約を外す', 'そのほか']
 const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max']
@@ -57,7 +68,7 @@ const LENSES = [
   { key: '極端にする', ask: '量・数・速さ・範囲を 10 倍・100 倍にする、または全部に広げると何が起きるかを考え、そこから見える案を出す。' },
   { key: 'ほかから借りる', ask: 'ほかの分野・ほかの道具の仕組みで、ここに持ち込めるものを考える。どの分野・どの道具の、どの仕組みかを名指しする（あなたの知っていることから。リポジトリの外は読みに行かない）。' },
   { key: '組み合わせる', ask: 'このリポジトリに今ある仕組み同士をつなぐと生まれるものを考える。どれとどれかを名指しする。' },
-  { key: '制約を一つ外す', ask: 'CLAUDE.md の決まり・大きな決めごとの一覧・戻すのが重い層から、案の中の制約を一つ選んで外せるとしたら何ができるかを考える。どれを外したかを書く。' },
+  { key: '制約を一つ外す', ask: 'CLAUDE.md の決まり・大きな決めごとの一覧・戻すのが重い層から、制約を一つ選んで外せるとしたら何ができるかを考える。どれを外したかを書く。' },
   { key: '時間をずらす', ask: '一日後・一か月後・一年後に、使う人と仕組みがどうなっているかを思い描き、そのときに要るものを考える。' },
   { key: '既知の欠陥から', ask: '既知の欠陥・危うい所・困りごとの記録を起点に、直すだけでなく、それをなくす・生かす案を考える。' },
   { key: 'ほかの立場', ask: '壊そうとする人・あとで直す人・初めての人のうち一つの立場を選び、その目で見て要るものを考える。選んだ立場を書く。' },
@@ -68,6 +79,9 @@ const FIRST_ROUND = 6
 // ---- args の検査（まちがった値を黙って既定に置き換えない） ----
 if (typeof args === 'string') throw new Error('args は JSON の値で渡す（文字列にしない）')
 if (!args || typeof args !== 'object') throw new Error('args が要る（topic・model・lightModel など。ファイルの頭の説明を見る）')
+const KEYS = ['topic', 'model', 'lightModel', 'effort', 'lightEffort', 'round', 'read', 'parts', 'lenses', 'only', 'background', 'known', 'knownToExpand', 'doubt']
+const unknownKeys = Object.keys(args).filter((k) => !KEYS.includes(k))
+if (unknownKeys.length) throw new Error(`args に知らない名前がある：${unknownKeys.join('・')}（使える名前：${KEYS.join('・')}）`)
 const nonEmpty = (v) => typeof v === 'string' && v.trim() !== ''
 if (!nonEmpty(args.topic)) throw new Error('args.topic（対象と、困っている場面）が要る')
 if (!nonEmpty(args.model)) throw new Error('args.model が要る（CLAUDE.md の役割の表の検討担当の指定。省かない）')
@@ -91,11 +105,11 @@ const parts = strList(args.parts, 'parts')
 const known = strList(args.known, 'known')
 const only = strList(args.only, 'only')
 if (new Set(parts).size !== parts.length) throw new Error('args.parts に同じ名前がある')
-if (new Set(known).size !== known.length) throw new Error('args.known に同じ名前がある（名前で重なりを返させるため）')
+if (new Set(known).size !== known.length) throw new Error('args.known に同じ名前がある（名前で重なりを返させるため。「<id> <短い名前>」の形で渡す）')
 if (args.background !== undefined && typeof args.background !== 'string') throw new Error('args.background は文字列')
 const knownToExpand = args.knownToExpand === true
 const withGrow = args.doubt !== false
-const maxRun = withGrow ? 6 : 8 // 照らす（と伸ばす・疑う）に最低一体ずつを残す
+const maxRun = MAX_AGENTS - (withGrow ? 4 : 2) // 照らす（と伸ばす・疑う）に二塊ぶんを残す（上限 10 なら 6・8）
 
 if (args.lenses !== undefined && (!Array.isArray(args.lenses) || !args.lenses.length)) throw new Error('args.lenses は観点の配列（省くと一周目の既定の六つ）')
 const lenses = (args.lenses || LENSES.slice(0, FIRST_ROUND)).map((l) => {
@@ -117,12 +131,12 @@ const run = lenses.map((lens, i) => ({ lens, n: i + 1 })).filter(({ lens }) => !
 if (run.length > maxRun) throw new Error(`一度に起こす観点は ${maxRun} まで（照らす${withGrow ? '・伸ばす・疑う' : ''}と合わせて ${MAX_AGENTS} 体以内）。only で分けて二回にする`)
 
 // ---- 指示文 ----
-const readList = (extra) => {
-  const all = read.concat(extra || [])
-  return all.length ? all.map((r) => `- ${r}`).join('\n') : '- CLAUDE.md と、段階①-2 で整えた索引と地図（対象に関係する所だけ）'
-}
+const readList = (extra) => (read.length ? read : ['CLAUDE.md と、段階①-2 で整えた索引と地図（対象に関係する所だけ）']).concat(extra || []).map((r) => `- ${r}`).join('\n')
 const KEEP = '- あなたが守るのは、読み取り専用・このリポジトリの文書とコードだけを読む（リポジトリの外のフォルダ、環境変数、鍵は読まない）・判定しない（順位・点数・おすすめ・採否を付けない）の三つ。'
-const NO_PEEK = '- 主担当の見立てと前の周の案を見ないため、HANDOFF.md の §4・§4.2、案の一覧（docs/wip/ の ideas/）、思いつきの置き場、見送りの台帳は読まない。'
+const PEEK = 'HANDOFF.md、案の一覧のフォルダ（docs/wip/ の ideas/・ideas-*/）の README.md・cards.md・raw-R*.json、思いつきの置き場、見送りの台帳、段階①-1 の索引（docs/wip/<日付>/README.md）の「思いつき」の節'
+const SOURCES = '案の一覧のフォルダの sources/ の材料は、読むものに挙がっていれば読んでよい。'
+const NO_PEEK = `- これも守る：主担当の見立てと前の周の案を見ないため、${PEEK}は読まない。${SOURCES}`
+const NO_PEEK_LIGHT = `- これも守る：主担当の見立てを見ないため、${PEEK}は読まない（前の周の案との重なりは、上に挙げた名前だけで見る）。${SOURCES}`
 const ideaText = (x) => [
   `[${x.id}] ${x.title}（観点：${x.lens}・種類：${x.kind}${x.parts && x.parts.length ? `・部分：${x.parts.join('・')}` : ''}）`,
   `  何を：${x.what}`,
@@ -142,7 +156,7 @@ const spreadPrompt = (lens) => [
   '',
   `## あなたの観点：${lens.key}`,
   lens.ask,
-  parts.length ? `\n## 対象の部分（案ごとに、効く部分を parts に。いくつでも）\n${parts.map((p) => `- ${p}`).join('\n')}` : '',
+  parts.length ? `\n## 対象の部分（案ごとに、効く部分を parts に。いくつでも。どれにも効かなければ空の配列）\n${parts.map((p) => `- ${p}`).join('\n')}` : '',
   knownToExpand && known.length ? `\n## 前の周までに出た案（これと重ならない案を出す）\n${known.map((k) => `- ${k}`).join('\n')}` : '',
   '',
   '## 返し方',
@@ -171,16 +185,16 @@ const lightPrompt = (chunk, all) => [
   '',
   '## この周の全部の案（重なりを探すため。照らすのは上の案だけ）',
   all.map((x) => `- [${x.id}] ${x.title}`).join('\n'),
-  known.length ? `\n## 前の周までに出た案（重なりを探すため）\n${known.map((k) => `- ${k}`).join('\n')}` : '',
+  known.length ? `\n## 前の周までの案と、主担当が載せた案（重なりを探すため）\n${known.map((k) => `- ${k}`).join('\n')}` : '',
   '',
   '## 返し方',
   '- items に、照らす案の id ごとに一つ。',
   '- found と entry：入れる場所（ファイルと関数、見た時点の行）。見つからなければ found を false にし、entry に「新しく作る所」と、探した所を書く。見つからないことは欠点として書かない。',
   '- existing（今あるもので使えるもの・重なるもの。ファイルと行）、assumptions（この案が置いている前提）、overlaps（重なる・組み合わさる、この周のほかの案の id）'
-    + (known.length ? '、overlaps_known（重なる、前の周までの案の名前。無ければ空）。' : '。'),
+    + (known.length ? '、overlaps_known（重なる、前の周までの案と主担当が載せた案。上の一覧の書き方のまま。無ければ空）。' : '。'),
   '- 重なりは、どこに何があるかの事実だけを書く。出どころの無いことは書かない。',
   KEEP,
-  NO_PEEK,
+  NO_PEEK_LIGHT,
 ].join('\n')
 
 const growPrompt = (chunk, light) => [
@@ -224,7 +238,7 @@ const spreadSchema = {
           kind: { type: 'string', enum: KINDS, description: '案の種類' },
           ...(parts.length ? { parts: { type: 'array', items: { type: 'string', enum: parts }, description: '効く部分（いくつでも）' } } : {}),
         },
-        required: ['title', 'what', 'scene', 'kind'],
+        required: parts.length ? ['title', 'what', 'scene', 'kind', 'parts'] : ['title', 'what', 'scene', 'kind'],
       },
     },
     thin: { type: 'boolean', description: 'この観点に合う案が少なかったら true' },
@@ -248,7 +262,7 @@ const lightSchema = (chunk, allIds) => ({
         existing: { type: 'string', description: '今あるもので、使えるもの・重なるもの（ファイルと行）' },
         assumptions: { type: 'array', items: { type: 'string' }, description: 'この案が置いている前提' },
         overlaps: { type: 'array', items: { type: 'string', enum: allIds }, description: '重なる、または組み合わさる、この周のほかの案の id' },
-        ...(known.length ? { overlaps_known: { type: 'array', items: { type: 'string', enum: known }, description: '重なる、前の周までの案の名前' } } : {}),
+        ...(known.length ? { overlaps_known: { type: 'array', items: { type: 'string', enum: known }, description: '重なる、前の周までの案と主担当が載せた案' } } : {}),
       },
       required: known.length ? ['found', 'entry', 'overlaps_known'] : ['found', 'entry'],
     }),
@@ -297,7 +311,7 @@ run.forEach(({ lens, n }, i) => {
   const out = outs[i]
   if (!out || !Array.isArray(out.ideas)) { empty.spread.push(lens.key); return }
   if (out.thin || !out.ideas.length) thin.push(lens.key)
-  out.ideas.forEach((idea, j) => ideas.push({ id: `R${round}-L${n}-${j + 1}`, lens: lens.key, ...idea }))
+  out.ideas.forEach((idea, j) => ideas.push({ ...idea, id: `R${round}-L${n}-${j + 1}`, lens: lens.key })) // 振った id と観点を後ろに置き、答えの欄で上書きさせない
   ;(out.questions || []).forEach((q) => questions.push({ from: lens.key, q }))
 })
 if (empty.spread.length) log(`答えの無かった観点：${empty.spread.join('・')}（理由は failures と journal.jsonl で確かめ、only で頼み直す）`)
@@ -353,7 +367,9 @@ ideas.forEach((x) => {
   if (byKindSelf[x.kind] !== undefined) byKindSelf[x.kind] += 1
   if (byPart) (x.parts || []).forEach((p) => { if (byPart[p] !== undefined) byPart[p] += 1 })
 })
-const fresh = known.length ? ideas.filter((x) => x.light && !(x.light.overlaps_known || []).length).length : null
+const unlit = ideas.filter((x) => !x.light).length
+const fresh = known.length && !knownToExpand && !unlit ? ideas.filter((x) => !(x.light.overlaps_known || []).length).length : null
+if (known.length && fresh === null) log(`fresh は数えない（${knownToExpand ? 'knownToExpand のため' : `照らされなかった案が ${unlit}`}）。飽和は主担当が照らす`)
 
 return {
   topic: args.topic,
@@ -366,7 +382,16 @@ return {
   roots,
   on_background: onBackground,
   thin,
-  counts: { raw: ideas.length, byLens, byPart, byKindSelf, fresh },
+  counts: { raw: ideas.length, byLens, byPart, byKindSelf, fresh, unlit },
   empty,
   missing,
+  asked: {
+    lenses: run.map(({ lens }) => ({ key: lens.key, ask: lens.ask, read: lens.read })),
+    read,
+    known,
+    knownToExpand,
+    doubt: withGrow,
+    only,
+    background: args.background || '',
+  },
 }

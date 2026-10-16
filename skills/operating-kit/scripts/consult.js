@@ -15,11 +15,15 @@ export const meta = {
 //   role        '相談役' か '検討担当'（指示文と表示の名前。省くと '相談役'）
 //   background  主担当の見立て（迷っている理由・案・おすすめ）
 //   read        読むものの一覧（例：['CLAUDE.md の「段階」', 'HANDOFF.md §4', 'docs/plan-xxx.md §5']）
-//   lenses      観点の一覧 [{ key, ask, blind? }]（省くと下の五つ。関わり方 (B) の観点と同じ。まとまった案を点検する、絞る用の観点）
+//   lenses      観点の一覧 [{ key, ask, blind? }]（省くと下の五つ。関わり方 (B) の観点と同じ。まとまった案を点検する、絞る用の観点）。
+//               名前だけでは渡せない（名前で渡せるのは ideate.js。ここは { key, ask }）
 //   blind       background を見せない観点（目隠し）。true なら全部、観点の名前の一覧ならその観点だけ（観点に blind: true と書いてもよい）。
-//               案を広げさせる観点には見せない（主担当の見立てに引きずられないように）。疑わせる観点には見せる。省くと全部に見せる
+//               案を広げさせる観点には見せない（主担当の見立てに引きずられないように）。疑わせる観点には見せる。省くと全部に見せる。
+//               目隠しの観点には、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、計画書の決めごとも読ませない（read は全部の観点に共通なので、
+//               blind を使うときは、そこを read に入れない。topic には論点だけを書き、案・おすすめは background に）
 //
 // 返すもの：{ topic, role, model, answered, empty, blind, answers: [{ lens, answer }] }
+// model は記録とファイルに写さない（記録は役割名と、基本・代わりで書く）。
 // 案を観点ごとに広げ、照らし、疑う三つの相が要るときは、ideate.js を使う（段階②-1）。
 // 判定は主担当。票で決めない。journal.jsonl の全文を読んでから判定する（CLAUDE.md の「相談の手続き」の 3）。
 // answer が null の観点は空。理由（利用枠の制限か、ほかの失敗か）は failures と journal.jsonl で確かめる。
@@ -63,10 +67,21 @@ if (!args.model) throw new Error('args.model が要る（CLAUDE.md の役割の�
 
 const lenses = Array.isArray(args.lenses) && args.lenses.length ? args.lenses : DEFAULT_LENSES
 if (lenses.length > 10) throw new Error('一つのワークフローは 10 体以内（CLAUDE.md の合図の語（ワークフロー）の節）')
+const nonEmpty = (v) => typeof v === 'string' && v.trim() !== ''
+if (!lenses.every((l) => l && typeof l === 'object' && nonEmpty(l.key) && nonEmpty(l.ask))) throw new Error('観点は { key, ask } で渡す（key と ask は空でない文字列。名前だけで渡せるのは ideate.js）')
+const keys = lenses.map((l) => l.key)
+if (new Set(keys).size !== keys.length) throw new Error(`観点の名前が重なっている：${keys.join('・')}`)
+if (!(args.blind === undefined || typeof args.blind === 'boolean' || (Array.isArray(args.blind) && args.blind.every(nonEmpty)))) throw new Error('args.blind は true か、観点の名前の配列（文字列一つでも配列にする）')
+const unknownBlind = Array.isArray(args.blind) ? args.blind.filter((k) => !keys.includes(k)) : []
+if (unknownBlind.length) throw new Error(`blind に lenses に無い観点がある：${unknownBlind.join('・')}（観点の名前：${keys.join('・')}）`)
 const role = args.role || '相談役'
 const read = Array.isArray(args.read) ? args.read : []
 const isBlind = (lens) => args.blind === true || (Array.isArray(args.blind) && args.blind.includes(lens.key)) || lens.blind === true
 const blind = lenses.filter(isBlind).map((l) => l.key)
+const BLIND_KEEP = [
+  '- 主担当の見立てを見ないため、HANDOFF.md の §0 の 4・§4.1・§4.2、案の一覧、計画書の決めごとは読まない（読むものに挙がっていても）。',
+  '- 別案は alternatives に。案そのものには根拠が無くてよい（入れる所が分かれば、ファイルと行を付ける）。主張には根拠を付ける。',
+]
 
 const promptFor = (lens) => [
   `あなたは${role}です。読み取り専用です。ファイルを書かない・直さない・git の操作をしない。`,
@@ -87,6 +102,7 @@ const promptFor = (lens) => [
   '- 確かめていないことは unverified に書く。',
   '- 使う人に聞くべきことがあれば questions_for_user に（三つまで）。',
   '- 読むのは、このリポジトリの文書とコードだけ。リポジトリの外のフォルダ、環境変数、鍵は読まない。',
+  ...(isBlind(lens) ? BLIND_KEEP : []),
 ].join('\n')
 
 const optsFor = (lens) => {
