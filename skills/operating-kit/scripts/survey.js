@@ -10,10 +10,10 @@ export const meta = {
 //
 // args（渡す人：段階①-1 のセッション、または主担当。JSON の値で渡し、文字列にしない）：
 //   topics    話題の一覧 [{ key, ask, read?, periphery? }]（必須。10 まで）
-//             key は話題の短い名前（索引のファイル名にも使う）、ask は集めること、read は読む場所の手がかり（利用者が渡した資料のパスもここに）
+//             key は話題の短い名前（索引のファイル名にも使う。/ \ : * ? " < > | は使えない）、ask は集めること、read は読む場所の手がかり（利用者が渡した資料のパスもここに）
 //             periphery: true は、範囲の外の「周辺」の話題（一つまで。段階①-1 の索引の「周辺」の節に書く）
-//   model     CLAUDE.md の役割の表の調査担当の指定（必須。段階①-1 では CLAUDE.md の「段階①-1 の決まり」の 6 の指定。ほかの段階で読み足すときは役割の表の調査担当の指定）
-//   scope     範囲の説明（HANDOFF.md の §0 の「次の段階」に書いた範囲）
+//   model     CLAUDE.md の役割の表の調査担当の指定（必須。空でない文字列。段階①-1 では CLAUDE.md の「段階①-1 の決まり」の 6 の指定。ほかの段階で読み足すときは役割の表の調査担当の指定）
+//   scope     範囲の説明（文字列。HANDOFF.md の §0 の「次の段階」に書いた範囲）
 //   external  true なら、リポジトリの外の資料（Web など）も読んでよい（任意。既定 false。利用者が許したときだけ true にする。CLAUDE.md の「段階①-1 の決まり」の 4）
 //   externalScope  external を true にするときの、利用者が許した範囲（任意。例：「公式ドキュメントだけ」）。指示文に入れる
 //   利用者が渡した資料は、リポジトリの外のパスでも、話題の read に入れれば読める（許しは要らない）
@@ -88,13 +88,15 @@ if (!args || typeof args !== 'object') throw new Error('args が要る（topics�
 const KEYS = ['topics', 'model', 'scope', 'external', 'externalScope']
 const unknownKeys = Object.keys(args).filter((k) => !KEYS.includes(k))
 if (unknownKeys.length) throw new Error(`args に知らない名前がある：${unknownKeys.join('・')}（使える名前：${KEYS.join('・')}）`)
-if (!args.model) throw new Error('args.model が要る（CLAUDE.md の役割の表の調査担当の指定。省かない）')
+if (typeof args.model !== 'string' || !args.model.trim()) throw new Error('args.model が要る（CLAUDE.md の役割の表の調査担当の指定。空でない文字列。省かない）')
+if (args.scope !== undefined && typeof args.scope !== 'string') throw new Error('args.scope は文字列（範囲の説明）')
 if (!Array.isArray(args.topics) || !args.topics.length) throw new Error('args.topics（話題の一覧）が要る')
 if (args.topics.length > 10) throw new Error('一つのワークフローは 10 体以内（CLAUDE.md の合図の語（ワークフロー）の節）')
 if (args.external !== undefined && typeof args.external !== 'boolean') throw new Error('args.external は true か false（利用者が外の資料を許したときだけ true）')
 const TOPIC_KEYS = ['key', 'ask', 'read', 'periphery']
 const topics0 = args.topics.map((t) => {
   if (!t || typeof t.key !== 'string' || !t.key.trim() || typeof t.ask !== 'string' || !t.ask.trim()) throw new Error('話題は { key, ask, read?, periphery? } で渡す（key と ask は空でない文字列）')
+  if (/[\\/:*?"<>|]/.test(t.key)) throw new Error(`話題の key に / \\ : * ? " < > | は使えない（ファイル名になる）：${t.key}`)
   const unknownTopicKeys = Object.keys(t).filter((k) => !TOPIC_KEYS.includes(k))
   if (unknownTopicKeys.length) throw new Error(`話題 ${t.key} に知らない名前がある：${unknownTopicKeys.join('・')}（使える名前：${TOPIC_KEYS.join('・')}）`)
   if (t.periphery !== undefined && typeof t.periphery !== 'boolean') throw new Error(`話題 ${t.key} の periphery は true か false`)
@@ -134,6 +136,7 @@ const results = await parallel(topics0.map((t) => () => agent(promptFor(t), {
   label: `調査:${t.key}`,
   phase: '集める',
   model: args.model,
+  agentType: 'general-purpose',
   schema: SCHEMA,
 })))
 const topics = topics0.map((t, i) => ({ key: t.key, periphery: t.periphery, result: results[i] || null }))
