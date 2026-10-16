@@ -43,7 +43,7 @@ const SCHEMA = {
 if (!args || typeof args !== 'object') throw new Error('args が要る（topics・model。ファイルの頭の説明を見る）')
 if (!args.model) throw new Error('args.model が要る（CLAUDE.md の役割の表の調査担当の指定。省かない）')
 if (!Array.isArray(args.topics) || !args.topics.length) throw new Error('args.topics（話題の一覧）が要る')
-if (args.topics.length > 10) throw new Error('一つのワークフローは 10 体以内（CLAUDE.md の「ultracode」の節）')
+if (args.topics.length > 10) throw new Error('一つのワークフローは 10 体以内（CLAUDE.md の合図の語（ワークフロー）の節）')
 
 const promptFor = (t) => [
   'あなたは調査担当です。読み取り専用です。ファイルを書かない・直さない・git の操作をしない。',

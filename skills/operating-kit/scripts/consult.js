@@ -1,7 +1,7 @@
 export const meta = {
   name: 'operating-kit-consult',
   description: '一つの論点を、観点ごとに読み取り専用で相談する（相談役・検討担当）',
-  whenToUse: '相談の手続きの 2（段階③ で利用者が合図の語を送った論点）、関わり方 (B)(C)、検討担当に案を広げさせ疑わせるとき',
+  whenToUse: '相談の手続きの 2（段階③ で利用者が合図の語を送った論点）、関わり方 (B)(C)、検討担当にまとまった案を疑わせる・絞る観点で見させるとき（段階②-1 で案を広げるのは ideate.js。段階③ と段階の外で名指しの論点を広げるなら、相談役で観点を blind にする）',
   phases: [{ title: '相談', detail: '観点ごとに一体。読み取り専用で、結論と根拠だけを返す' }],
 }
 
@@ -15,9 +15,12 @@ export const meta = {
 //   role        '相談役' か '検討担当'（指示文と表示の名前。省くと '相談役'）
 //   background  主担当の見立て（迷っている理由・案・おすすめ）
 //   read        読むものの一覧（例：['CLAUDE.md の「段階」', 'HANDOFF.md §4', 'docs/plan-xxx.md §5']）
-//   lenses      観点の一覧 [{ key, ask }]（省くと下の五つ。関わり方 (B) の観点と同じ）
+//   lenses      観点の一覧 [{ key, ask, blind? }]（省くと下の五つ。関わり方 (B) の観点と同じ。まとまった案を点検する、絞る用の観点）
+//   blind       background を見せない観点（目隠し）。true なら全部、観点の名前の一覧ならその観点だけ（観点に blind: true と書いてもよい）。
+//               案を広げさせる観点には見せない（主担当の見立てに引きずられないように）。疑わせる観点には見せる。省くと全部に見せる
 //
-// 返すもの：{ topic, role, model, answered, empty, answers: [{ lens, answer }] }
+// 返すもの：{ topic, role, model, answered, empty, blind, answers: [{ lens, answer }] }
+// 案を観点ごとに広げ、照らし、疑う三つの相が要るときは、ideate.js を使う（段階②-1）。
 // 判定は主担当。票で決めない。journal.jsonl の全文を読んでから判定する（CLAUDE.md の「相談の手続き」の 3）。
 // answer が null の観点は空。理由（利用枠の制限か、ほかの失敗か）は failures と journal.jsonl で確かめる。
 
@@ -59,9 +62,11 @@ if (!args.topic) throw new Error('args.topic（論点）が要る')
 if (!args.model) throw new Error('args.model が要る（CLAUDE.md の役割の表の指定。省かない）')
 
 const lenses = Array.isArray(args.lenses) && args.lenses.length ? args.lenses : DEFAULT_LENSES
-if (lenses.length > 10) throw new Error('一つのワークフローは 10 体以内（CLAUDE.md の「ultracode」の節）')
+if (lenses.length > 10) throw new Error('一つのワークフローは 10 体以内（CLAUDE.md の合図の語（ワークフロー）の節）')
 const role = args.role || '相談役'
 const read = Array.isArray(args.read) ? args.read : []
+const isBlind = (lens) => args.blind === true || (Array.isArray(args.blind) && args.blind.includes(lens.key)) || lens.blind === true
+const blind = lenses.filter(isBlind).map((l) => l.key)
 
 const promptFor = (lens) => [
   `あなたは${role}です。読み取り専用です。ファイルを書かない・直さない・git の操作をしない。`,
@@ -69,7 +74,7 @@ const promptFor = (lens) => [
   '',
   '## 論点',
   String(args.topic),
-  args.background ? `\n## 主担当の見立て（迷っている理由・案・おすすめ）\n${args.background}` : '',
+  args.background && !isBlind(lens) ? `\n## 主担当の見立て（迷っている理由・案・おすすめ）\n${args.background}` : '',
   '',
   '## 読むもの',
   read.length ? read.map((r) => `- ${r}`).join('\n') : '- CLAUDE.md と HANDOFF.md（論点に関係する所だけ）',
@@ -92,9 +97,10 @@ const optsFor = (lens) => {
 
 phase('相談')
 log(`${role}・${lenses.length} 体で相談する（model は args の指定）`)
+if (args.background && blind.length) log(`主担当の見立てを見せない観点：${blind.join('・')}`)
 const results = await parallel(lenses.map((lens) => () => agent(promptFor(lens), optsFor(lens))))
 const answers = lenses.map((lens, i) => ({ lens: lens.key, answer: results[i] || null }))
 const empty = answers.filter((a) => !a.answer).map((a) => a.lens)
 if (empty.length) log(`空の答え：${empty.join('・')}（理由は failures と journal.jsonl で確かめる）`)
 
-return { topic: args.topic, role, model: args.model, answered: answers.length - empty.length, empty, answers }
+return { topic: args.topic, role, model: args.model, answered: answers.length - empty.length, empty, blind, answers }

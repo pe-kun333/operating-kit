@@ -5,8 +5,8 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 
 # 運用の型（operating-kit）
 
-- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
-- 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談と下調べのワークフローは `scripts/`。
+- **型の版**：2026-10-15・コミット `6b9b542`。これに、このブランチの直し（2026-10-16：段階②を ②-1 考察と発想・②-2 計画とデザインに分ける、広げる行程の終わりの目安、芯の 9、発想のワークフロー ideate.js と consult.js の目隠し）を足した下書き。直しは正本へまだ入れていないので、版の行が同じでも中身が違う（版を比べるときは、この注も見る）。元は https://github.com/pe-kun333/operating-kit（作者の正本は honeycomb-browser-grok リポジトリの `docs/operating-kit/`）。**正本はその元**で、このスキルは `docs/operating-kit/build.py` で組み立てた写し。
+- 型の芯と、変えてよい所は `references/principles.md`。〈〉の一覧と調べ方は `references/placeholders.md`。段階ごとの一言と合図の早見は `references/prompts.md`。入れる先に写すひな形は `assets/`、相談・発想・下調べのワークフローは `scripts/`（consult.js・ideate.js・survey.js）。
 - このファイルの中のパス（`assets/…` など）は、このスキルのフォルダからの道。
 
 ## この型は何か
@@ -74,7 +74,7 @@ description: 段階・役割・相談の運用の型を扱う。判断は主担�
 - 止まる目安の掛け算（決めきれない × 戻すのが重い）
 - 記録の置き場（今の段階・返事待ち・利用者の答え・相談の記録）と、記録してから止まること
 - モデルと effort を主担当が切り替えない決まり
-- ワークフローの約束（全部の agent() に model、10 体以内、中で編集しない、票で決めない、journal.jsonl を読む）
+- ワークフローの約束（全部の agent() に model、10 体以内、中で編集しない、票で決めない、journal.jsonl を読む、広げる相に主担当の見立てを見せない）
 - 広げる行程（段階②-1）で絞っていないか、判定の前に案の一覧がコミットされているか（芯の 9）
 - `docs/operating-kit/` の版と、このスキルの版。前の版（段階が四つ）なら、段階②-1・②-2 と芯の 9 は「版の違い」として分けて返す（ずれには数えない）
 
