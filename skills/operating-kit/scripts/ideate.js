@@ -15,7 +15,7 @@ export const meta = {
 // args（主担当が渡す。JSON の値で渡し、文字列にしない）：
 //   topic          対象と、困っている場面だけ（必須）。案・おすすめ・見立ては書かない（それは background へ）
 //   model          CLAUDE.md の役割の表の検討担当の指定（必須。広げる・伸ばす・疑う相。省くとセッションのモデルになるので、省かない）
-//   lightModel     CLAUDE.md の役割の表の調査担当の指定（必須。照らす相。照らすのは読み取りの下働きなので調査担当）
+//   lightModel     CLAUDE.md の役割の表の、照らす相の調査担当の指定（必須。照らすのは読み取りの下働きなので調査担当。モデルは、役割の表で照らす相だけ別に決めてある）
 //   effort         広げる・伸ばす・疑う相の effort（任意。low・medium・high・xhigh・max。CLAUDE.md の役割の表に指定が無ければ省く）
 //   lightEffort    照らす相の effort（任意。同じく、表に指定が無ければ省く）
 //   round          周の番号（任意。既定 1）。案の id に入る
@@ -85,7 +85,7 @@ if (unknownKeys.length) throw new Error(`args に知らない名前がある：$
 const nonEmpty = (v) => typeof v === 'string' && v.trim() !== ''
 if (!nonEmpty(args.topic)) throw new Error('args.topic（対象と、困っている場面）が要る')
 if (!nonEmpty(args.model)) throw new Error('args.model が要る（CLAUDE.md の役割の表の検討担当の指定。省かない）')
-if (!nonEmpty(args.lightModel)) throw new Error('args.lightModel が要る（CLAUDE.md の役割の表の調査担当の指定。照らす相。省かない）')
+if (!nonEmpty(args.lightModel)) throw new Error('args.lightModel が要る（CLAUDE.md の役割の表の、照らす相の調査担当の指定。省かない）')
 for (const k of ['effort', 'lightEffort']) {
   if (args[k] !== undefined && !EFFORTS.includes(args[k])) throw new Error(`args.${k} は ${EFFORTS.join('・')} のどれか`)
 }
