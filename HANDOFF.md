@@ -1,24 +1,26 @@
 # HANDOFF（再開用のメモ）
 
-- 更新：2026-10-16 17:50 UTC ごろ。利用者の問い「この型を別の自分のアカウントでも多くのセッションに適用しやすくする方法」について、三つをした。
+- 更新：2026-10-16 18:00 UTC ごろ。利用者の問い「この型を別の自分のアカウントでも多くのセッションに適用しやすくする方法」について、三つをした。
   - 調べものの主張を確かめ直した。
   - 答えを書いた：`dev/research/2026-10-16-multi-account-answer.md`。
   - 利用者が選んだ道 C（claude.ai のアカウントに marketplace を足す）と、足し算（scripts を workflows として呼べるように）を、作業枝に入れた。
-- 次は、利用者が PR #1 を main に入れるか決め、別のアカウントで足して確かめること（§3）。
-- リポジトリ：`pe-kun333/operating-kit`。作業枝：`claude/amazing-goldberg-34ipb3`（main には取り込まない）。PR：https://github.com/pe-kun333/operating-kit/pull/1（開いたまま。マージは利用者が決める）
+- 利用者の指示（2026-10-16）で、PR #1 を main にマージした。HANDOFF.md と dev/ は残したまま。
+- 次は、別のアカウントで claude.ai に marketplace を足し、届くかを確かめること（§3 の 1）。
+- リポジトリ：`pe-kun333/operating-kit`。作業枝：`claude/amazing-goldberg-34ipb3`。PR：https://github.com/pe-kun333/operating-kit/pull/1（2026-10-16 に main へマージ。merge コミットで入れたので、このメモにあるコミットの番号は main でも引ける）。
+- これからの直しは、main から作業枝を作り直して進める。main に入れるのは、利用者の許しのあとだけ。main に入れるときは、plugin.json と README の版を上げる。
 - このメモを最後に書いたセッション：https://claude.ai/code/session_01BigekiHYHBzGoW22RnwsDh。その前：https://claude.ai/code/session_01RPcGoX7kR34K2kB8TDGSKX、さらに前の引き継ぎ：https://claude.ai/code/session_01PQRoCf3cD7JN35oxnMjeqS
-- このファイルと `dev/` は、引き継ぎのための作業用。プラグインの中身ではない（マージの前に外すかは、§4 の未決）。
+- このファイルと `dev/` は、引き継ぎのための作業用。プラグインの中身ではない（main にも残すと、2026-10-16 に利用者が決めた）。
 
 ## 0. 引き継ぐ人へ（最初にすること）
 
-1. `git fetch origin claude/amazing-goldberg-34ipb3` → `git checkout claude/amazing-goldberg-34ipb3` → `git pull origin claude/amazing-goldberg-34ipb3`。`git status` が空であること。
+1. `git fetch origin main` → `git checkout main` → `git pull origin main`。`git status` が空であること。直すときは、main から作業枝を作る。
 2. このファイルを読み、§3 の 1 から続ける。
 3. 確かめの道具：`bash dev/check.sh`（§5）。node と python3 だけで動く。
 4. 前のセッションのコンテナ（/tmp・/root/.claude の下）は残らない見込み。要るものは `dev/` に写してある。
 
 新しいセッションに貼る一言（例）：
 
-> operating-kit の作業枝 `claude/amazing-goldberg-34ipb3` を pull して、HANDOFF.md を読み、§3 の 1 から続けてください。新しいワークフローは、§3 に書いた体数の範囲で起こしてよい。main には取り込まない。
+> operating-kit の main を pull して、HANDOFF.md を読み、§3 の 1 から続けてください。直しは main から作った作業枝で行い、main には取り込まない。新しいワークフローは、§3 に書いた体数の範囲で起こしてよい。
 
 ## 1. 完了した工程
 
@@ -37,7 +39,8 @@
 | 11 | 引き継ぎの用意（このファイル、dev/） | 済み | `3eb6dc3` |
 | 12 | 調べものの主張 84 件を、公式の資料の原文（44 ページを落として）で確かめ直す。確かめ役 2 体（claude-code-guide）と、主担当の直接の照らしと、この VM での試し | 済み：確か 68・一部 16・違う 0。結果は `dev/research/2026-10-16-multi-account.json` の `verified` | `bdc8d30` |
 | 13 | 利用者への答え：別のアカウントの多くのセッションに当てはめる道を比べ、おすすめを一つ | 済み：`dev/research/2026-10-16-multi-account-answer.md`（おすすめは道 C） | `bdc8d30` |
-| 14 | 利用者が選んだ道 C と足し算「scripts を workflows として呼べるように」を形にする。中身は四つ。(1) plugin.json：version 0.2.0、`workflows` 欄（`./skills/operating-kit/scripts/`）。(2) scripts の meta.name を consult・ideate・survey に。(3) README の入れ方（claude.ai に足す手順、CLI と版、クラウドに届かないときの setup script、`.skill` の行を外す）。(4) SKILL.md の呼び名と版の注、dev/check.sh の 5（プラグインの形） | 済み。`claude plugin validate` が通る。`~/.claude/skills/operating-kit` に置くと 0.2.0 として loaded（試しのあと消した） | このメモを直したコミット |
+| 14 | 利用者が選んだ道 C と足し算「scripts を workflows として呼べるように」を形にする。中身は四つ。(1) plugin.json：version 0.2.0、`workflows` 欄（`./skills/operating-kit/scripts/`）。(2) scripts の meta.name を consult・ideate・survey に。(3) README の入れ方（claude.ai に足す手順、CLI と版、クラウドに届かないときの setup script、`.skill` の行を外す）。(4) SKILL.md の呼び名と版の注、dev/check.sh の 5（プラグインの形） | 済み。`claude plugin validate` が通る。`~/.claude/skills/operating-kit` に置くと 0.2.0 として loaded（試しのあと消した） | `b235a50` |
+| 15 | PR #1 を main にマージする（利用者の指示。HANDOFF.md と dev/ は残す。merge コミット） | 済み | このメモを直したコミットと、その merge コミット |
 
 いまの型の段階と、最初の版（`ba8f04d`）からの違いは、前のセッションの最後の答えにまとめた（要点：段階が五つ、①-1 は 〈中〉、①-2 は map/、②-1 は手順・ideate.js・目隠し・測れる終わりの目安・二周・掘る方向、②-2 は判定の表と見送りの台帳、③ は前提の誤りを戻す、型の芯は 9 項）。
 
@@ -45,12 +48,12 @@
 
 | 工程 | 枝 | 状態 |
 |---|---|---|
-| 利用者の問い「この型を別の自分のアカウントでも、多くのセッションに適用しやすくする方法」 | 作業枝 | 答えを書き、利用者の選び（道 C と workflows）を形にした。残りは main に入れることと、別のアカウントでの確かめ（§3） |
+| 利用者の問い「この型を別の自分のアカウントでも、多くのセッションに適用しやすくする方法」 | main（PR #1 でマージ済み） | 答えを書き、利用者の選び（道 C と workflows）を形にし、main に入れた。残りは、別のアカウントでの確かめ（§3 の 1） |
 
 - 答え：`dev/research/2026-10-16-multi-account-answer.md`。
   - おすすめは道 C：別のアカウントの claude.ai の Customize > Plugins に、marketplace `pe-kun333/operating-kit` を足す。
-  - その前に、PR #1 を main に入れ、version を上げる。
-  - クラウドに届かないときと、main に入れる前に使うときは、道 D：環境の setup script で `~/.claude/skills/operating-kit` に clone する。
+  - PR #1 を main に入れ、version を 0.2.0 に上げた（済み）。
+  - クラウドに届かないときは、道 D：環境の setup script で `~/.claude/skills/operating-kit` に clone する。
 - 根拠：`dev/research/2026-10-16-multi-account.json` に四つある。
   - `lenses`：調べ役 4 体の答え。
   - `claims`：主張 84 件。
@@ -68,21 +71,18 @@
 
 | 順 | 工程 | 担当（モデル） |
 |---|---|---|
-| 1 | 利用者が PR #1 を main に入れると決めたら、入れる前に見ること。(a) 版：plugin.json と README を 0.2.0 のままでよいか（この後も、main に入れるたびに上げる）。(b) このファイルと dev/ を外すか（§4）。main に入れるのは利用者の許しのあとだけ | 利用者が決める。直しは主担当 |
-| 2 | 別のアカウントで、答えの §3.2 と §4 を確かめる。(a) claude.ai に marketplace を足す。`workflows` 欄（Claude Code だけの欄）があっても断られないか。資料の部品の表に workflows は無い。断られる部品として挙がっているのは `bin/` だけ。(b) 新しいクラウドのセッションで `claude plugin list` を見て、`operating-kit@synced` が出るか。(c) `/operating-kit:consult` などの名前で呼べるか。(d) 出なければ、README の setup script を入れ、`operating-kit@skills-dir` が出るか。(e) clone が通るか。main に入れる前に試すなら、setup script の REF を作業枝にする。足す・確かめるのは、利用者がそのアカウントで行うか、そのアカウントのセッションで主担当が行う | 利用者、または主担当 |
-| 3 | 本番の走り：実際のリポジトリで、段階①-1（survey.js）→ ①-2 → ②-1（ideate.js、4 観点・二周）→ ②-2 を通して回す（まだ一度もしていない） | 主担当（Opus 5.5）。段階①-1 と照らす相は 〈中〉（Sonnet 5.5）、検討担当は 〈主〉（Opus 5.5）、相談役は 〈上〉（Fable 5.1） |
-| 4 | 正本（honeycomb-browser-grok の `docs/operating-kit/`）へ写す。利用者は「後で」と答えた。正本はこのセッションのリポジトリには無い（10/14 の zip だけ）。写すときは、正本の build.py が組み立てる plugin.json にも、今回の三つを入れる：version、`workflows` 欄、scripts の meta.name（consult・ideate・survey）。入れないと、組み立て直したときに消える | 利用者が時期と正本の場所を決めてから、主担当 |
+| 1 | 別のアカウントで、答えの §3.2 と §4 を確かめる。(a) claude.ai に marketplace を足す。`workflows` 欄（Claude Code だけの欄）があっても断られないか。資料の部品の表に workflows は無い。断られる部品として挙がっているのは `bin/` だけ。(b) 新しいクラウドのセッションで `claude plugin list` を見て、`operating-kit@synced` が出るか。(c) `/operating-kit:consult` などの名前で呼べるか。(d) 出なければ、README の setup script を入れ、`operating-kit@skills-dir` が出るか。(e) clone が通るか。足す・確かめるのは、利用者がそのアカウントで行うか、そのアカウントのセッションで主担当が行う | 利用者、または主担当 |
+| 2 | 本番の走り：実際のリポジトリで、段階①-1（survey.js）→ ①-2 → ②-1（ideate.js、4 観点・二周）→ ②-2 を通して回す（まだ一度もしていない） | 主担当（Opus 5.5）。段階①-1 と照らす相は 〈中〉（Sonnet 5.5）、検討担当は 〈主〉（Opus 5.5）、相談役は 〈上〉（Fable 5.1） |
+| 3 | 正本（honeycomb-browser-grok の `docs/operating-kit/`）へ写す。利用者は「後で」と答えた。正本はこのセッションのリポジトリには無い（10/14 の zip だけ）。写すときは、正本の build.py が組み立てる plugin.json にも、今回の三つを入れる：version、`workflows` 欄、scripts の meta.name（consult・ideate・survey）。入れないと、組み立て直したときに消える | 利用者が時期と正本の場所を決めてから、主担当 |
 
 モデルの呼び名は、この型を作った時点（2026-10）の例。型の文書の中では 〈小〉〈中〉〈主〉〈上〉 で書いてある。
 
 ## 4. 未決の判断事項（利用者が決める）
 
-- **PR #1 を main に入れるか、いつ入れるか**。道 C は、main に入るまで最初の版（`ba8f04d`、0.1.0）しか届かない。
-- **プラグインの版**：作業枝では 0.2.0 に上げた（道 C の前提）。main に入れるたびに上げるか、version を省いて commit で追わせるか。いまは「上げる」。claude.ai 側の版の見方は資料に無い。
-- **このファイルと dev/ を、main に入れる前に外すか**：marketplace の source は `./` なので、残すとプラグインの中に入る。setup script で clone したときも入る（読まれはしないが、場所を取る）。
-- **正本へ写す時期と、正本の場所**（§3 の 4）。
+- **プラグインの版**：0.2.0 で main に入れた。この先、main に入れるたびに上げるか、version を省いて commit で追わせるか。いまは「上げる」。claude.ai 側の版の見方は資料に無い。
+- **正本へ写す時期と、正本の場所**（§3 の 3）。
 
-決めたこと（参考）：別のアカウントへは道 C（claude.ai のアカウントに marketplace を足す）。足し算は scripts を workflows として呼べるようにすることだけ（2026-10-16）。ふつうの計画は一周 4 観点で二周以上（2026-10-16）。正本へは後で写す（2026-10-16）。段階①-1 は 〈中〉（2026-10-16。前の比べの試しでは差が小さかったが、利用者の決め）。
+決めたこと（参考）：PR #1 を main にマージする。HANDOFF.md と dev/ は残す（2026-10-16。marketplace の source が `./` なので、プラグインの中にも入るが、読まれはしない）。別のアカウントへは道 C（claude.ai のアカウントに marketplace を足す）。足し算は scripts を workflows として呼べるようにすることだけ（2026-10-16）。ふつうの計画は一周 4 観点で二周以上（2026-10-16）。正本へは後で写す（2026-10-16）。段階①-1 は 〈中〉（2026-10-16。前の比べの試しでは差が小さかったが、利用者の決め）。
 
 ## 5. ビルドとテストのコマンド
 
